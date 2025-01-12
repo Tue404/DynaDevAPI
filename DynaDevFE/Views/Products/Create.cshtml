@@ -1,0 +1,219 @@
+﻿@model DynaDevFE.Models.SanPhamViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+}
+
+<h2>Thêm sản phẩm mới</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3" >
+        <label asp-for="MaSP" hidden class="form-label">Mã sản phẩm </label>
+        <input asp-for="MaSP" value="123" class="form-control" type="hidden" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="TenSanPham" class="form-label">Tên sản phẩm</label>
+        <input asp-for="TenSanPham" class="form-control" />
+        <span asp-validation-for="TenSanPham" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Gia" class="form-label">Giá</label>
+        <input asp-for="Gia" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Gia" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="MoTa" class="form-label">Mô tả</label>
+        <textarea asp-for="MoTa" class="form-control"></textarea>
+        <span asp-validation-for="MoTa" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SoLuongTrongKho" class="form-label">Số lượng trong kho</label>
+        <input asp-for="SoLuongTrongKho" class="form-control" type="number" />
+        <span asp-validation-for="SoLuongTrongKho" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="TinhTrang" class="form-label">Tình trạng</label>
+        <input asp-for="TinhTrang" class="form-control" />
+        <span asp-validation-for="TinhTrang" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="MaLoai" class="form-label">Loại sản phẩm</label>
+        <input asp-for="MaLoai" class="form-control" />
+        <span asp-validation-for="MaLoai" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="AnhSPs" class="form-label">Ảnh sản phẩm</label>
+        <input asp-for="AnhSPs" type="file" class="form-control" id="imageInput" multiple accept="image/*" />
+    </div>
+
+    <!-- Khu vực hiển thị ảnh đã chọn -->
+    <div class="mb-3" id="imagePreviewContainer">
+
+        <div id="imagePreview" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const imageInput = document.getElementById('imageInput');
+    const imagePreviewContainer = document.getElementById('imagePreview');
+    let dt = new DataTransfer(); // DataTransfer để quản lý file
+
+    imageInput.addEventListener('change', function (event) {
+        // Lấy danh sách file mới từ input
+        const files = event.target.files;
+
+        // Thêm các file mới vào DataTransfer
+        Array.from(files).forEach((file) => {
+            if (file.type.startsWith('image/')) {
+                dt.items.add(file); // Thêm file vào DataTransfer
+                previewImage(file); // Hiển thị ảnh
+            }
+        });
+
+        // Gán danh sách file đã cập nhật cho input
+        imageInput.files = dt.files;
+    });
+
+    function previewImage(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            // Tạo khung chứa ảnh
+            const imageWrapper = document.createElement('div');
+            imageWrapper.style.position = 'relative';
+            imageWrapper.style.width = '100px';
+            imageWrapper.style.height = '100px';
+            imageWrapper.style.overflow = 'hidden';
+            imageWrapper.style.border = '1px solid #ccc';
+            imageWrapper.style.borderRadius = '5px';
+            imageWrapper.style.marginRight = '10px';
+
+            // Ảnh
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+
+            // Nút xóa
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'X';
+            deleteButton.style.position = 'absolute';
+            deleteButton.style.top = '5px';
+            deleteButton.style.right = '5px';
+            deleteButton.style.backgroundColor = 'red';
+            deleteButton.style.color = 'white';
+            deleteButton.style.border = 'none';
+            deleteButton.style.borderRadius = '50%';
+            deleteButton.style.cursor = 'pointer';
+            deleteButton.style.padding = '5px';
+
+            deleteButton.addEventListener('click', function () {
+                // Xóa file khỏi DataTransfer
+                const index = Array.from(dt.files).indexOf(file);
+                if (index > -1) {
+                    dt.items.remove(index); // Xóa file khỏi DataTransfer
+                }
+
+                // Gán lại danh sách file cho input
+                imageInput.files = dt.files;
+
+                // Xóa ảnh khỏi giao diện
+                imageWrapper.remove();
+            });
+
+            // Thêm ảnh và nút xóa vào giao diện
+            imageWrapper.appendChild(img);
+            imageWrapper.appendChild(deleteButton);
+            imagePreviewContainer.appendChild(imageWrapper);
+        };
+
+        // Đọc file ảnh
+        reader.readAsDataURL(file);
+    }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', function (event) {
+            // Ngăn hành vi mặc định nếu có lỗi
+            let isValid = true;
+
+            // Lấy các trường input từ form
+            const maSP = form.querySelector('[name="MaSP"]');
+            const tenSanPham = form.querySelector('[name="TenSanPham"]');
+            const maLoai = form.querySelector('[name="MaLoai"]');
+            const gia = form.querySelector('[name="Gia"]');
+            const soLuongTrongKho = form.querySelector('[name="SoLuongTrongKho"]');
+            const moTa = form.querySelector('[name="MoTa"]');
+            const tinhTrang = form.querySelector('[name="TinhTrang"]');
+            const imageInput = form.querySelector('#imageInput');
+
+            // Xóa các thông báo lỗi cũ
+            form.querySelectorAll('.error-message').forEach(el => el.remove());
+
+            // Hàm thêm thông báo lỗi
+            function showError(input, message) {
+                const error = document.createElement('span');
+                error.className = 'text-danger error-message';
+                error.textContent = message;
+                input.insertAdjacentElement('afterend', error);
+                isValid = false;
+            }
+
+            // Kiểm tra từng trường
+            if (!maSP.value.trim()) {
+                showError(maSP, 'Mã sản phẩm  không được dể trống.');
+            }
+
+            if (!tenSanPham.value.trim()) {
+                showError(tenSanPham, 'Tên sản phẩm không được dể trống.');
+            } else if (tenSanPham.value.length > 100) {
+                showError(tenSanPham, 'Tên sản phẩm không được vượt quá 100 ký tự.');
+            }
+
+            if (!maLoai.value.trim()) {
+                showError(maLoai, 'Mã loại không được để trống.')
+            }
+
+            if (!gia.value.trim()) {
+                showError(gia, 'Giá không được dể trống.');
+            } else if
+             (!gia.value.trim() || parseFloat(gia.value) <= 0) {
+                showError(gia, 'Giá sản phẩm phải lớn hơn 0.');
+            }
+
+            if (!moTa.value.trim()) {
+                showError(moTa,'Mô tả không được để trống.')
+            }
+
+            if (!gia.value.trim()) {
+                showError(soLuongTrongKho, 'Số lượng không được dể trống.');
+            } else if 
+                (!soLuongTrongKho.value.trim() || parseInt(soLuongTrongKho.value) < 0) {
+                showError(soLuongTrongKho, 'Số lượng trong kho phải là số nguyên dương.');
+            }
+
+            if (!tinhTrang.value.trim()) {
+                showError(tinhTrang, 'Tình trạng không được để trống.');
+            }
+
+            if (imageInput.files.length === 0) {
+                showError(imageInput, 'Vui lòng chọn ít nhất một ảnh.');
+            }
+
+            // Nếu không hợp lệ, ngăn form submit
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,65 @@
+﻿@model List<DynaDevFE.Models.SanPhamViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="text-center my-4">
+    <h2 class="product-title">Chi tiết sản phẩm</h2>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    var product = Model.First(); <!-- Lấy sản phẩm đầu tiên -->
+
+    <div class="card mx-auto" style="max-width: 800px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+        <div class="row g-0">
+            <!-- Hình ảnh sản phẩm -->
+            <div class="col-md-6">
+                @if (product.DanhSachAnh != null && product.DanhSachAnh.Any())
+                {
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @foreach (var anh in product.DanhSachAnh)
+                            {
+                                <div class="carousel-item @(product.DanhSachAnh.IndexOf(anh) == 0 ? "active" : "")">
+                                    <img src="@anh" class="d-block w-100" alt="Ảnh sản phẩm" style="max-height: 400px; object-fit: cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/400" class="img-fluid" alt="Không có ảnh" style="max-height: 400px; object-fit: cover;">
+                }
+            </div>
+
+            <!-- Thông tin sản phẩm -->
+            <div class="col-md-6">
+                <div class="card-body">
+                    <h3><strong>Mã sản phẩm:</strong> @product.MaSP</h3>
+                    <h3 class="card-title"><strong>Tên sản phẩm: </strong>@product.TenSanPham</h3>
+                    <h4 class="text-danger mb-3">@product.Gia.ToString("C")</h4>
+                    <p><strong>Loại sản phẩm:</strong> @product.MaLoai</p>
+                    <p><strong>Tình trạng:</strong> @product.TinhTrang</p>
+                    <p><strong>Số lượng trong kho:</strong> @product.SoLuongTrongKho</p>
+                    <p><strong>Mô tả:</strong> @product.MoTa</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-center text-danger">Không tìm thấy sản phẩm.</p>
+}

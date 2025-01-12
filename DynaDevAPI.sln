@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynaDevAPI", "DynaDevAPI\DynaDevAPI.csproj", "{17156669-D598-4DE5-9CCB-AB6053293B3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynaDevFE", "DynaDevFE\DynaDevFE.csproj", "{17C78AF4-DDC3-455A-879A-53F973357B6A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{17156669-D598-4DE5-9CCB-AB6053293B3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17156669-D598-4DE5-9CCB-AB6053293B3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17156669-D598-4DE5-9CCB-AB6053293B3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17156669-D598-4DE5-9CCB-AB6053293B3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17C78AF4-DDC3-455A-879A-53F973357B6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17C78AF4-DDC3-455A-879A-53F973357B6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17C78AF4-DDC3-455A-879A-53F973357B6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17C78AF4-DDC3-455A-879A-53F973357B6A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0423D859-DEEF-4EE5-A036-6763DB92B1F2}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,153 @@
+﻿@model DynaDevFE.Models.SanPhamViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+
+
+
+<h2>Sửa Sản Phẩm</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <!-- Mã Sản Phẩm (ẩn, không chỉnh sửa được) -->
+    <input type="hidden" asp-for="MaSP" />
+
+    <div class="mb-3">
+        <label asp-for="TenSanPham" class="form-label">Tên Sản Phẩm</label>
+        <input asp-for="TenSanPham" class="form-control" />
+        <span asp-validation-for="TenSanPham" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MaLoai" class="form-label">Mã Loại</label>
+        <input asp-for="MaLoai" class="form-control" />
+        <span asp-validation-for="MaLoai" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Gia" class="form-label">Giá</label>
+        <input asp-for="Gia" class="form-control" />
+        <span asp-validation-for="Gia" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MoTa" class="form-label">Mô Tả</label>
+        <textarea asp-for="MoTa" class="form-control"></textarea>
+        <span asp-validation-for="MoTa" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SoLuongTrongKho" class="form-label">Số Lượng Trong Kho</label>
+        <input asp-for="SoLuongTrongKho" class="form-control" />
+        <span asp-validation-for="SoLuongTrongKho" class="text-danger"></span>
+    </div>
+
+   
+    <div class="mb-3">
+        <label asp-for="TinhTrang" class="form-label">Tình Trạng</label>
+        <select asp-for="TinhTrang" class="form-select">
+            <option value="Còn hàng">Còn hàng</option>
+            <option value="Hết hàng">Hết hàng</option>
+        </select>
+        <span asp-validation-for="TinhTrang" class="text-danger"></span>
+    </div>
+    <!-- Danh sách ảnh hiện tại -->
+    <div class="mb-3">
+        <label class="form-label">Ảnh hiện tại</label>
+        <div id="currentImagePreview" style="display: flex; flex-wrap: wrap; gap: 10px;">
+            @if (Model.DanhSachAnh != null && Model.DanhSachAnh.Any())
+            {
+                @foreach (var anh in Model.DanhSachAnh)
+                {
+                    <div style="position: relative; width: 100px; height: 100px; overflow: hidden; border: 1px solid #ccc; border-radius: 5px;">
+                        <img src="@anh" alt="Ảnh sản phẩm" style="width: 100%; height: 100%; object-fit: cover;" />
+                        <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: 5px; right: 5px;"
+                                onclick="removeCurrentImage(this, '@anh')">
+                            X
+                        </button>
+                    </div>
+                }
+            }
+            else
+            {
+                <span>Không có ảnh nào.</span>
+            }
+        </div>
+    </div>
+
+    <!-- Thêm ảnh mới -->
+    <div class="mb-3">
+        <label asp-for="AnhSPs" class="form-label">Thêm ảnh mới</label>
+        <input asp-for="AnhSPs" type="file" class="form-control" id="newImageInput" name="AnhSPs" multiple />
+        <div id="newImagePreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+    </div>
+     <input type="hidden" id="removedImages" name="RemovedImages" />
+
+    <button type="submit" class="btn btn-primary">Cập Nhật</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
+
+<script>
+    let removedImages = []; // Danh sách ảnh cần xóa
+    const removedImagesInput = document.getElementById('removedImages');
+    const imageInput = document.getElementById('newImageInput');
+    const newImagePreviewContainer = document.getElementById('newImagePreview');
+    let dt = new DataTransfer(); // DataTransfer quản lý file mới
+
+    // Xóa ảnh hiện tại
+    function removeCurrentImage(button, imagePath) {
+        button.parentElement.remove(); // Xóa ảnh khỏi giao diện
+        removedImages.push(imagePath); // Thêm ảnh vào danh sách cần xóa
+        removedImagesInput.value = JSON.stringify(removedImages); // Cập nhật giá trị input ẩn
+    }
+
+    // Hiển thị ảnh mới khi chọn
+    imageInput.addEventListener('change', function (event) {
+        const files = event.target.files;
+        Array.from(files).forEach((file) => {
+            if (file.type.startsWith('image/')) {
+                dt.items.add(file); // Thêm file mới vào DataTransfer
+                previewNewImage(file); // Hiển thị ảnh mới
+            }
+        });
+        imageInput.files = dt.files; // Gán lại danh sách file vào input
+    });
+
+    // Hiển thị xem trước ảnh mới
+    function previewNewImage(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imageWrapper = document.createElement('div');
+            imageWrapper.style = "position: relative; width: 100px; height: 100px; overflow: hidden; border: 1px solid #ccc; border-radius: 5px; margin-right: 10px;";
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style = "width: 100%; height: 100%; object-fit: cover;";
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'X';
+            deleteButton.style = "position: absolute; top: 5px; right: 5px; background-color: red; color: white; border: none; border-radius: 50%; cursor: pointer; padding: 5px;";
+            deleteButton.addEventListener('click', function () {
+                const index = Array.from(dt.files).indexOf(file);
+                if (index > -1) {
+                    dt.items.remove(index); // Xóa file khỏi DataTransfer
+                }
+                imageInput.files = dt.files; // Cập nhật lại input file
+                imageWrapper.remove(); // Xóa ảnh khỏi giao diện
+            });
+
+            imageWrapper.appendChild(img);
+            imageWrapper.appendChild(deleteButton);
+            newImagePreviewContainer.appendChild(imageWrapper);
+        };
+        reader.readAsDataURL(file); // Đọc file
+    }
+
+    // Cập nhật input ẩn khi submit form
+    document.querySelector("form").addEventListener("submit", function () {
+        removedImagesInput.value = JSON.stringify(removedImages); // Cập nhật danh sách ảnh bị xóa
+    });
+
+</script>
