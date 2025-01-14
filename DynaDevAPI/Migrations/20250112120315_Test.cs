@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DynaDevAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class addAllToDB : Migration
+    public partial class Test : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,7 +33,7 @@ namespace DynaDevAPI.Migrations
                 name: "LoaiSPs",
                 columns: table => new
                 {
-                    MaLoai = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MaLoai = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     TenLoai = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AnhLoai = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -65,13 +65,13 @@ namespace DynaDevAPI.Migrations
                 columns: table => new
                 {
                     MaSP = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    MaLoai = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TenSanPham = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaLoai = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    TenSanPham = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MoTa = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MoTa = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     SoLuongTrongKho = table.Column<int>(type: "int", nullable: false),
                     NgayThem = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    TinhTrang = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
