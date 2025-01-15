@@ -49,8 +49,7 @@ namespace DynaDevFE.Controllers
                         product.DanhSachAnh = imageObjects.Select(img => img.TenAnh).ToList();
                     }
 
-                }
-
+                }                      
                 return View(products);
             }
 
@@ -123,7 +122,6 @@ namespace DynaDevFE.Controllers
         public async Task<IActionResult> Create(SanPhamViewModel productViewModel)
         {
             var random = new Random();
-
             int randomvalue = random.Next(0, 999);
             string ma = "SP" + randomvalue.ToString("D3");
 
@@ -195,6 +193,8 @@ namespace DynaDevFE.Controllers
 
             return RedirectToAction("Index");
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(string id)

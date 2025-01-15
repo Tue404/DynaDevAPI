@@ -10,7 +10,7 @@ namespace DynaDevAPI.Models
         [EmailAddress]
         public string Email { get; set; }
         public string MatKhau { get; set; }
-        public int SDT { get; set; }
+        public string SDT { get; set; }
         public string DiaChi { get; set; }
         public string TinhTrang { get; set; }
         public DateTime NgayDangKy { get; set; }

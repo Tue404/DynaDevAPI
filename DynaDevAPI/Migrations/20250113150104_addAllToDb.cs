@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DynaDevAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class addAllToDB : Migration
+    public partial class addAllToDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace DynaDevAPI.Migrations
                     TenKH = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MatKhau = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SDT = table.Column<int>(type: "int", nullable: false),
+                    SDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NgayDangKy = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -50,7 +50,7 @@ namespace DynaDevAPI.Migrations
                     TenNV = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MatKhau = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SDT = table.Column<int>(type: "int", nullable: false),
+                    SDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NgayVaoLam = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -66,12 +66,12 @@ namespace DynaDevAPI.Migrations
                 {
                     MaSP = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MaLoai = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TenSanPham = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TenSanPham = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MoTa = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MoTa = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     SoLuongTrongKho = table.Column<int>(type: "int", nullable: false),
                     NgayThem = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    TinhTrang = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
