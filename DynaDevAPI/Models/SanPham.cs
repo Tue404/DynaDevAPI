@@ -9,7 +9,7 @@ namespace DynaDevAPI.Models
 
         public string MaSP { get; set; }
         [Required(ErrorMessage = "Mã loại không được để trống.")]
-        [StringLength(50, ErrorMessage = "Mã loại sản phẩm không được vượt quá 50 ký tự.")]
+        
         public string MaLoai { get; set; }
 
         [Required(ErrorMessage = "Tên sản phẩm không được để trống.")]

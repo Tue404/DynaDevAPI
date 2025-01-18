@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DynaDevAPI.Models
 {
@@ -10,12 +11,14 @@ namespace DynaDevAPI.Models
         [EmailAddress]
         public string Email { get; set; }
         public string MatKhau { get; set; }
-        public int SDT { get; set; }
+        public string SDT { get; set; }
         public string DiaChi { get; set; }
         public string TinhTrang { get; set; }
         public DateTime NgayDangKy { get; set; }
 
-        public ICollection<DonHang> DonHangs { get; set; }
-        public ICollection<DanhGia> DanhGias { get; set; }
+    
+        public ICollection<DonHang>? DonHangs { get; set; } = null;
+
+        public ICollection<DanhGia>? DanhGias { get; set; } = null;
     }
 }

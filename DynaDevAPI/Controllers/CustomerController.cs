@@ -1,6 +1,5 @@
 ﻿using DynaDevAPI.Data;
 using DynaDevAPI.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,23 +16,194 @@ namespace DynaDevAPI.Controllers
             _db = db;
         }
 
+        // GET: api/Customer
         [HttpGet]
         public async Task<ActionResult<IEnumerable<KhachHang>>> GetKhachHangs()
         {
-            return await _db.KhachHangs.ToListAsync();
+            try
+            {
+                return Ok(await _db.KhachHangs.ToListAsync());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy danh sách khách hàng.", error = ex.Message });
+            }
         }
 
+        // GET: api/Customer/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<KhachHang>> GetKhachHang(string id)
         {
-            var khachHang = await _db.KhachHangs.FindAsync(id);
-
-            if (khachHang == null)
+            try
             {
-                return NotFound(new { message = "Không tìm thấy khách hàng." });
+                var khachHang = await _db.KhachHangs.FindAsync(id);
+
+                if (khachHang == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy khách hàng." });
+                }
+
+                return Ok(khachHang);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy thông tin khách hàng.", error = ex.Message });
+            }
+        }
+
+
+
+        // GET: api/Customer/Search?query={query}
+        [HttpGet("Search")]
+        public async Task<ActionResult<IEnumerable<KhachHang>>> SearchKhachHang([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest(new { message = "Từ khóa tìm kiếm không hợp lệ." });
             }
 
-            return khachHang;
+            try
+            {
+                // Chuyển query về dạng chữ thường để tìm kiếm không phân biệt hoa thường
+                var lowercaseQuery = query.ToLower();
+
+                // Tìm kiếm trong các trường: Mã KH, Tên KH, Email, SDT, Địa chỉ
+                var results = await _db.KhachHangs
+                    .Where(kh =>
+                        kh.MaKH.ToLower().Contains(lowercaseQuery) ||
+                        kh.TenKH.ToLower().Contains(lowercaseQuery) ||
+                        kh.Email.ToLower().Contains(lowercaseQuery) ||
+                        kh.SDT.ToLower().Contains(query) ||
+                        kh.DiaChi.ToLower().Contains(lowercaseQuery))
+                    .ToListAsync();
+
+                // Nếu không có kết quả
+                if (results == null || !results.Any())
+                {
+                    return NotFound(new { message = "Không tìm thấy khách hàng nào phù hợp." });
+                }
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi tìm kiếm khách hàng.", error = ex.Message });
+            }
+        }
+
+
+
+
+
+        // POST: api/Customer
+        [HttpPost]
+        public async Task<ActionResult> AddKhachHang([FromBody] KhachHang khachHang)
+        {
+            if (khachHang == null)
+            {
+                return BadRequest(new { message = "Dữ liệu khách hàng không hợp lệ." });
+            }
+
+            try
+            {
+                // Tạo mã khách hàng nếu không có
+                if (string.IsNullOrWhiteSpace(khachHang.MaKH))
+                {
+                    khachHang.MaKH = $"KH{new Random().Next(100, 999)}";
+                }
+
+                // Gán ngày đăng ký nếu không có
+               khachHang.NgayDangKy = DateTime.Now
+
+                // Đặt các trường liên kết là null
+                khachHang.DonHangs = null;
+                khachHang.DanhGias = null;
+
+                await _db.KhachHangs.AddAsync(khachHang);
+                await _db.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetKhachHang), new { id = khachHang.MaKH }, new { message = "Khách hàng đã được thêm thành công!", data = khachHang });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi thêm khách hàng.", error = ex.Message });
+            }
+        }
+
+
+        // PUT: api/Customer/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateKhachHang(string id, [FromBody] KhachHang khachHang)
+        {
+            // Kiểm tra dữ liệu đầu vào
+            if (khachHang == null || id != khachHang.MaKH)
+            {
+                return BadRequest(new { message = "Dữ liệu khách hàng không hợp lệ hoặc mã khách hàng không khớp." });
+            }
+
+            try
+            {
+                // Tìm khách hàng trong cơ sở dữ liệu
+                var existingCustomer = await _db.KhachHangs.FindAsync(id);
+
+                if (existingCustomer == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy khách hàng." });
+                }
+
+                // Cập nhật thông tin khách hàng
+                existingCustomer.TenKH = khachHang.TenKH;
+                existingCustomer.Email = khachHang.Email;
+                existingCustomer.MatKhau = khachHang.MatKhau;
+                existingCustomer.SDT = khachHang.SDT;
+                existingCustomer.DiaChi = khachHang.DiaChi;
+                existingCustomer.TinhTrang = khachHang.TinhTrang;
+
+                // Giữ nguyên các trường không thay đổi
+                existingCustomer.NgayDangKy = existingCustomer.NgayDangKy;
+
+                // Không xử lý các trường liên kết như DonHangs, DanhGias
+                _db.Entry(existingCustomer).State = EntityState.Modified;
+
+                // Lưu thay đổi
+                await _db.SaveChangesAsync();
+
+                return Ok(new { message = "Cập nhật khách hàng thành công!", data = existingCustomer });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi cập nhật khách hàng.", error = ex.Message });
+            }
+        }
+
+
+
+
+
+
+
+        // DELETE: api/Customer/{id}
+        [HttpDelete("{MaKH}")]
+        public async Task<IActionResult> Delete(string MaKH)
+        {
+            try
+            {
+                var khachHang = await _db.KhachHangs.FindAsync(MaKH);
+
+                if (khachHang == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy khách hàng." });
+                }
+
+                _db.KhachHangs.Remove(khachHang);
+                await _db.SaveChangesAsync();
+
+                return Ok(new { message = "Xóa khách hàng thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi xóa khách hàng.", error = ex.Message });
+            }
         }
     }
 }

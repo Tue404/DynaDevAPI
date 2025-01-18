@@ -52,7 +52,7 @@
 
                         </li>
                         <li class="sidebar-item">
-                            <a asp-controller="HomeAdmin" asp-action="Index"  class="sidebar-link" aria-expanded="false">
+                            <a asp-controller="Customer" asp-action="Index"  class="sidebar-link" aria-expanded="false">
                                 <span>
                                 <i class="ti ti-alert-circle"></i>
                                 </span>
@@ -192,7 +192,7 @@
             <!--  Header End -->
             <div class="container-fluid">
 
-            @RenderBody();
+            @RenderBody()
              
             </div>
         </div>
@@ -204,6 +204,10 @@
     <script src="~/admin/libs/apexcharts/dist/apexcharts.min.js"></script>
     <script src="~/admin/libs/simplebar/dist/simplebar.js"></script>
     <script src="~/admin/js/dashboard.js"></script>
+    @RenderSection("Scripts", required: false)
+
 </body>
 
 </html>
+
+
