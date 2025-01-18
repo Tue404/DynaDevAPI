@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DynaDevAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class addAllToDB : Migration
+    public partial class addAllToDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,7 +43,7 @@ namespace DynaDevAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "NhaCungCap",
+                name: "NhaCungCaps",
                 columns: table => new
                 {
                     MaNCC = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -55,7 +55,7 @@ namespace DynaDevAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NhaCungCap", x => x.MaNCC);
+                    table.PrimaryKey("PK_NhaCungCaps", x => x.MaNCC);
                 });
 
             migrationBuilder.CreateTable(
@@ -78,7 +78,7 @@ namespace DynaDevAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Voucher",
+                name: "Vouchers",
                 columns: table => new
                 {
                     MaVoucher = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -94,7 +94,7 @@ namespace DynaDevAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Voucher", x => x.MaVoucher);
+                    table.PrimaryKey("PK_Vouchers", x => x.MaVoucher);
                 });
 
             migrationBuilder.CreateTable(
@@ -105,6 +105,7 @@ namespace DynaDevAPI.Migrations
                     MaLoai = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     TenSanPham = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     TacGia = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NhaXuatBan = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NamXuatBan = table.Column<int>(type: "int", nullable: false),
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MoTa = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
@@ -123,9 +124,9 @@ namespace DynaDevAPI.Migrations
                         principalColumn: "MaLoai",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SanPhams_NhaCungCap_MaNCC",
+                        name: "FK_SanPhams_NhaCungCaps_MaNCC",
                         column: x => x.MaNCC,
-                        principalTable: "NhaCungCap",
+                        principalTable: "NhaCungCaps",
                         principalColumn: "MaNCC",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -159,9 +160,9 @@ namespace DynaDevAPI.Migrations
                         principalTable: "NhanViens",
                         principalColumn: "MaNV");
                     table.ForeignKey(
-                        name: "FK_DonHangs_Voucher_MaVoucher",
+                        name: "FK_DonHangs_Vouchers_MaVoucher",
                         column: x => x.MaVoucher,
-                        principalTable: "Voucher",
+                        principalTable: "Vouchers",
                         principalColumn: "MaVoucher",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -316,13 +317,13 @@ namespace DynaDevAPI.Migrations
                 name: "NhanViens");
 
             migrationBuilder.DropTable(
-                name: "Voucher");
+                name: "Vouchers");
 
             migrationBuilder.DropTable(
                 name: "LoaiSPs");
 
             migrationBuilder.DropTable(
-                name: "NhaCungCap");
+                name: "NhaCungCaps");
         }
     }
 }

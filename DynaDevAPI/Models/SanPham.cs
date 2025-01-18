@@ -9,6 +9,7 @@ namespace DynaDevAPI.Models
 
         public string MaSP { get; set; }
         [Required(ErrorMessage = "Mã loại không được để trống.")]
+
         public string MaLoai { get; set; }
 
         [Required(ErrorMessage = "Tên sản phẩm không được để trống.")]

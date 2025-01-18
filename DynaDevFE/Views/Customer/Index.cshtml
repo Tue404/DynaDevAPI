@@ -1,0 +1,242 @@
+﻿@model List<DynaDevFE.Models.KhachHangViewModel>
+@using System.Text.Json;
+@{
+    ViewData["Title"] = "Quản lý khách hàng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<head>
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<h2>Quản lý khách hàng</h2>
+
+<div class="mb-3">
+    <input id="searchCustomer" class="form-control" type="text" placeholder="Tìm kiếm khách hàng (mã, tên, email, số điện thoại, địa chỉ)" />
+</div>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Thêm khách hàng mới</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Mã KH</th>
+            <th>Tên khách hàng</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>Địa chỉ</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody id="customerTable">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var kh in Model)
+            {
+                <tr>
+                    <td>@kh.MaKH</td>
+                    <td>@kh.TenKH</td>
+                    <td>@kh.Email</td>
+                    <td>@kh.SDT</td>
+                    <td>@kh.DiaChi</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@kh.MaKH" class="btn btn-info btn-sm">Chi tiết</a>
+                        <a asp-action="Edit" asp-route-id="@kh.MaKH" class="btn btn-warning btn-sm">Sửa</a>
+                        <button class="btn btn-danger btn-sm btn-delete" data-id="@kh.MaKH">Xóa</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">Không có khách hàng nào để hiển thị.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchCustomer');
+        const customerTable = document.getElementById('customerTable');
+
+        // Hàm render danh sách khách hàng
+        function renderCustomers(customers) {
+            customerTable.innerHTML = '';
+
+            if (customers.length > 0) {
+                customers.forEach(customer => {
+                    const row = `
+                            <tr>
+                                <td>${customer.maKH}</td>
+                                <td>${customer.tenKH}</td>
+                                <td>${customer.email}</td>
+                                <td>${customer.sdt}</td>
+                                <td>${customer.diaChi}</td>
+                                <td>
+                                    <a href="/HomeAdmin/Details/${customer.maKH}" class="btn btn-info btn-sm">Chi tiết</a>
+                                    <a href="/HomeAdmin/Edit/${customer.maKH}" class="btn btn-warning btn-sm">Sửa</a>
+                                    <button class="btn btn-danger btn-sm btn-delete" data-id="${customer.maKH}">Xóa</button>
+                                </td>
+                            </tr>`;
+                    customerTable.innerHTML += row;
+                });
+
+                // Gắn lại sự kiện xóa sau khi cập nhật danh sách
+                bindDeleteButtons();
+            } else {
+                customerTable.innerHTML = '<tr><td colspan="6" class="text-center">Không tìm thấy khách hàng.</td></tr>';
+            }
+        }
+
+        // Hàm tìm kiếm khách hàng
+        searchInput.addEventListener('input', async function () {
+            const query = searchInput.value.trim();
+
+            if (query.length === 0) {
+                location.reload(); // Tải lại danh sách gốc nếu không nhập gì
+                return;
+            }
+
+            try {
+                const response = await axios.get(`/HomeAdmin/Search?query=${encodeURIComponent(query)}`);
+                const customers = response.data;
+                renderCustomers(customers);
+            } catch (error) {
+                console.error('Lỗi tìm kiếm:', error);
+                customerTable.innerHTML = '<tr><td colspan="6" class="text-center">Lỗi khi tìm kiếm khách hàng.</td></tr>';
+            }
+        });
+
+        // Hàm xóa khách hàng
+        function bindDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const maKH = this.getAttribute('data-id');
+                    const apiUrl = `https://localhost:7101/api/Customer/${maKH}`;
+
+                    Swal.fire({
+                        title: 'Bạn có chắc chắn muốn xóa?',
+                        text: "Hành động này không thể hoàn tác!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(apiUrl, {
+                                method: 'DELETE',
+                                headers: { 'Accept': 'application/json' }
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(data => {
+                                            throw new Error(data.message || 'Không thể xóa khách hàng');
+                                        });
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    Swal.fire('Đã xóa!', data.message, 'success')
+                                        .then(() => location.reload());
+                                })
+                                .catch(error => {
+                                    Swal.fire('Lỗi!', error.message, 'error');
+                                    console.error('Error:', error);
+                                });
+                        }
+                    });
+                });
+            });
+        }
+
+        // Gắn sự kiện xóa khi tải trang
+        bindDeleteButtons();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị thông báo thành công
+    @if (TempData["Success"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+        </text>
+    }
+
+            // Hiển thị thông báo lỗi
+    @if (TempData["Error"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                    showConfirmButton: true
+                });
+        </text>
+    }
+           });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const maNV = this.getAttribute('data-id');
+                const apiUrl = `https://localhost:7101/api/Customer/${MaKH}`;
+
+                Swal.fire({
+                    title: 'Bạn có chắc chắn muốn xóa?',
+                    text: "Hành động này không thể hoàn tác!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(apiUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    // Nếu không thành công, đọc JSON lỗi từ server
+                                    return response.json().then(data => {
+                                        throw new Error(data.message || 'Không thể xóa nhân viên');
+                                    });
+                                }
+                                return response.json(); // Thành công, đọc phản hồi JSON
+                            })
+                            .then(data => {
+                                Swal.fire('Đã xóa!', data.message, 'success')
+                                    .then(() => location.reload());
+                            })
+                            .catch(error => {
+                                Swal.fire('Lỗi!', error.message, 'error'); // Hiển thị lỗi từ backend
+                                console.error('Error:', error);
+                            });
+                    }
+                });
+            });
+        });
+    });
+
+</script>

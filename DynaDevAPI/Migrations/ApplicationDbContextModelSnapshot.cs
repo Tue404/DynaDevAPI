@@ -300,7 +300,6 @@ namespace DynaDevAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("NhaXuatBan")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SoLuongTrongKho")

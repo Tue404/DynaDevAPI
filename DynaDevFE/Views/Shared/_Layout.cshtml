@@ -1338,6 +1338,19 @@
             </div>
         </div>
     </div>
+    @* đây là code của boxchat *@
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger intent="WELCOME"
+                  chat-title="DynaDev"
+                  agent-id="d429dc9b-7731-49cd-b0c3-0a382d3b8ebb"
+                  language-code="vi"></df-messenger>
+
+
+    <style>
+        df-messenger {
+            --df-messenger-button-titlebar-color: #71a3c1; /* Màu xanh lá cho tiêu đề */
+        }
+    </style>
     <script src="~/js/jquery-1.11.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -1345,6 +1358,7 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
     <script type="text/javascript" src="~/js/script.js"></script>
 </body>
+
 </html>
 
 <style>

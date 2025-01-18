@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynaDevAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250118072820_addAllToDB")]
-    partial class addAllToDB
+    [Migration("20250118113854_addAllToDb")]
+    partial class addAllToDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -232,7 +232,7 @@ namespace DynaDevAPI.Migrations
 
                     b.HasKey("MaNCC");
 
-                    b.ToTable("NhaCungCap");
+                    b.ToTable("NhaCungCaps");
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.NhanVien", b =>
@@ -302,6 +302,9 @@ namespace DynaDevAPI.Migrations
                     b.Property<DateTime>("NgayThem")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("NhaXuatBan")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("SoLuongTrongKho")
                         .HasColumnType("int");
 
@@ -367,7 +370,7 @@ namespace DynaDevAPI.Migrations
 
                     b.HasKey("MaVoucher");
 
-                    b.ToTable("Voucher");
+                    b.ToTable("Vouchers");
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.AnhSP", b =>
