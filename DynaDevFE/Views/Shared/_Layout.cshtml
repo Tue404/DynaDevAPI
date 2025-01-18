@@ -561,17 +561,15 @@
         </div>
     </section>
 
-    <section id="best-selling-items" class="position-relative padding-large">
+    <section id="best-selling-items" class="position-relative padding-large ">
         @RenderBody()
+          
         <div class="container">
-            <!-- Tiêu đề và nút View All -->
             <div class="section-title d-md-flex justify-content-between align-items-center mb-4">
-                <h3 class="d-flex align-items-center">
-                    Sản phẩm bán chạy nhất<h3>
-                <a href="index.html" class="btn">Xem tất cả</a>
+                <h3 class="d-flex align-items-center">Best selling items</h3>
+                <a href="index.html" class="btn">View All</a>
             </div>
-
-            <!-- Nút điều hướng slider -->
+          
             <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next product-slider-button-next">
                 <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
                     <use xlink:href="#alt-arrow-right-outline"></use>
@@ -581,77 +579,70 @@
                 <svg class="chevron-back-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
                     <use xlink:href="#alt-arrow-left-outline"></use>
                 </svg>
-            </div>
-
-            <!-- Swiper slider -->
+            </div>       
             <div class="swiper product-swiper">
                 <div class="swiper-wrapper">
                     @foreach (var product in Model)
                     {
-                        <div class="swiper-slide">
-                            <div class="card position-relative p-4 border rounded-3">
-                                <!-- Hiển thị giảm giá nếu trạng thái là 'Sale' -->
-                                @if (product.TinhTrang == "Sale")
-                                {
-                                    <div class="position-absolute">
-                                        <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">10% off</p>
-                                    </div>
-                                }
-
-                                <!-- Hình ảnh sản phẩm -->
+                    <div class="swiper-slide">
+                        <div class="card position-relative p-4 border rounded-3">
+                            <div class="position-absolute">
+                                <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">10% off</p>
+                            </div>               
                                 @if (product.DanhSachAnh != null && product.DanhSachAnh.Any())
                                 {
-                                    <img src="@product.DanhSachAnh.First()" alt="Ảnh sản phẩm" style="width: 100px;" />
+                                    <img class="img-fluid shadow-sm product-image" src="@product.DanhSachAnh.First()" alt="Ảnh sản phẩm" />
                                 }
                                 else
                                 {
                                     <span>Chưa có ảnh</span>
                                 }
+                                <h6 class="mt-4 mb-0 fw-bold"><a href="index.html"><h6 class="product-title">@product.TenSanPham</h6></a></h6>
+                            <div class="review-content d-flex">
+                                <p class="my-2 me-2 fs-6 text-black-50">Lauren Asher</p>
 
-                                <!-- Tên sản phẩm -->
-                                <h6 class="mt-4 mb-0 fw-bold">
-                                    <a href="#">@product.TenSanPham</a>
-                                </h6>
-
-                                <!-- Mô tả sản phẩm -->
-                                <div class="review-content d-flex">
-                                    <p class="my-2 me-2 fs-6 text-black-50">By Category: @product.MaLoai</p>
-                                    <div class="rating text-warning d-flex align-items-center">
-                                        <svg class="star star-fill"><use xlink:href="#star-fill"></use></svg>
-                                        <svg class="star star-fill"><use xlink:href="#star-fill"></use></svg>
-                                        <svg class="star star-fill"><use xlink:href="#star-fill"></use></svg>
-                                        <svg class="star star-fill"><use xlink:href="#star-fill"></use></svg>
-                                        <svg class="star star-fill"><use xlink:href="#star-fill"></use></svg>
-                                    </div>
-                                </div>
-
-                                <!-- Giá sản phẩm -->
-                                <span class="price text-primary fw-bold mb-2 fs-5">
-                                    @product.Gia.ToString("C")
-                                </span>
-
-                                <!-- Ngày thêm sản phẩm -->
-                                <p class="text-muted fs-6">Added on: @product.NgayThem.ToString("dd/MM/yyyy")</p>
-
-                                <!-- Số lượng trong kho -->
-                                <p class="text-muted fs-6">Stock: @product.SoLuongTrongKho</p>
-
-                                <!-- Nút hành động -->
-                                <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
-                                    <button type="button" class="btn btn-dark" data-bs-toggle="tooltip" title="Add to Cart">
-                                        <svg class="cart"><use xlink:href="#cart"></use></svg>
-                                    </button>
-                                    <a href="#" class="btn btn-dark">
-                                        <svg class="wishlist"><use xlink:href="#heart"></use></svg>
-                                    </a>
+                                <div class="rating text-warning d-flex align-items-center">
+                                    <svg class="star star-fill">
+                                        <use xlink:href="#star-fill"></use>
+                                    </svg>
+                                    <svg class="star star-fill">
+                                        <use xlink:href="#star-fill"></use>
+                                    </svg>
+                                    <svg class="star star-fill">
+                                        <use xlink:href="#star-fill"></use>
+                                    </svg>
+                                    <svg class="star star-fill">
+                                        <use xlink:href="#star-fill"></use>
+                                    </svg>
+                                    <svg class="star star-fill">
+                                        <use xlink:href="#star-fill"></use>
+                                    </svg>
                                 </div>
                             </div>
+                                <span class="price text-primary fw-bold mb-2 fs-5">@($"{product.Gia:N0} ₫")</span>
+                            <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
+                                <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-bs-title="Tooltip on top">
+                                    <svg class="cart">
+                                        <use xlink:href="#cart"></use>
+                                    </svg>
+                                </button>
+                                <a href="#" class="btn btn-dark">
+                                    <span>
+                                        <svg class="wishlist">
+                                            <use xlink:href="#heart"></use>
+                                        </svg>
+                                    </span>
+                                </a>
+                            </div>
                         </div>
+                    </div>
                     }
                 </div>
             </div>
         </div>
     </section>
+
 
 
     <section id="limited-offer" class="padding-large"
@@ -1355,3 +1346,27 @@
     <script type="text/javascript" src="~/js/script.js"></script>
 </body>
 </html>
+
+<style>
+    .product-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2; 
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+        line-height: 1.5;
+        min-height: 48px; 
+    }
+
+    .product-image {
+        max-height: 270px; 
+        width: auto; 
+        object-fit: contain;
+        display: block; 
+        margin: 0 auto; 
+    }
+</style>

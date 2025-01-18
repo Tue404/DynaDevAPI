@@ -80,6 +80,7 @@ namespace DynaDevAPI.Controllers
                     nhanVien.SDT = model.SDT;
                     nhanVien.DiaChi = model.DiaChi;
                     nhanVien.TinhTrang = model.TinhTrang;
+                    nhanVien.Luong = model.Luong;
 
                     _db.Update(nhanVien);
                     await _db.SaveChangesAsync();
