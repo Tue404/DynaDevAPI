@@ -16,24 +16,26 @@ namespace DynaDevFE.Controllers
             _httpClient.BaseAddress = new Uri("https://localhost:7101/");
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 8)
         {
             try
             {
-                var response = await _httpClient.GetAsync("api/Customer");
+                var response = await _httpClient.GetAsync($"api/Customer?page={page}&pageSize={pageSize}");
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonData = await response.Content.ReadAsStringAsync();
-                    var customers = JsonSerializer.Deserialize<List<KhachHangViewModel>>(jsonData, new JsonSerializerOptions
+
+                    // Deserialize cả dữ liệu khách hàng và thông tin phân trang
+                    var responseData = JsonSerializer.Deserialize<ResponseWithPagination<KhachHangViewModel>>(jsonData, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
 
-                    return View(customers);
+                    ViewBag.Pagination = responseData.Pagination; // Truyền thông tin phân trang vào View
+                    return View(responseData.Data);
                 }
 
-                // Trường hợp lỗi
                 ViewBag.ErrorMessage = $"Lỗi từ API: {response.StatusCode}";
             }
             catch (Exception ex)
@@ -42,6 +44,21 @@ namespace DynaDevFE.Controllers
             }
 
             return View(new List<KhachHangViewModel>()); // Trả về danh sách rỗng khi lỗi
+        }
+
+        // Class giúp deserialize dữ liệu trả về
+        public class ResponseWithPagination<T>
+        {
+            public List<T> Data { get; set; }
+            public Pagination Pagination { get; set; }
+        }
+
+        public class Pagination
+        {
+            public int CurrentPage { get; set; }
+            public int PageSize { get; set; }
+            public int TotalItems { get; set; }
+            public int TotalPages { get; set; }
         }
 
         public async Task<JsonResult> Search(string query)

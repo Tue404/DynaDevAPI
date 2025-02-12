@@ -9,6 +9,10 @@ namespace DynaDevAPI.Models
         public string MaLoai { get; set; }
 
         public string TenSanPham { get; set; }
+        public string TacGia { get; set; }
+
+        public string TenNCC { get; set; }
+        public int NamXuatBan { set; get; }
 
         public decimal Gia { get; set; }
 
@@ -23,5 +27,6 @@ namespace DynaDevAPI.Models
         public List<string> DanhSachAnh { get; set; } = new List<string>();
         public List<IFormFile> AnhSPs { get; set; }
         public string LoaiSP { get; set; }
+        public string MaNCC { get; set; }
     }
 }

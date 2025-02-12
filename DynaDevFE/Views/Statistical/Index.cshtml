@@ -1,0 +1,196 @@
+﻿@model List<DynaDevFE.Models.DoanhThuTheoNgayThangNamViewModel>
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Thống kê doanh thu và đơn hàng theo ngày, tháng, năm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    .chart-container {
+        width: 80% !important;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    canvas {
+        width: 90% !important;
+        height: auto !important;
+    }
+</style>
+
+<h2>Thống kê doanh thu và đơn hàng theo ngày, tháng, năm</h2>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs" id="thongKeTab" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active" id="daily-tab" data-bs-toggle="tab" data-bs-target="#daily" type="button">Theo Ngày</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button">Theo Tháng</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="yearly-tab" data-bs-toggle="tab" data-bs-target="#yearly" type="button">Theo Năm</button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- Thống kê theo ngày -->
+    <div class="tab-pane fade show active" id="daily">
+        <div>
+            <label for="dailyDate">Chọn Ngày:</label>
+            <input type="date" id="dailyDate" class="form-control">
+            <button class="btn btn-primary mt-2" onclick="getDailyStatistics()">Thống Kê</button>
+        </div>
+        <canvas id="dailyChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- Thống kê theo tháng -->
+    <div class="tab-pane fade" id="monthly">
+        <div>
+            <label for="monthlyYear">Chọn Năm:</label>
+            <input type="number" id="monthlyYear" class="form-control" min="2000" max="2100" value="@DateTime.Now.Year">
+            <label for="monthlyMonth">Chọn Tháng:</label>
+            <select id="monthlyMonth" class="form-control">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i">Tháng @i</option>
+                }
+            </select>
+            <button class="btn btn-primary mt-2" onclick="getMonthlyStatistics()">Thống Kê</button>
+        </div>
+        <canvas id="monthlyChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- Thống kê theo năm -->
+    <div class="tab-pane fade" id="yearly">
+        <div>
+            <label for="yearlyYear">Chọn Năm:</label>
+            <input type="number" id="yearlyYear" class="form-control" min="2000" max="2100">
+            <button class="btn btn-primary mt-2" onclick="getYearlyStatistics()">Thống Kê</button>
+        </div>
+        <canvas id="yearlyChart" class="chart-container"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const BASE_URL = "https://localhost:7101/api/Statistical";
+
+    async function fetchData(endpoint) {
+        try {
+            const response = await fetch(`${BASE_URL}/${endpoint}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP error! Status: ${response.status}. Message: ${errorText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch Error:', error);
+            alert("Lỗi khi lấy dữ liệu từ API.");
+            throw error;
+        }
+    }
+
+    function createLineChart(canvasId, labels, revenues, orders, title) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: `${title} - Doanh thu`,
+                        data: revenues,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                    },
+                    {
+                        label: `${title} - Đơn hàng`,
+                        data: orders,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { mode: 'index', intersect: false },
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Thời gian' } },
+                    y: { title: { display: true, text: 'Giá trị VND' }, beginAtZero: true },
+                },
+            },
+        });
+    }
+
+    async function getDailyStatistics() {
+        const date = document.getElementById("dailyDate").value;
+        if (!date) {
+            alert("Vui lòng chọn ngày!");
+            return;
+        }
+
+        try {
+            const data = await fetchData(`DoanhThuTheoNgayThangNam?date=${date}`);
+            const labels = data.map(x => `${x.Ngay}/${x.Thang}/${x.Nam}`);
+            const revenues = data.map(x => x.TongDoanhThu);
+            const orders = data.map(x => x.TongDonHang);
+
+            createLineChart("dailyChart", labels, revenues, orders, "Thống kê theo ngày");
+        } catch (error) {
+            console.error('Error in getDailyStatistics:', error);
+        }
+    }
+
+    async function getMonthlyStatistics() {
+        const year = document.getElementById("monthlyYear").value;
+        const month = document.getElementById("monthlyMonth").value;
+
+        if (!year || !month) {
+            alert("Vui lòng chọn đầy đủ năm và tháng!");
+            return;
+        }
+
+        try {
+            const data = await fetchData(`DoanhThuTheoNgayThangNam?year=${year}&month=${month}`);
+            const labels = data.map(x => `${x.Ngay}/${x.Thang}/${x.Nam}`);
+            const revenues = data.map(x => x.TongDoanhThu);
+            const orders = data.map(x => x.TongDonHang);
+
+            createLineChart("monthlyChart", labels, revenues, orders, "Thống kê theo tháng");
+        } catch (error) {
+            console.error('Error in getMonthlyStatistics:', error);
+        }
+    }
+
+    async function getYearlyStatistics() {
+        const year = document.getElementById("yearlyYear").value;
+
+        if (!year) {
+            alert("Vui lòng chọn năm!");
+            return;
+        }
+
+        try {
+            const data = await fetchData(`DoanhThuTheoNgayThangNam?year=${year}`);
+            const labels = data.map(x => `${x.Ngay}/${x.Thang}/${x.Nam}`);
+            const revenues = data.map(x => x.TongDoanhThu);
+            const orders = data.map(x => x.TongDonHang);
+
+            createLineChart("yearlyChart", labels, revenues, orders, "Thống kê theo năm");
+        } catch (error) {
+            console.error('Error in getYearlyStatistics:', error);
+        }
+    }
+</script>
