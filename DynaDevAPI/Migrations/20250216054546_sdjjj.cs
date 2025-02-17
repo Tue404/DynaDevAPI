@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DynaDevAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class sdiof : Migration
+    public partial class sdjjj : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

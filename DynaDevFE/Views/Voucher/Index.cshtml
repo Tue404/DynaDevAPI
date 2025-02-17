@@ -31,46 +31,16 @@ else
             <tr>
                 <th>Mã Voucher</th>
                 <th>Tên Voucher</th>
-                <th>Mô Tả</th>
                 <th>Giảm Giá</th>
-                <th>Loại Giảm Giá</th>
                 <th>Ngày Bắt Đầu</th>
                 <th>Ngày Kết Thúc</th>
-                <th>Điều Kiện</th>
                 <th>Số Lượng</th>
                 <th>Trạng Thái</th>
                 <th>Hành Động</th>
             </tr>
         </thead>
         <tbody id="voucherTableBody">
-            @foreach (var voucher in Model)
-            {
-                <tr>
-                    <td>@voucher.MaVoucher</td>
-                    <td>@voucher.TenVoucher</td>
-                    <td>@voucher.MoTa</td>
-                    <td>
-                        @if (voucher.GiamGia <= 100)
-                        {
-                            @string.Format("{0} %", voucher.GiamGia)
-                        }
-                        else
-                        {
-                            @string.Format("{0:N0} VND", voucher.GiamGia)
-                        }
-                    </td>
-                    <td>@voucher.LoaiGiamGia</td>
-                    <td>@voucher.NgayBatDau.ToString("dd/MM/yyyy")</td>
-                    <td>@voucher.NgayKetThuc.ToString("dd/MM/yyyy")</td>
-                    <td>@voucher.DieuKien</td>
-                    <td>@voucher.SoLuong</td>
-                    <td>@voucher.TrangThai</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@voucher.MaVoucher" class="btn btn-warning btn-sm">Sửa</a>
-                        <button class="btn btn-danger btn-sm btn-delete" data-id="@voucher.MaVoucher">Xóa</button>
-                    </td>
-                </tr>
-            }
+           
         </tbody>
     </table>
 
@@ -96,16 +66,15 @@ else
                                     <tr>
                                         <td>${voucher.maVoucher}</td>
                                         <td>${voucher.tenVoucher}</td>
-                                        <td>${voucher.moTa}</td>
-                                        <td>${voucher.giamGia <= 100 ? voucher.giamGia + ' %' : voucher.giamGia.toLocaleString()} VND</td>
-                                        <td>${voucher.loaiGiamGia}</td>
+                                        <td>${voucher.giamGia <= 100 ? voucher.giamGia + ' %' : voucher.giamGia.toLocaleString() + ' VND'}</td>
+
                                         <td>${new Date(voucher.ngayBatDau).toLocaleDateString()}</td>
                                         <td>${new Date(voucher.ngayKetThuc).toLocaleDateString()}</td>
-                                        <td>${voucher.dieuKien}</td>
                                         <td>${voucher.soLuong}</td>
                                         <td>${voucher.trangThai}</td>
                                         <td>
                                             <a href="/Voucher/Edit/${voucher.maVoucher}" class="btn btn-warning btn-sm">Sửa</a>
+                                                     <a href="/Voucher/Details/${voucher.maVoucher}"class="btn btn-info btn-sm">Chi Tiết</a>
                                             <button class="btn btn-danger btn-sm btn-delete" data-id="${voucher.maVoucher}">Xóa</button>
                                         </td>
                                     </tr>`;

@@ -176,5 +176,31 @@ namespace DynaDevFE.Controllers
 
             return RedirectToAction("Index");
         }
+        public async Task<IActionResult> Details(string id)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"https://localhost:7101/api/Voucher/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonData = await response.Content.ReadAsStringAsync();
+                    var voucher = JsonSerializer.Deserialize<VoucherViewModel>(jsonData, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return View(voucher);  // Truyền một đối tượng VoucherViewModel vào view
+                }
+
+                ViewBag.ErrorMessage = "Không thể tải thông tin Voucher.";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+            }
+
+            return View("Error");
+        }
+
     }
 }

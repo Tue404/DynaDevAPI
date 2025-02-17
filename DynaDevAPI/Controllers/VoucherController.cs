@@ -65,7 +65,12 @@ namespace DynaDevAPI.Controllers
                     .Where(v =>
                         v.MaVoucher.ToLower().Contains(lowercaseQuery) ||
                         v.TenVoucher.ToLower().Contains(lowercaseQuery) ||
+                        v.SoLuong.ToString().Contains(lowercaseQuery) ||
+                        v.TrangThai.ToString().Contains(lowercaseQuery) ||
+                        v.DieuKien.ToString().Contains(lowercaseQuery) ||
+                        v.LoaiGiamGia.ToString().Contains(lowercaseQuery) ||
                         v.MoTa.ToLower().Contains(lowercaseQuery))
+
                     .ToListAsync();
 
                 if (!results.Any())

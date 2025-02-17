@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynaDevAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250212190144_sdiof")]
-    partial class sdiof
+    [Migration("20250216054546_sdjjj")]
+    partial class sdjjj
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

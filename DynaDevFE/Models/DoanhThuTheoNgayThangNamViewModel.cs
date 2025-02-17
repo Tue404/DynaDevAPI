@@ -10,6 +10,7 @@ namespace DynaDevFE.Models
         public int Thang { get; set; }
         public int Ngay { get; set; }
         public decimal TongDoanhThu { get; set; }
+        public int TongDonHang { get; set; }
     }
 
 }
