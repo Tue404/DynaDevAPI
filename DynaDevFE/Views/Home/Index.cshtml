@@ -191,10 +191,7 @@
                             </div>
                             <span class="price text-primary fw-bold mb-2 fs-5">@($"{product.Gia:N0} ₫")</span>
                             <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
-                                <button type="button" onclick="addToCart(this)"
-                                        data-id="@product.MaSP"
-                                        data-name="@product.TenSanPham"
-                                        data-price="@product.Gia" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
+                                <button type="button" href="#" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top"
                                         data-bs-title="Tooltip on top">
                                     <svg class="cart">
                                         <use xlink:href="#cart"></use>
@@ -761,40 +758,3 @@
         </div>
     </div>
 </section>
-
-<script>
-    function addToCart(button) {
-        let productId = button.getAttribute("data-id");
-        let productName = button.getAttribute("data-name");
-        let productPrice = button.getAttribute("data-price");
-
-        if (!productId || !productName || !productPrice) {
-            console.error("Lỗi: Không lấy được thông tin sản phẩm.");
-            return;
-        }
-
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-        let product = {
-            id: productId,
-            name: productName,
-            price: parseInt(productPrice),
-            soLuong: 1
-        };
-
-        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        let existingProduct = cart.find(p => p.id === product.id);
-        if (existingProduct) {
-            existingProduct.soLuong += 1;
-        } else {
-            cart.push(product);
-        }
-
-        // Lưu vào localStorage
-        localStorage.setItem("cart", JSON.stringify(cart));
-
-        // Cập nhật UI
-        updateCartUI();
-    }
-
-</script>
