@@ -185,12 +185,6 @@ namespace DynaDevAPI.Data
                     AnhLoai = null
                 }
             );
-
-
-
-
-
-
         }
     }
 }
