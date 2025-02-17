@@ -12,12 +12,23 @@ namespace DynaDevFE.Models
         [Required(ErrorMessage = "Mã loại không được để trống.")]
         [StringLength(50, ErrorMessage = "Mã loại sản phẩm không được vượt quá 50 ký tự.")]
         public string MaLoai { get; set; }
+        [JsonPropertyName("tenNCC")]
+        public string? TenNCC { get; set; }
+        [JsonPropertyName("maNCC")]
+        public string MaNCC { get; set; }
 
         [JsonPropertyName("tenSanPham")]
 
         [Required(ErrorMessage = "Tên sản phẩm không được để trống.")]
         [StringLength(100, ErrorMessage = "Tên sản phẩm không được vượt quá 100 ký tự.")]
         public string TenSanPham { get; set; }
+        [JsonPropertyName("tacGia")]
+        public string TacGia { get; set; }
+        [Required(ErrorMessage = "Nhà xuất bản không được để trống.")]
+        //[JsonPropertyName("nhaXuatBan")]
+        //public string NhaXuatBan { get; set; }
+        [JsonPropertyName("namXuatBan")]
+        public int NamXuatBan { set; get; }
 
         [JsonPropertyName("gia")]
         [Required(ErrorMessage = "Giá không được để trống.")]

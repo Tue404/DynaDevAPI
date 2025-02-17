@@ -94,7 +94,8 @@ namespace DynaDevFE.Controllers
                     SDT = model.SDT,
                     DiaChi = model.DiaChi,
                     TinhTrang = model.TinhTrang,
-                    NgayVaoLam = DateTime.Now
+                    Luong = model.Luong,
+                    NgayVaoLam = DateTime.Now,
                 };
 
                 // Chuyển dữ liệu sang JSON              
