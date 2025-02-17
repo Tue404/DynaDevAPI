@@ -1,0 +1,52 @@
+﻿@model DynaDevFE.Models.NhanVienViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết nhân viên";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (Model != null)
+{
+    <table class="table table-bordered">
+        <tr>
+            <th>Mã Nhân Viên</th>
+            <td>@Model.MaNV</td>
+        </tr>
+        <tr>
+            <th>Tên Nhân Viên</th>
+            <td>@Model.TenNV</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>@Model.Email</td>
+        </tr>
+        <tr>
+            <th>Số Điện Thoại</th>
+            <td>@Model.SDT</td>
+        </tr>
+        <tr>
+            <th>Địa Chỉ</th>
+            <td>@Model.DiaChi</td>
+        </tr>
+        <tr>
+            <th>Tình Trạng</th>
+            <td>@Model.TinhTrang</td>
+        </tr>
+        <tr>
+            <th>Ngày Vào Làm</th>
+            <td>@Model.NgayVaoLam.ToString("dd/MM/yyyy")</td>
+        </tr>
+        <tr>
+            <th>Lương</th>
+            <td>@Model.Luong</td>
+        </tr>
+    </table>
+}
+else
+{
+    <p class="text-danger">@ViewBag.ErrorMessage</p>
+}
+
+<a href="@Url.Action("Index", "Staff")" class="btn btn-primary">Quay lại danh sách</a>

@@ -24,7 +24,7 @@
                             @foreach (var anh in product.DanhSachAnh)
                             {
                                 <div class="carousel-item @(product.DanhSachAnh.IndexOf(anh) == 0 ? "active" : "")">
-                                    <img src="@anh" class="d-block w-100" alt="Ảnh sản phẩm" style="max-height: 400px; object-fit: cover;">
+                                    <img src="@anh" class="d-block w-100" alt="Ảnh sản phẩm" style=" object-fit: cover;">
                                 </div>
                             }
                         </div>
@@ -49,7 +49,12 @@
                 <div class="card-body">
                     <h3><strong>Mã sản phẩm:</strong> @product.MaSP</h3>
                     <h3 class="card-title"><strong>Tên sản phẩm: </strong>@product.TenSanPham</h3>
-                    <h4 class="text-danger mb-3">@product.Gia.ToString("C")</h4>
+                    <h4 class="text-danger mb-3">
+                        @($"{product.Gia:N0} ₫")
+                        </h4>
+                    <p><strong>Tác giả:</strong> @product.TacGia</p>
+                    <p><strong>Nhà xuất bản:</strong> @product.TenNCC</p>
+                    <p><strong>Năm xuất bản:</strong> @product.NamXuatBan</p>
                     <p><strong>Loại sản phẩm:</strong> @product.MaLoai</p>
                     <p><strong>Tình trạng:</strong> @product.TinhTrang</p>
                     <p><strong>Số lượng trong kho:</strong> @product.SoLuongTrongKho</p>
@@ -63,3 +68,4 @@ else
 {
     <p class="text-center text-danger">Không tìm thấy sản phẩm.</p>
 }
+<a href="@Url.Action("Index", "Products")" class="btn btn-primary">Quay lại danh sách</a>

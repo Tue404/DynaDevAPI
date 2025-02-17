@@ -1,0 +1,24 @@
+﻿@model DynaDevFE.Models.LoaiSPViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Thêm Danh Mục Sản Phẩm</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="MaLoai">Mã Loại</label>
+        <input type="text" class="form-control" id="MaLoai" name="MaLoai" required />
+    </div>
+    <div class="form-group">
+        <label for="TenLoai">Tên Loại</label>
+        <input type="text" class="form-control" id="TenLoai" name="TenLoai" required />
+    </div>
+    <div class="form-group">
+        <label for="MoTa">Mô Tả</label>
+        <input type="text" class="form-control" id="MoTa" name="MoTa" />
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm</button>
+</form>

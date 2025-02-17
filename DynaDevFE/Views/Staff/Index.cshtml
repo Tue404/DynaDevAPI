@@ -1,0 +1,130 @@
+﻿@model List<DynaDevFE.Models.NhanVienViewModel>
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+}
+
+<head>
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<h2>Danh sách Nhân Viên</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">Thêm nhân viên mới</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Mã NV</th>
+            <th>Tên Nhân Viên</th>
+            <th>Email</th>
+            <th>Số Điện Thoại</th>
+            <th>Ngày Vào Làm</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var staff in Model)
+        {
+
+            <tr>
+                <td>@staff.MaNV</td>
+                <td>@staff.TenNV</td>
+                <td>@staff.Email</td>
+                <td>@staff.SDT</td>
+                <td>@staff.NgayVaoLam.ToShortDateString()</td>
+    
+
+        <td>
+                    <a asp-action="Details" asp-route-id="@staff.MaNV" class="btn btn-warning btn-sm">Chi tiết</a>
+                    <a asp-action="Edit" asp-route-id="@staff.MaNV" class="btn btn-warning btn-sm">Sửa</a>
+                    <button class="btn btn-danger btn-sm btn-delete" data-id="@staff.MaNV">Xóa</button>
+        </td>
+            </tr>
+        }
+
+
+    </tbody>
+</table>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị thông báo thành công
+    @if (TempData["Success"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+        </text>
+    }
+
+            // Hiển thị thông báo lỗi
+    @if (TempData["Error"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                    showConfirmButton: true
+                });
+        </text>
+    }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const maNV = this.getAttribute('data-id');
+                    const apiUrl = `https://localhost:7101/api/Staff/${maNV}`;
+
+                    Swal.fire({
+                        title: 'Bạn có chắc chắn muốn xóa?',
+                        text: "Hành động này không thể hoàn tác!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(apiUrl, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Accept': 'application/json',
+                                }
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        // Nếu không thành công, đọc JSON lỗi từ server
+                                        return response.json().then(data => {
+                                            throw new Error(data.message || 'Không thể xóa nhân viên');
+                                        });
+                                    }
+                                    return response.json(); // Thành công, đọc phản hồi JSON
+                                })
+                                .then(data => {
+                                    Swal.fire('Đã xóa!', data.message, 'success')
+                                        .then(() => location.reload());
+                                })
+                                .catch(error => {
+                                    Swal.fire('Lỗi!', error.message, 'error'); // Hiển thị lỗi từ backend
+                                    console.error('Error:', error);
+                                });
+                        }
+                    });
+                });
+            });
+        });
+</script>

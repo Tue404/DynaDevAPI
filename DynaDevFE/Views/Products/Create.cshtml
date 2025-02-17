@@ -1,5 +1,5 @@
 ﻿@model DynaDevFE.Models.SanPhamViewModel
-
+@using System.Text.Json
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
@@ -11,7 +11,7 @@
 
 <h2>Thêm sản phẩm mới</h2>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
+<form id="createSanPhamForm" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="mb-3" >
         <label asp-for="MaSP" hidden class="form-label">Mã sản phẩm </label>
         <input asp-for="MaSP" value="123" class="form-control" type="hidden" />
@@ -19,32 +19,45 @@
     <div class="mb-3">
         <label asp-for="TenSanPham" class="form-label">Tên sản phẩm</label>
         <input asp-for="TenSanPham" class="form-control" />
-        <span asp-validation-for="TenSanPham" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="TacGia" class="form-label">Tác giả</label>
+        <input asp-for="TacGia" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="MaNCC">Nhà Cung Cấp</label>
+        <select asp-for="MaNCC" class="form-control" asp-items="ViewBag.NhaCungCaps">
+            <option value="">-- Chọn Nhà Cung Cấp --</option>
+        </select>
+        <span asp-validation-for="MaNCC" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NamXuatBan" class="form-label">Năm xuất bản</label>
+        <input asp-for="NamXuatBan" type="number" class="form-control" />
     </div>
     <div class="mb-3">
         <label asp-for="Gia" class="form-label">Giá</label>
-        <input asp-for="Gia" class="form-control" type="number" step="0.01" />
-        <span asp-validation-for="Gia" class="text-danger"></span>
+        <input asp-for="Gia" type="number" class="form-control" />
     </div>
     <div class="mb-3">
         <label asp-for="MoTa" class="form-label">Mô tả</label>
         <textarea asp-for="MoTa" class="form-control"></textarea>
-        <span asp-validation-for="MoTa" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="SoLuongTrongKho" class="form-label">Số lượng trong kho</label>
         <input asp-for="SoLuongTrongKho" class="form-control" type="number" />
-        <span asp-validation-for="SoLuongTrongKho" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="TinhTrang" class="form-label">Tình trạng</label>
-        <input asp-for="TinhTrang" class="form-control" />
-        <span asp-validation-for="TinhTrang" class="text-danger"></span>
+        <select asp-for="TinhTrang" class="form-control">
+            <option value="Còn hàng">Còn hàng</option>
+            <option value="Hết hàng">Hết hàng</option>
+        </select>
     </div>
     <div class="mb-3">
         <label asp-for="MaLoai" class="form-label">Loại sản phẩm</label>
         <input asp-for="MaLoai" class="form-control" />
-        <span asp-validation-for="MaLoai" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="AnhSPs" class="form-label">Ảnh sản phẩm</label>
@@ -215,5 +228,33 @@
             }
         });
     });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị thông báo thành công
+    @if (TempData["Success"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+        </text>
+    }
+
+            // Hiển thị thông báo lỗi
+    @if (TempData["Error"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                    showConfirmButton: true
+                });
+        </text>
+    }
+                });
 </script>
 

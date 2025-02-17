@@ -1,0 +1,167 @@
+﻿@model DynaDevFE.Models.NhanVienViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Thêm nhân viên mới";
+}
+
+<head>
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<h2>Thêm nhân viên mới</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+         <input asp-for="MaNV" value="123" class="form-control" type="hidden"/>
+    </div>
+    <div class="mb-3">
+        <label asp-for="TenNV" class="form-label">Tên nhân viên</label>
+        <input asp-for="TenNV" class="form-control" placeholder="Nhập tên nhân viên"  />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" type="email" placeholder="Nhập email"  />
+    </div>
+    <div class="mb-3">
+        <label asp-for="MatKhau" class="form-label">Mật khẩu</label>
+        <input asp-for="MatKhau" class="form-control" type="password" placeholder="Nhập mật khẩu"  />
+    </div>
+    <div class="mb-3">
+        <label asp-for="SDT" class="form-label">Số điện thoại</label>
+        <input asp-for="SDT" class="form-control" placeholder="Nhập số điện thoại"  />
+    </div>
+    <div class="mb-3">
+        <label asp-for="DiaChi" class="form-label">Địa chỉ</label>
+        <input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ"  />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Luong" class="form-label">Lương</label>
+        <input asp-for="Luong" class="form-control" placeholder="Nhập lương" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="TinhTrang" class="form-label">Tình trạng</label>
+        <select asp-for="TinhTrang" class="form-control" >
+            <option value="Đang làm việc">Đang làm việc</option>
+            <option value="Nghỉ việc">Nghỉ việc</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm nhân viên</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const maNV = form.querySelector('[name="MaNV"]');
+        const tenNV = form.querySelector('[name="TenNV"]');
+        const email = form.querySelector('[name="Email"]');
+        const matKhau = form.querySelector('[name="MatKhau"]');
+        const sdt = form.querySelector('[name="SDT"]');
+        const diaChi = form.querySelector('[name="DiaChi"]');
+        const tinhTrang = form.querySelector('[name="TinhTrang"]');
+        const luong = form.querySelector('[name="Luong"]');
+
+        // Hàm hiển thị lỗi
+        function showError(input, message) {
+            const error = document.createElement('div');
+            error.className = 'text-danger error-message';
+            error.textContent = message;
+            input.insertAdjacentElement('afterend', error);
+        }
+
+        // Hàm xóa các lỗi cũ
+        function clearErrors() {
+            form.querySelectorAll('.error-message').forEach(e => e.remove());
+        }
+
+        form.addEventListener('submit', function (e) {
+            let isValid = true;
+            clearErrors();
+
+            // Kiểm tra các trường
+            if (!tenNV.value.trim()) {
+                showError(tenNV, 'Tên nhân viên không được để trống.');
+                isValid = false;
+            } else if (tenNV.value.trim().length > 30) {
+                showError(tenNV, 'Tên nhân viên không được vượt quá 30 ký tự.');
+                isValid = false;
+            }
+
+            if (!email.value.trim()) {
+                showError(email, 'Email không được để trống.');
+                isValid = false;
+            }
+
+            if (!matKhau.value.trim()) {
+                showError(matKhau, 'Mật khẩu không được để trống.');
+                isValid = false;
+            } else if (matKhau.value.length < 6) {
+                showError(matKhau, 'Mật khẩu phải có ít nhất 6 ký tự.');
+                isValid = false;
+            }
+
+            if (!sdt.value.trim()) {
+                showError(sdt, 'Số điện thoại không được để trống.');
+                isValid = false;
+            } else if (!/^\d{10,11}$/.test(sdt.value.trim())) {
+                showError(sdt, 'Số điện thoại phải có 10-11 chữ số.');
+                isValid = false;
+            }
+
+            if (!diaChi.value.trim()) {
+                showError(diaChi, 'Địa chỉ không được để trống.');
+                isValid = false;
+            }
+
+            if (!tinhTrang.value.trim()) {
+                showError(tinhTrang, 'Tình trạng không được để trống.');
+                isValid = false;
+            }
+
+            if (!luong.value.trim() || parseFloat(luong.value) <= 0) {
+                showError(luong, 'Giá sản phẩm phải lớn hơn 0.');
+            }
+
+            // Nếu không hợp lệ, ngăn gửi form
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị thông báo thành công
+    @if (TempData["Success"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+        </text>
+    }
+
+            // Hiển thị thông báo lỗi
+    @if (TempData["Error"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                    showConfirmButton: true
+                });
+        </text>
+    }
+            });
+</script>

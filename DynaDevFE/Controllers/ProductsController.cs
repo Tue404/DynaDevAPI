@@ -4,6 +4,7 @@ using System.Text.Json;
 using DynaDevFE.Models;
 using DynaDevAPI.Models;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 
 namespace DynaDevFE.Controllers
@@ -49,8 +50,7 @@ namespace DynaDevFE.Controllers
                         product.DanhSachAnh = imageObjects.Select(img => img.TenAnh).ToList();
                     }
 
-                }
-
+                }                      
                 return View(products);
             }
 
@@ -82,6 +82,9 @@ namespace DynaDevFE.Controllers
                     MaSP = sanPhamDto.MaSP,
                     MaLoai = sanPhamDto.MaLoai,
                     TenSanPham = sanPhamDto.TenSanPham,
+                    TacGia = sanPhamDto.TacGia,
+                    TenNCC = sanPhamDto.TenNCC,
+                    NamXuatBan = sanPhamDto.NamXuatBan,
                     Gia = sanPhamDto.Gia,
                     MoTa = sanPhamDto.MoTa,
                     TinhTrang = sanPhamDto.TinhTrang,
@@ -113,17 +116,28 @@ namespace DynaDevFE.Controllers
 
 
         // GET: Products/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var response = await _httpClient.GetAsync("api/Suppliers");
+            if (response.IsSuccessStatusCode)
+            {
+                var nhaCungCaps = await response.Content.ReadFromJsonAsync<List<NhaCungCap>>();
+                ViewBag.NhaCungCaps = new SelectList(nhaCungCaps, "MaNCC", "TenNCC");
+            }
+            else
+            {
+                ViewBag.NhaCungCaps = new SelectList(new List<NhaCungCap>(), "MaNCC", "TenNCC");
+                TempData["Error"] = "Không thể lấy danh sách nhà cung cấp.";
+            }
             return View();
         }
+
 
         // POST: Products/Create
         [HttpPost]
         public async Task<IActionResult> Create(SanPhamViewModel productViewModel)
         {
             var random = new Random();
-
             int randomvalue = random.Next(0, 999);
             string ma = "SP" + randomvalue.ToString("D3");
 
@@ -136,11 +150,14 @@ namespace DynaDevFE.Controllers
                 {
                     MaSP = ma,
                     MaLoai = productViewModel.MaLoai,
+                    MaNCC = productViewModel.MaNCC,
                     TenSanPham = productViewModel.TenSanPham,
+                    TacGia = productViewModel.TacGia,
+                    NamXuatBan = productViewModel.NamXuatBan,
                     Gia = productViewModel.Gia,
                     MoTa = productViewModel.MoTa,
                     SoLuongTrongKho = productViewModel.SoLuongTrongKho,
-                    NgayThem = DateTime.UtcNow,
+                    NgayThem = DateTime.Now,
                     TinhTrang = productViewModel.TinhTrang,
                     AnhSPs = productViewModel.DanhSachAnh.Select((path, index) => new AnhSP
                     {
@@ -153,7 +170,6 @@ namespace DynaDevFE.Controllers
                 // Serialize và gửi dữ liệu tới API
                 var jsonData = JsonSerializer.Serialize(product);
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-
                 var response = await _httpClient.PostAsync("api/Products", content);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -183,6 +199,8 @@ namespace DynaDevFE.Controllers
                         {
                             var uploadedPathsJson = await uploadResponse.Content.ReadAsStringAsync();
                             uploadedImagePaths = JsonSerializer.Deserialize<List<string>>(uploadedPathsJson);
+                            productViewModel.DanhSachAnh = uploadedImagePaths;
+                            TempData["Success"] = "Thêm sản phẩm thành công!";
                         }
                         else
                         {
@@ -195,6 +213,8 @@ namespace DynaDevFE.Controllers
 
             return RedirectToAction("Index");
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
@@ -260,20 +280,19 @@ namespace DynaDevFE.Controllers
 
             // 3. Cập nhật sản phẩm
             var jsonData = JsonSerializer.Serialize(productViewModel);
+            Console.WriteLine(jsonData);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PutAsync($"api/Products/{productViewModel.MaSP}", content);
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(errorContent);
             if (!response.IsSuccessStatusCode)
             {
                 ModelState.AddModelError("", "Cập nhật sản phẩm thất bại.");
                 return View(productViewModel);
             }
-
             return RedirectToAction("Index");
         }
-
-  
-
     }
 }
 

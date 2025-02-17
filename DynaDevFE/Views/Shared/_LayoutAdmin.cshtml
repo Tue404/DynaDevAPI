@@ -7,6 +7,7 @@
     <title>Modernize Free</title>
     <link rel="shortcut icon" type="image/png" href="~/admin/images/logos/favicon.png" />
     <link rel="stylesheet" href="~/admin/css/styles.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 
 <link href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&display=swap" rel="stylesheet">
@@ -59,19 +60,40 @@
 
                         </li>
                         <li class="sidebar-item">
-                            <a asp-controller="Customer" asp-action="Index"  class="sidebar-link" aria-expanded="false">
+
+                            <a asp-controller="Staff" asp-action="Index"  class="sidebar-link" aria-expanded="false">
                                 <span>
+
                                     <i class="fas fa-user"></i>
+
+                                    <i class="ti ti-alert-circle"></i>
+
                                 </span>
-                                <span class="hide-menu">Quản lý khách hàng</span>
+                                <span class="hide-menu">Quản lý nhân viên</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-card.html" aria-expanded="false">
+
+                            <a asp-controller="Order" asp-action="Index" class="sidebar-link" aria-expanded="false">
+
+                            <a asp-controller="Customer" asp-action="Index" class="sidebar-link" aria-expanded="false">
+
                                 <span>
-                                    <i class="ti ti-cards"></i>
+                                    <i class="ti ti-shopping-cart"></i>
                                 </span>
-                                <span class="hide-menu">Card</span>
+
+                                <span class="hide-menu">Quản lý đơn hàng</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a asp-controller="LoaiSP" asp-action="Index" class="sidebar-link" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-list"></i>
+                                </span>
+                                <span class="hide-menu">Quản lý danh mục sản phẩm</span>
+
+                                <span class="hide-menu">Quản lý khách hàng</span>
+
                             </a>
                         </li>
                         <li class="sidebar-item">
@@ -222,6 +244,10 @@
     <script src="~/admin/libs/apexcharts/dist/apexcharts.min.js"></script>
     <script src="~/admin/libs/simplebar/dist/simplebar.js"></script>
     <script src="~/admin/js/dashboard.js"></script>
+
+
+
+
     @RenderSection("Scripts", required: false)
 
 </body>

@@ -5,9 +5,6 @@
 }
 
 
-
-
-
 <h2>Sửa Sản Phẩm</h2>
 
 <form asp-action="Edit" method="post" enctype="multipart/form-data">
@@ -18,6 +15,24 @@
         <label asp-for="TenSanPham" class="form-label">Tên Sản Phẩm</label>
         <input asp-for="TenSanPham" class="form-control" />
         <span asp-validation-for="TenSanPham" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TacGia" class="form-label">Tác giả</label>
+        <input asp-for="TacGia" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="MaNCC">Nhà Cung Cấp</label>
+        <select asp-for="MaNCC" class="form-control" asp-items="ViewBag.NhaCungCaps">
+            <option value="">-- Chọn Nhà Cung Cấp --</option>
+        </select>
+        <span asp-validation-for="MaNCC" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NamXuatBan" class="form-label">Năm xuất bản</label>
+        <input asp-for="NamXuatBan" type="number" class="form-control" />
     </div>
 
     <div class="mb-3">
