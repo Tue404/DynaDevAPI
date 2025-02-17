@@ -1,0 +1,43 @@
+﻿@model DynaDevFE.Models.KhachHangViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết khách hàng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Chi tiết khách hàng</h2>
+
+<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <th>Mã KH</th>
+            <td>@Model.MaKH</td>
+        </tr>
+        <tr>
+            <th>Tên khách hàng</th>
+            <td>@Model.TenKH</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>@Model.Email</td>
+        </tr>
+        <tr>
+            <th>Số điện thoại</th>
+            <td>@Model.SDT</td>
+        </tr>
+        <tr>
+            <th>Địa chỉ</th>
+            <td>@Model.DiaChi</td>
+        </tr>
+        <tr>
+            <th>Tình trạng</th>
+            <td>@Model.TinhTrang</td>
+        </tr>
+        <tr>
+            <th>Ngày đăng ký</th>
+            <td>@Model.NgayDangKy</td>
+        </tr>
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>

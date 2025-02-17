@@ -1,5 +1,5 @@
 ﻿@model List<DynaDevFE.Models.SanPhamViewModel>
-
+@using System.Text.Json
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
@@ -9,7 +9,12 @@
     ViewData["Title"] = "Danh sách sản phẩm";
 }
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<head>
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 <h2>Danh sách sản phẩm</h2>
 
 
@@ -31,7 +36,7 @@
             <tr>
                 <td>@item.MaSP</td>
                 <td>@item.TenSanPham</td>
-                <td>@item.Gia.ToString("C")</td>
+                <td>@($"{item.Gia:N0} ₫")</td>
                 <td>
                     @if (item.DanhSachAnh != null && item.DanhSachAnh.Any())
                     {
@@ -53,8 +58,39 @@
         }
     </tbody>
 </table>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị thông báo thành công
+    @if (TempData["Success"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+        </text>
+    }
+
+            // Hiển thị thông báo lỗi
+    @if (TempData["Error"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                    showConfirmButton: true
+                });
+        </text>
+    }
+            });
     document.addEventListener('DOMContentLoaded', function () {
         // Hiển thị thông báo thành công
     @if (TempData["Success"] != null)

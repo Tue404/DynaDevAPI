@@ -43,6 +43,22 @@ namespace DynaDevAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NhaCungCaps",
+                columns: table => new
+                {
+                    MaNCC = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TenNCC = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NhaCungCaps", x => x.MaNCC);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NhanViens",
                 columns: table => new
                 {
@@ -53,11 +69,32 @@ namespace DynaDevAPI.Migrations
                     SDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NgayVaoLam = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    NgayVaoLam = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Luong = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_NhanViens", x => x.MaNV);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Vouchers",
+                columns: table => new
+                {
+                    MaVoucher = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TenVoucher = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MoTa = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GiamGia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LoaiGiamGia = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NgayBatDau = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NgayKetThuc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DieuKien = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SoLuong = table.Column<int>(type: "int", nullable: false),
+                    TrangThai = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Vouchers", x => x.MaVoucher);
                 });
 
             migrationBuilder.CreateTable(
@@ -67,11 +104,15 @@ namespace DynaDevAPI.Migrations
                     MaSP = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MaLoai = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     TenSanPham = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TacGia = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NhaXuatBan = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NamXuatBan = table.Column<int>(type: "int", nullable: false),
                     Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MoTa = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     SoLuongTrongKho = table.Column<int>(type: "int", nullable: false),
                     NgayThem = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TinhTrang = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    TinhTrang = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    MaNCC = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,6 +123,12 @@ namespace DynaDevAPI.Migrations
                         principalTable: "LoaiSPs",
                         principalColumn: "MaLoai",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SanPhams_NhaCungCaps_MaNCC",
+                        column: x => x.MaNCC,
+                        principalTable: "NhaCungCaps",
+                        principalColumn: "MaNCC",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -90,6 +137,7 @@ namespace DynaDevAPI.Migrations
                 {
                     MaDH = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MaKH = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MaVoucher = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ThongTinThanhToan = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DiaChiNhanHang = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ThoiGianDatHang = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -111,6 +159,12 @@ namespace DynaDevAPI.Migrations
                         column: x => x.MaNV,
                         principalTable: "NhanViens",
                         principalColumn: "MaNV");
+                    table.ForeignKey(
+                        name: "FK_DonHangs_Vouchers_MaVoucher",
+                        column: x => x.MaVoucher,
+                        principalTable: "Vouchers",
+                        principalColumn: "MaVoucher",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -223,9 +277,19 @@ namespace DynaDevAPI.Migrations
                 column: "MaNV");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DonHangs_MaVoucher",
+                table: "DonHangs",
+                column: "MaVoucher");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SanPhams_MaLoai",
                 table: "SanPhams",
                 column: "MaLoai");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SanPhams_MaNCC",
+                table: "SanPhams",
+                column: "MaNCC");
         }
 
         /// <inheritdoc />
@@ -253,7 +317,13 @@ namespace DynaDevAPI.Migrations
                 name: "NhanViens");
 
             migrationBuilder.DropTable(
+                name: "Vouchers");
+
+            migrationBuilder.DropTable(
                 name: "LoaiSPs");
+
+            migrationBuilder.DropTable(
+                name: "NhaCungCaps");
         }
     }
 }

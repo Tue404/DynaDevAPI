@@ -12,6 +12,8 @@ namespace DynaDevAPI.Data
         }
 
         public DbSet<KhachHang> KhachHangs { get; set; }
+        public DbSet<NhaCungCap> NhaCungCaps { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<NhanVien> NhanViens { get; set; }
         public DbSet<LoaiSP> LoaiSPs { get; set; }
         public DbSet<SanPham> SanPhams { get; set; }
@@ -29,6 +31,11 @@ namespace DynaDevAPI.Data
                 .WithMany(ls => ls.SanPhams)
                 .HasForeignKey(sp => sp.MaLoai);
 
+            modelBuilder.Entity<SanPham>()
+                .HasOne(sp => sp.NhaCungCap)
+                .WithMany(ncc => ncc.SanPhams)
+                .HasForeignKey(sp => sp.MaNCC);
+
             modelBuilder.Entity<AnhSP>()
                 .HasOne(asp => asp.SanPham)
                 .WithMany(sp => sp.AnhSPs)
@@ -43,6 +50,11 @@ namespace DynaDevAPI.Data
                 .HasOne(dh => dh.NhanVien)
                 .WithMany(nv => nv.DonHangs)
                 .HasForeignKey(dh => dh.MaNV);
+
+            modelBuilder.Entity<DonHang>()
+                .HasOne(dh => dh.Voucher)
+                .WithMany(vc => vc.DonHangs)
+                .HasForeignKey(dh => dh.MaVoucher);
 
             modelBuilder.Entity<ChiTietDonHang>()
                 .HasOne(ctdh => ctdh.DonHang)

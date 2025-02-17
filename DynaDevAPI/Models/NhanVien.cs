@@ -14,6 +14,7 @@ namespace DynaDevAPI.Models
         public string DiaChi { get; set; }
         public string TinhTrang { get; set; }
         public DateTime NgayVaoLam { get; set; }
+        public float Luong { get; set; }
 
         public ICollection<DonHang>? DonHangs { get; set; }
     }
