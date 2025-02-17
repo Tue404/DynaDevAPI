@@ -67,7 +67,8 @@ namespace DynaDevAPI.Data
         public async Task<IActionResult> GetSanPham(string id)
         {
             var sanPham = await _db.SanPhams
-                                   .Include(sp => sp.AnhSPs) // Include bảng AnhSPs
+                                   .Include(sp => sp.AnhSPs)
+                                   .Include(sp => sp.NhaCungCap)
                                    .FirstOrDefaultAsync(sp => sp.MaSP == id);
 
             if (sanPham == null)
@@ -196,18 +197,22 @@ namespace DynaDevAPI.Data
             if (!ModelState.IsValid)
             {
                 return BadRequest("Dữ liệu không hợp lệ.");
-            }
+            }               
 
-           
-            _db.SanPhams.Add(sanPham);
+                 
+            //if (sanPham.AnhSPs != null && sanPham.AnhSPs.Any())
+            //{
+            //    foreach (var anh in sanPham.AnhSPs)
+            //    {
+            //        anh.MaSP = sanPham.MaSP; // Gắn mã sản phẩm cho ảnh
+            //        _db.AnhSPs.Add(anh);
+            //    }
+            //}
 
-            if (sanPham.AnhSPs != null && sanPham.AnhSPs.Any())
+            var nhaCungCap = await _db.NhaCungCaps.FirstOrDefaultAsync(ncc => ncc.MaNCC == sanPham.MaNCC);
+            if (nhaCungCap == null)
             {
-                foreach (var anh in sanPham.AnhSPs)
-                {
-                    anh.MaSP = sanPham.MaSP; // Gắn mã sản phẩm cho ảnh
-                    _db.AnhSPs.Add(anh);
-                }
+                return BadRequest(new { success = false, message = "Nhà cung cấp không tồn tại." });
             }
 
             try
