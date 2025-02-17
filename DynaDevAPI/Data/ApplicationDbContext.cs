@@ -55,6 +55,11 @@ namespace DynaDevAPI.Data
                 .WithMany(ncc => ncc.SanPhams)
                 .HasForeignKey(sp => sp.MaNCC);
 
+            modelBuilder.Entity<SanPham>()
+                .HasOne(sp => sp.NhaCungCap)
+                .WithMany(ncc => ncc.SanPhams)
+                .HasForeignKey(sp => sp.MaNCC);
+
             modelBuilder.Entity<AnhSP>()
                 .HasOne(asp => asp.SanPham)
                 .WithMany(sp => sp.AnhSPs)
@@ -68,6 +73,11 @@ namespace DynaDevAPI.Data
             modelBuilder.Entity<DonHang>()
                 .Property(dh => dh.TongTien)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<DonHang>()
+                .HasOne(dh => dh.Voucher)
+                .WithMany(vc => vc.DonHangs)
+                .HasForeignKey(dh => dh.MaVoucher);
 
             modelBuilder.Entity<DonHang>()
                 .HasOne(dh => dh.Voucher)

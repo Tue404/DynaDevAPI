@@ -1,5 +1,8 @@
 ﻿@model List<DynaDevFE.Models.KhachHangViewModel>
 @using System.Text.Json;
+@using DynaDevFE.Models
+@using static DynaDevFE.Controllers.CustomerController
+
 @{
     ViewData["Title"] = "Quản lý khách hàng";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
@@ -58,6 +61,26 @@
     </tbody>
 </table>
 
+
+<div class="pagination">
+    @if (ViewBag.Pagination != null)
+    {
+        var pagination = (Pagination)ViewBag.Pagination;
+        for (int i = 1; i <= pagination.TotalPages; i++)
+        {
+            <a href="#"
+               data-page="@i"
+               class="btn @(pagination.CurrentPage == i ? "btn-primary" : "btn-secondary") btn-sm">
+                @i
+            </a>
+        }
+    }
+</div>
+
+</div>
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -105,7 +128,7 @@
             }
 
             try {
-                const response = await axios.get(`/HomeAdmin/Search?query=${encodeURIComponent(query)}`);
+                const response = await axios.get(`/Customer/Search?query=${encodeURIComponent(query)}`);
                 const customers = response.data;
                 renderCustomers(customers);
             } catch (error) {
@@ -238,5 +261,44 @@
             });
         });
     });
+
+
+
+
+
+    async function loadPage(page) {
+        try {
+            const response = await axios.get(`/Customer/Index?page=${page}`);
+
+            // Phân tích HTML trả về từ server
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(response.data, 'text/html');
+
+            // Cập nhật danh sách khách hàng và phân trang
+            document.getElementById('customerTable').innerHTML = doc.querySelector('#customerTable').innerHTML;
+            document.querySelector('.pagination').innerHTML = doc.querySelector('.pagination').innerHTML;
+
+            // Gắn sự kiện phân trang sau khi cập nhật
+            bindPagination();
+        } catch (error) {
+            console.error('Lỗi tải trang:', error);
+        }
+    }
+
+
+    function bindPagination() {
+        const paginationLinks = document.querySelectorAll('.pagination a');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                const page = this.getAttribute('data-page');
+                loadPage(page);
+            });
+        });
+    }
+
+    // Gắn sự kiện khi tải trang lần đầu
+    bindPagination();
+
 
 </script>

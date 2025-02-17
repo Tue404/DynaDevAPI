@@ -1,0 +1,85 @@
+﻿@model DynaDevFE.Models.VoucherViewModel
+
+@{
+    ViewData["Title"] = "Sửa Voucher";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Edit" method="post">
+   
+    <input asp-for="MaVoucher" type="hidden" />
+
+    <div class="mb-3">
+        <label asp-for="TenVoucher" class="form-label">Tên Voucher</label>
+        <input asp-for="TenVoucher" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MoTa" class="form-label">Mô Tả</label>
+        <input asp-for="MoTa" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="GiamGia" class="form-label">Giảm Giá</label>
+        <select asp-for="GiamGia" class="form-select" required>
+            <option value="5">Giảm giá 5%</option>
+            <option value="10">Giảm giá 10%</option>
+            <option value="15">Giảm giá 15%</option>
+            <option value="20">Giảm giá 20%</option>
+            <option value="25">Giảm giá 25%</option>
+            <option value="35">Giảm giá 35%</option>
+            <option value="10000">Giảm giá 10.000VND</option>
+            <option value="25000">Giảm giá 20.000VND</option>
+            <option value="30000">Giảm giá 30.000VND</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LoaiGiamGia" class="form-label">Loại Giảm Giá</label>
+        <select asp-for="LoaiGiamGia" class="form-select" required>
+            <option value="Giảm giá theo phần trăm">Giảm giá theo phần trăm</option>
+            <option value="Giảm giá theo số tiền">Giảm giá theo số tiền</option>
+
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NgayBatDau" class="form-label">Ngày Bắt Đầu</label>
+        <input asp-for="NgayBatDau" type="date" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NgayKetThuc" class="form-label">Ngày Kết Thúc</label>
+        <input asp-for="NgayKetThuc" type="date" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DieuKien" class="form-label">Điều Kiện</label>
+        <select asp-for="DieuKien" class="form-select" required>
+            <option value="Sản phẩm trên 50.000V">Trên 50.000VND</option>
+            <option value="Sản phẩm trên 100.000VND">Trên 100.000VND</option>
+            <option value="Sản phẩm trên 150.000VND">Trên 150.000VND</option>
+            <option value="Sản phẩm trên 200.000VND">Trên 200.000VND</option>
+            <option value="Sản phẩm trên 250.000VND">Trên 250.000VND</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SoLuong" class="form-label">Số Lượng</label>
+        <input asp-for="SoLuong" type="number" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TrangThai" class="form-label">Trạng Thái</label>
+        <select asp-for="TrangThai" class="form-select" required>
+            <option value="Hoạt động">Hoạt động</option>
+            <option value="Không hoạt động">Không hoạt động</option>
+        </select>
+        <span asp-validation-for="TrangThai" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Cập nhật</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

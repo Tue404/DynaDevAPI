@@ -1,0 +1,344 @@
+﻿@model IEnumerable<DynaDevFE.Models.DoanhThuTheoNgayThangNamViewModel>
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Thống kê doanh thu và đơn hàng theo ngày, tháng, năm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    .chart-container {
+        width: 80% !important;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    canvas {
+        width: 90% !important;
+        height: auto !important;
+    }
+
+    .form-control {
+        width: 350px;
+    }
+
+    .horizontal-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+        .horizontal-container label {
+            margin-right: 10px;
+        }
+
+    .no-data {
+        color: red;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    #totalStatistics {
+        margin-top: 20px;
+    }
+</style>
+
+<h2>Thống kê doanh thu và đơn hàng theo ngày, tháng, năm</h2>
+
+<div>
+    <label for="dateOrYear">Chọn Thời Gian:</label>
+    <select id="dateOrYear" class="form-control" onchange="toggleTimeSelection()">
+        <option value="daily">Theo Ngày</option>
+        <option value="monthly">Theo Tháng</option>
+        <option value="yearly">Theo Năm</option>
+    </select>
+</div>
+
+<!-- Thống kê theo ngày -->
+<div id="dailySection">
+    <label for="dailyDate">Chọn Ngày:</label>
+    <div class="horizontal-container">
+        <input type="date" id="dailyDate" class="form-control">
+        <button class="btn btn-primary mt-2" onclick="getDailyStatistics()">Thống Kê</button>
+    </div>
+    <canvas id="dailyChart" class="chart-container"></canvas>
+    <div id="dailyNoData" class="no-data" style="display:none;">Không có dữ liệu cho ngày đã chọn.</div>
+    <div id="dailyTotal" style="display:none;">
+        <h5>Tổng Doanh Thu: <span id="dailyRevenueTotal"></span> VND</h5>
+        <h5>Tổng Đơn Hàng: <span id="dailyOrdersTotal"></span></h5>
+    </div>
+</div>
+
+<!-- Thống kê theo tháng -->
+<div id="monthlySection" style="display: none;">
+    <label for="monthlyYear">Chọn Năm:</label>
+    <div class="horizontal-container">
+        <select id="monthlyYear" class="form-control">
+            @for (int i = 2025; i <= 2100; i++)
+            {
+                <option value="@i">@i</option>
+            }
+        </select>
+        <label for="monthlyMonth">Chọn Tháng:</label>
+        <select id="monthlyMonth" class="form-control">
+            @for (int i = 1; i <= 12; i++)
+            {
+                <option value="@i">Tháng @i</option>
+            }
+        </select>
+        <button class="btn btn-primary mt-2" onclick="getMonthlyStatistics()">Thống Kê</button>
+    </div>
+    <canvas id="monthlyChart" class="chart-container"></canvas>
+    <div id="monthlyNoData" class="no-data" style="display:none;">Không có dữ liệu cho tháng đã chọn.</div>
+    <div id="monthlyTotal" style="display:none;">
+        <h5>Tổng Doanh Thu: <span id="monthlyRevenueTotal"></span> VND</h5>
+        <h5>Tổng Đơn Hàng: <span id="monthlyOrdersTotal"></span></h5>
+    </div>
+</div>
+
+<!-- Thống kê theo năm -->
+<div id="yearlySection" style="display: none;">
+    <label for="yearlyYear">Chọn Năm:</label>
+    <div class="horizontal-container">
+        <select id="yearlyYear" class="form-control">
+            @for (int i = 2025; i <= 2100; i++)
+            {
+                <option value="@i">@i</option>
+            }
+        </select>
+        <button class="btn btn-primary mt-2" onclick="getYearlyStatistics()">Thống Kê</button>
+    </div>
+    <canvas id="yearlyChart" class="chart-container"></canvas>
+    <div id="yearlyNoData" class="no-data" style="display:none;">Không có dữ liệu cho năm đã chọn.</div>
+    <div id="yearlyTotal" style="display:none;">
+        <h5>Tổng Doanh Thu: <span id="yearlyRevenueTotal"></span> VND</h5>
+        <h5>Tổng Đơn Hàng: <span id="yearlyOrdersTotal"></span></h5>
+    </div>
+</div>
+
+<!-- Modal thông báo khi không có dữ liệu -->
+<div class="modal fade" id="noDataModal" tabindex="-1" aria-labelledby="noDataModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="noDataModalLabel">Thông báo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Không có đơn hàng và doanh thu cho thời gian bạn vừa tìm kiếm.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function () {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        const currentDate = yyyy + '-' + mm + '-' + dd;
+        document.getElementById("dailyDate").value = currentDate;
+    };
+
+    function toggleTimeSelection() {
+        var selectedTime = document.getElementById('dateOrYear').value;
+        document.getElementById('dailySection').style.display = 'none';
+        document.getElementById('monthlySection').style.display = 'none';
+        document.getElementById('yearlySection').style.display = 'none';
+        document.getElementById('dailyNoData').style.display = 'none';
+        document.getElementById('monthlyNoData').style.display = 'none';
+        document.getElementById('yearlyNoData').style.display = 'none';
+
+        if (selectedTime === 'daily') {
+            document.getElementById('dailySection').style.display = 'block';
+        } else if (selectedTime === 'monthly') {
+            document.getElementById('monthlySection').style.display = 'block';
+        } else if (selectedTime === 'yearly') {
+            document.getElementById('yearlySection').style.display = 'block';
+        }
+    }
+</script>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const BASE_URL = "https://localhost:7101/api/Statistical";
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${BASE_URL}/${endpoint}`);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                return [];
+            }
+        }
+
+        function createLineChart(canvasId, labels, revenues, orders, title) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: `${title} - Doanh thu`,
+                            data: revenues,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                        },
+                        {
+                            label: `${title} - Đơn hàng`,
+                            data: orders,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { mode: 'index', intersect: false },
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Thời gian' },
+                            grid: { display: true, color: 'rgba(0,0,0,0.1)' },
+                        },
+                        y: {
+                            title: { display: true, text: 'Giá trị VND/ Đơn hàng' },
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        },
+                    },
+                },
+            });
+        }
+
+        async function getDailyStatistics() {
+            const date = document.getElementById("dailyDate").value;
+            if (!date) {
+                alert("Vui lòng chọn ngày!");
+                return;
+            }
+
+            try {
+                const data = await fetchData(`DoanhThuTheoNgayThangNam?date=${date}`);
+                if (data && data.length > 0) {
+                    const labels = data.map(x => `${x.ngay}/${x.thang}/${x.nam}`);
+                    const revenues = data.map(x => x.tongDoanhThu);
+                    const orders = data.map(x => x.tongDonHang);
+                    const totalRevenue = data.reduce((acc, curr) => acc + curr.tongDoanhThu, 0);
+                    const totalOrders = data.reduce((acc, curr) => acc + curr.tongDonHang, 0);
+
+                    createLineChart("dailyChart", labels, revenues, orders, "Thống kê theo ngày");
+                    document.getElementById("dailyTotal").style.display = 'block';
+                    document.getElementById("dailyRevenueTotal").textContent = totalRevenue.toLocaleString();
+                    document.getElementById("dailyOrdersTotal").textContent = totalOrders.toLocaleString();
+                    document.getElementById("dailyNoData").style.display = 'none';
+                } else {
+                    const ctx = document.getElementById("dailyChart").getContext('2d');
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                    // Hiển thị modal nếu không có dữ liệu
+                    const myModal = new bootstrap.Modal(document.getElementById('noDataModal'), {
+                        keyboard: false
+                    });
+                    myModal.show();
+                }
+            } catch (error) {
+                console.error('Error in getDailyStatistics:', error);
+            }
+        }
+
+        async function getMonthlyStatistics() {
+            const year = document.getElementById("monthlyYear").value;
+            const month = document.getElementById("monthlyMonth").value;
+
+            if (!year || !month) {
+                alert("Vui lòng chọn đầy đủ năm và tháng!");
+                return;
+            }
+
+            try {
+                const data = await fetchData(`DoanhThuTheoNgayThangNam?year=${year}&month=${month}`);
+                if (data && data.length > 0) {
+                    const labels = data.map(x => `${x.ngay}/${x.thang}/${x.nam}`);
+                    const revenues = data.map(x => x.tongDoanhThu);
+                    const orders = data.map(x => x.tongDonHang);
+                    const totalRevenue = data.reduce((acc, curr) => acc + curr.tongDoanhThu, 0);
+                    const totalOrders = data.reduce((acc, curr) => acc + curr.tongDonHang, 0);
+
+                    createLineChart("monthlyChart", labels, revenues, orders, "Thống kê theo tháng");
+                    document.getElementById("monthlyTotal").style.display = 'block';
+                    document.getElementById("monthlyRevenueTotal").textContent = totalRevenue.toLocaleString();
+                    document.getElementById("monthlyOrdersTotal").textContent = totalOrders.toLocaleString();
+                    document.getElementById("monthlyNoData").style.display = 'none';
+                } else {
+                    const ctx = document.getElementById("monthlyChart").getContext('2d');
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    const myModal = new bootstrap.Modal(document.getElementById('noDataModal'), {
+                        keyboard: false
+                    });
+                    myModal.show();
+                }
+            } catch (error) {
+                console.error('Error in getMonthlyStatistics:', error);
+            }
+        }
+
+        async function getYearlyStatistics() {
+            const year = document.getElementById("yearlyYear").value;
+
+            if (!year) {
+                alert("Vui lòng chọn năm!");
+                return;
+            }
+
+            try {
+                const data = await fetchData(`DoanhThuTheoNgayThangNam?year=${year}`);
+                if (data && data.length > 0) {
+                    const labels = data.map(x => `${x.ngay}/${x.thang}/${x.nam}`);
+                    const revenues = data.map(x => x.tongDoanhThu);
+                    const orders = data.map(x => x.tongDonHang);
+                    const totalRevenue = data.reduce((acc, curr) => acc + curr.tongDoanhThu, 0);
+                    const totalOrders = data.reduce((acc, curr) => acc + curr.tongDonHang, 0);
+
+                    createLineChart("yearlyChart", labels, revenues, orders, "Thống kê theo năm");
+                    document.getElementById("yearlyTotal").style.display = 'block';
+                    document.getElementById("yearlyRevenueTotal").textContent = totalRevenue.toLocaleString();
+                    document.getElementById("yearlyOrdersTotal").textContent = totalOrders.toLocaleString();
+                    document.getElementById("yearlyNoData").style.display = 'none';
+                } else {
+                    const ctx = document.getElementById("yearlyChart").getContext('2d');
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    const myModal = new bootstrap.Modal(document.getElementById('noDataModal'), {
+                        keyboard: false
+                    });
+                    myModal.show();
+                }
+            } catch (error) {
+                console.error('Error in getYearlyStatistics:', error);
+            }
+        }
+    </script>
+}

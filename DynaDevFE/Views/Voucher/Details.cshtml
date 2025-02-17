@@ -1,0 +1,59 @@
+﻿@model DynaDevFE.Models.VoucherViewModel
+
+
+@{
+    ViewData["Title"] = "Chi tiết Voucher";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Chi tiết Voucher</h2>
+
+<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <th>Mã Voucher</th>
+            <td>@Model.MaVoucher</td>
+        </tr>
+        <tr>
+            <th>Tên Voucher</th>
+            <td>@Model.TenVoucher</td>
+        </tr>
+        <tr>
+            <th>Giảm giá</th>
+            <td>@(Model.GiamGia <= 100 ? $"{Model.GiamGia} %" : $"{Model.GiamGia.ToString("N0")} VND")</td>
+
+        </tr>
+
+        <tr>
+            <th>Loại giảm giá</th>
+            <td>@Model.LoaiGiamGia</td>
+        </tr>
+        <tr>
+            <th>Ngày bắt đầu</th>
+            <td>@Model.NgayBatDau.ToString("dd/MM/yyyy")</td>
+        </tr>
+        <tr>
+            <th>Ngày kết thúc</th>
+            <td>@Model.NgayKetThuc.ToString("dd/MM/yyyy")</td>
+        </tr>
+
+        <tr>
+            <th>Điều kiện</th>
+            <td>@Model.DieuKien</td>
+        </tr>
+        <tr>
+            <th>Số lượng</th>
+            <td>@Model.SoLuong</td>
+        </tr>
+        <tr>
+            <th>Trạng thái</th>
+            <td>@Model.TrangThai</td>
+        </tr>
+        <tr>
+            <th>Mô tả</th>
+            <td>@Model.MoTa</td>
+        </tr>'
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>

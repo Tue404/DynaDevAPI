@@ -4,6 +4,7 @@ using DynaDevAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynaDevAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250216054546_sdjjj")]
+    partial class sdjjj
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,81 +25,12 @@ namespace DynaDevAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DonHang", b =>
-                {
-                    b.Property<string>("MaDH")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DiaChiNhanHang")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MaKH")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("MaNV")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("OrderStatusId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PaymentStatusId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ThoiGianDatHang")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("TongTien")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("MaDH");
-
-                    b.HasIndex("MaKH");
-
-                    b.HasIndex("MaNV");
-
-                    b.HasIndex("OrderStatusId");
-
-                    b.HasIndex("PaymentStatusId");
-
-                    b.ToTable("DonHangs");
-
-                    b.HasData(
-                        new
-                        {
-                            MaDH = "DH001",
-                            DiaChiNhanHang = "123 Đường Văn Học, Hà Nội",
-                            MaKH = "KH01",
-                            MaNV = "NV01",
-                            OrderStatusId = 1,
-                            PaymentStatusId = 1,
-                            ThoiGianDatHang = new DateTime(2025, 2, 9, 9, 27, 31, 784, DateTimeKind.Local).AddTicks(3564),
-                            TongTien = 240000m
-                        },
-                        new
-                        {
-                            MaDH = "DH002",
-                            DiaChiNhanHang = "456 Đường Khoa Học, TP.HCM",
-                            MaKH = "KH01",
-                            MaNV = "NV01",
-                            OrderStatusId = 3,
-                            PaymentStatusId = 2,
-                            ThoiGianDatHang = new DateTime(2025, 2, 10, 9, 27, 31, 784, DateTimeKind.Local).AddTicks(4331),
-                            TongTien = 90000m
-                        });
-                });
-
             modelBuilder.Entity("DynaDevAPI.Models.AnhSP", b =>
                 {
                     b.Property<string>("MaAnh")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MaSP")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SanPhamMaSP")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -106,7 +40,7 @@ namespace DynaDevAPI.Migrations
 
                     b.HasKey("MaAnh");
 
-                    b.HasIndex("SanPhamMaSP");
+                    b.HasIndex("MaSP");
 
                     b.ToTable("AnhSPs");
                 });
@@ -116,22 +50,14 @@ namespace DynaDevAPI.Migrations
                     b.Property<string>("MaChiTiet")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("DonHangMaDH")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<decimal>("Gia")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("MaDH")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MaSP")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SanPhamMaSP")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -140,9 +66,9 @@ namespace DynaDevAPI.Migrations
 
                     b.HasKey("MaChiTiet");
 
-                    b.HasIndex("DonHangMaDH");
+                    b.HasIndex("MaDH");
 
-                    b.HasIndex("SanPhamMaSP");
+                    b.HasIndex("MaSP");
 
                     b.ToTable("ChiTietDonHangs");
                 });
@@ -159,23 +85,40 @@ namespace DynaDevAPI.Migrations
                     b.Property<int>("DiemDanhGia")
                         .HasColumnType("int");
 
-                    b.Property<string>("KhachHangMaKH")
+                    b.Property<string>("MaKH")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("MaKH")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("MaSP")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("NgayDanhGia")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("MaVoucher")
+                    b.HasKey("MaDanhGia");
+
+                    b.HasIndex("MaKH");
+
+                    b.HasIndex("MaSP");
+
+                    b.ToTable("DanhGias");
+                });
+
+            modelBuilder.Entity("DynaDevAPI.Models.DonHang", b =>
+                {
+                    b.Property<string>("MaDH")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DiaChiNhanHang")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MaKH")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("MaNV")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MaVoucher")
@@ -183,23 +126,24 @@ namespace DynaDevAPI.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("ThoiGianDatHang")
-
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("SanPhamMaSP")
+                    b.Property<string>("ThongTinThanhToan")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("MaDanhGia");
+                    b.Property<string>("TinhTrang")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("KhachHangMaKH");
+                    b.Property<decimal>("TongTien")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.HasIndex("SanPhamMaSP");
+                    b.HasKey("MaDH");
 
+                    b.HasIndex("MaKH");
 
-                    b.ToTable("DanhGias");
-
-                    b.HasIndex("MaVoucher");
+                    b.HasIndex("MaNV");
 
                     b.HasIndex("MaVoucher");
 
@@ -241,19 +185,6 @@ namespace DynaDevAPI.Migrations
                     b.HasKey("MaKH");
 
                     b.ToTable("KhachHangs");
-
-                    b.HasData(
-                        new
-                        {
-                            MaKH = "KH01",
-                            DiaChi = "Hà Nội",
-                            Email = "vana@gmail.com",
-                            MatKhau = "123456",
-                            NgayDangKy = new DateTime(2025, 2, 12, 9, 27, 31, 782, DateTimeKind.Local).AddTicks(1087),
-                            SDT = "0123456789",
-                            TenKH = "Nguyễn Văn A",
-                            TinhTrang = "Hoạt động"
-                        });
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.LoaiSP", b =>
@@ -262,9 +193,7 @@ namespace DynaDevAPI.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AnhLoai")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MoTa")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenLoai")
@@ -273,57 +202,7 @@ namespace DynaDevAPI.Migrations
 
                     b.HasKey("MaLoai");
 
-                    b.ToTable("LoaiSPs", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            MaLoai = "1",
-                            MoTa = "Danh mục sách và truyện tranh",
-                            TenLoai = "Sách - Truyện Tranh"
-                        },
-                        new
-                        {
-                            MaLoai = "2",
-                            MoTa = "Dụng cụ văn phòng phẩm",
-                            TenLoai = "Dụng Cụ Vẽ - VPP"
-                        },
-                        new
-                        {
-                            MaLoai = "3",
-                            MoTa = "Băng đĩa và phụ kiện số",
-                            TenLoai = "Băng Đĩa - Phụ Kiện Số"
-                        });
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.NhaCungCap", b =>
-                {
-                    b.Property<string>("MaNCC")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DiaChi")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SDT")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenNCC")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TinhTrang")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaNCC");
-
-                    b.ToTable("NhaCungCaps");
+                    b.ToTable("LoaiSPs");
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.NhaCungCap", b =>
@@ -394,97 +273,6 @@ namespace DynaDevAPI.Migrations
                     b.HasKey("MaNV");
 
                     b.ToTable("NhanViens");
-
-                    b.HasData(
-                        new
-                        {
-                            MaNV = "NV01",
-                            DiaChi = "TP.HCM",
-                            Email = "vanb@gmail.com",
-                            MatKhau = "admin123",
-                            NgayVaoLam = new DateTime(2023, 2, 12, 9, 27, 31, 784, DateTimeKind.Local).AddTicks(1780),
-                            SDT = "0987654321",
-                            TenNV = "Trần Văn B",
-                            TinhTrang = "Đang làm việc"
-                        });
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.OrderStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OrderStatuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Chưa xác nhận"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Đã xác nhận"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Đang chuẩn bị hàng"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Đang giao hàng"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Đã giao hàng"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Đã hủy"
-                        });
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.PaymentStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PaymentStatuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Chưa thanh toán"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Đã thanh toán"
-                        });
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.SanPham", b =>
@@ -543,42 +331,6 @@ namespace DynaDevAPI.Migrations
                     b.ToTable("SanPhams");
                 });
 
-
-
-
-            modelBuilder.Entity("DonHang", b =>
-                {
-                    b.HasOne("DynaDevAPI.Models.KhachHang", "KhachHang")
-                        .WithMany("DonHangs")
-                        .HasForeignKey("MaKH")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DynaDevAPI.Models.NhanVien", "NhanVien")
-                        .WithMany("DonHangs")
-                        .HasForeignKey("MaNV");
-
-                    b.HasOne("DynaDevAPI.Models.OrderStatus", "OrderStatus")
-                        .WithMany("DonHangs")
-                        .HasForeignKey("OrderStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DynaDevAPI.Models.PaymentStatus", "PaymentStatus")
-                        .WithMany("DonHangs")
-                        .HasForeignKey("PaymentStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("KhachHang");
-
-                    b.Navigation("NhanVien");
-
-                    b.Navigation("OrderStatus");
-
-                    b.Navigation("PaymentStatus");
-
-
             modelBuilder.Entity("DynaDevAPI.Models.Voucher", b =>
                 {
                     b.Property<string>("MaVoucher")
@@ -625,7 +377,7 @@ namespace DynaDevAPI.Migrations
                 {
                     b.HasOne("DynaDevAPI.Models.SanPham", "SanPham")
                         .WithMany("AnhSPs")
-                        .HasForeignKey("SanPhamMaSP")
+                        .HasForeignKey("MaSP")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -634,15 +386,15 @@ namespace DynaDevAPI.Migrations
 
             modelBuilder.Entity("DynaDevAPI.Models.ChiTietDonHang", b =>
                 {
-                    b.HasOne("DonHang", "DonHang")
+                    b.HasOne("DynaDevAPI.Models.DonHang", "DonHang")
                         .WithMany("ChiTietDonHangs")
-                        .HasForeignKey("DonHangMaDH")
+                        .HasForeignKey("MaDH")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DynaDevAPI.Models.SanPham", "SanPham")
                         .WithMany("ChiTietDonHangs")
-                        .HasForeignKey("SanPhamMaSP")
+                        .HasForeignKey("MaSP")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -655,13 +407,13 @@ namespace DynaDevAPI.Migrations
                 {
                     b.HasOne("DynaDevAPI.Models.KhachHang", "KhachHang")
                         .WithMany("DanhGias")
-                        .HasForeignKey("KhachHangMaKH")
+                        .HasForeignKey("MaKH")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DynaDevAPI.Models.SanPham", "SanPham")
                         .WithMany("DanhGias")
-                        .HasForeignKey("SanPhamMaSP")
+                        .HasForeignKey("MaSP")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -669,7 +421,6 @@ namespace DynaDevAPI.Migrations
 
                     b.Navigation("SanPham");
                 });
-
 
             modelBuilder.Entity("DynaDevAPI.Models.DonHang", b =>
                 {
@@ -715,7 +466,7 @@ namespace DynaDevAPI.Migrations
                     b.Navigation("NhaCungCap");
                 });
 
-            modelBuilder.Entity("DonHang", b =>
+            modelBuilder.Entity("DynaDevAPI.Models.DonHang", b =>
                 {
                     b.Navigation("ChiTietDonHangs");
                 });
@@ -738,16 +489,6 @@ namespace DynaDevAPI.Migrations
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.NhanVien", b =>
-                {
-                    b.Navigation("DonHangs");
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.OrderStatus", b =>
-                {
-                    b.Navigation("DonHangs");
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.PaymentStatus", b =>
                 {
                     b.Navigation("DonHangs");
                 });

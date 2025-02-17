@@ -16,19 +16,48 @@ namespace DynaDevAPI.Controllers
             _db = db;
         }
 
-        // GET: api/Customer
+        // GET: api/Customer?page={page}&pageSize={pageSize}
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<KhachHang>>> GetKhachHangs()
+        public async Task<ActionResult> GetKhachHangs([FromQuery] int page = 1, [FromQuery] int pageSize = 8)
         {
             try
             {
-                return Ok(await _db.KhachHangs.ToListAsync());
+                if (page <= 0 || pageSize <= 0)
+                {
+                    return BadRequest(new { message = "Page và PageSize phải lớn hơn 0." });
+                }
+
+                var totalCustomers = await _db.KhachHangs.CountAsync();
+                var totalPages = (int)Math.Ceiling(totalCustomers / (double)pageSize);
+
+                if (page > totalPages)
+                {
+                    return NotFound(new { message = "Trang không tồn tại." });
+                }
+
+                var customers = await _db.KhachHangs
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    data = customers,
+                    pagination = new
+                    {
+                        currentPage = page,
+                        pageSize = pageSize,
+                        totalItems = totalCustomers,
+                        totalPages = totalPages
+                    }
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Lỗi khi lấy danh sách khách hàng.", error = ex.Message });
             }
         }
+
 
         // GET: api/Customer/{id}
         [HttpGet("{id}")]

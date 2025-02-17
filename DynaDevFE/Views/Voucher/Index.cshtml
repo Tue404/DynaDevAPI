@@ -1,0 +1,194 @@
+﻿@using DynaDevFE.Models
+@using System.Text.Json;
+
+@model IEnumerable<DynaDevFE.Models.VoucherViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý Voucher";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary mb-3">Thêm Voucher mới</a>
+</div>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-warning">
+        <td colspan="6" class="text-center">Không có voucher nào để hiển thị.</td>
+    </div>
+}
+else
+{
+    <div class="mb-3">
+        <input id="searchVoucher" class="form-control" type="text" placeholder="Tìm kiếm voucher (mã, tên, mô tả)" />
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Mã Voucher</th>
+                <th>Tên Voucher</th>
+                <th>Giảm Giá</th>
+                <th>Ngày Bắt Đầu</th>
+                <th>Ngày Kết Thúc</th>
+                <th>Số Lượng</th>
+                <th>Trạng Thái</th>
+                <th>Hành Động</th>
+            </tr>
+        </thead>
+        <tbody id="voucherTableBody">
+           
+        </tbody>
+    </table>
+
+
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchVoucher');
+            const voucherTable = document.getElementById('voucherTableBody');
+
+            // Hàm render danh sách voucher
+            function renderVouchers(vouchers) {
+                voucherTable.innerHTML = '';
+
+                if (vouchers.length > 0) {
+                    vouchers.forEach(voucher => {
+                        const row = `
+                                    <tr>
+                                        <td>${voucher.maVoucher}</td>
+                                        <td>${voucher.tenVoucher}</td>
+                                        <td>${voucher.giamGia <= 100 ? voucher.giamGia + ' %' : voucher.giamGia.toLocaleString() + ' VND'}</td>
+
+                                        <td>${new Date(voucher.ngayBatDau).toLocaleDateString()}</td>
+                                        <td>${new Date(voucher.ngayKetThuc).toLocaleDateString()}</td>
+                                        <td>${voucher.soLuong}</td>
+                                        <td>${voucher.trangThai}</td>
+                                        <td>
+                                            <a href="/Voucher/Edit/${voucher.maVoucher}" class="btn btn-warning btn-sm">Sửa</a>
+                                                     <a href="/Voucher/Details/${voucher.maVoucher}"class="btn btn-info btn-sm">Chi Tiết</a>
+                                            <button class="btn btn-danger btn-sm btn-delete" data-id="${voucher.maVoucher}">Xóa</button>
+                                        </td>
+                                    </tr>`;
+                        voucherTable.innerHTML += row;
+                    });
+
+                    bindDeleteButtons();
+                } else {
+                    voucherTable.innerHTML = '<tr><td colspan="11" class="text-center">Không tìm thấy voucher nào.</td></tr>';
+                }
+            }
+
+            // Tải tất cả vouchers
+            async function loadAllVouchers() {
+                try {
+                    const response = await axios.get('https://localhost:7101/api/Voucher');
+                    renderVouchers(response.data);
+                } catch (error) {
+                    console.error('Lỗi tải danh sách voucher:', error);
+                    Swal.fire('Lỗi!', 'Không thể tải danh sách voucher.', 'error');
+                }
+            }
+
+            // Tìm kiếm voucher
+            searchInput.addEventListener('input', async function () {
+                const query = searchInput.value.trim();
+
+                if (query.length === 0) {
+                    loadAllVouchers();
+                    return;
+                }
+
+                try {
+                    const response = await axios.get(`/Voucher/Search?query=${encodeURIComponent(query)}`);
+                    renderVouchers(response.data);
+                } catch (error) {
+                    console.error('Lỗi tìm kiếm:', error);
+                    voucherTable.innerHTML = '<tr><td colspan="11" class="text-center">Lỗi khi tìm kiếm voucher.</td></tr>';
+                }
+            });
+
+            // Hàm xử lý xóa voucher
+            function bindDeleteButtons() {
+                const deleteButtons = document.querySelectorAll('.btn-delete');
+                deleteButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        const maVoucher = this.getAttribute('data-id');
+                        const apiUrl = `https://localhost:7101/api/Voucher/${maVoucher}`;
+
+                        Swal.fire({
+                            title: 'Bạn có chắc chắn muốn xóa?',
+                            text: "Hành động này không thể hoàn tác!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Xóa',
+                            cancelButtonText: 'Hủy'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(apiUrl, {
+                                    method: 'DELETE',
+                                    headers: { 'Accept': 'application/json' }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(data => {
+                                                throw new Error(data.message || 'Không thể xóa voucher');
+                                            });
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        Swal.fire('Đã xóa!', data.message, 'success')
+                                            .then(() => location.reload()); // Làm mới trang sau khi xóa thành công
+                                    })
+                                    .catch(error => {
+                                        Swal.fire('Lỗi!', error.message, 'error');
+                                        console.error('Error:', error);
+                                    });
+                            }
+                        });
+                    });
+                });
+            }
+
+            window.onload = bindDeleteButtons;
+
+            loadAllVouchers();
+
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+            </text>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                        showConfirmButton: true
+                    });
+            </text>
+        }
+                });
+    </script>
+}
