@@ -1,0 +1,118 @@
+﻿@model List<DynaDevFE.Models.DonHangViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    // Danh sách trạng thái
+    var paymentStatuses = new List<string> { "Chưa thanh toán", "Đã thanh toán" };
+    var orderStatuses = new List<string> { "Chưa xác nhận", "Đã xác nhận", "Đang chuẩn bị hàng", "Đang giao hàng", "Đã giao hàng", "Đã hủy" };
+}
+
+<h2>Quản lý đơn hàng</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">Thêm đơn hàng mới</a>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">Không có đơn hàng nào để hiển thị.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã Đơn Hàng</th>
+                <th>Mã Khách Hàng</th>
+                <th>Thông Tin Thanh Toán</th>
+                <th>Địa Chỉ Nhận Hàng</th>
+                <th>Thời Gian Đặt Hàng</th>
+                <th>Tổng Tiền</th>
+                <th>Trạng Thái Thanh Toán</th>
+                <th>Tình Trạng</th>
+                <th>Mã Nhân Viên</th>
+                <th>Hành Động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.MaDH</td>
+                    <td>@order.MaKH</td>
+                    <td>@order.ThongTinThanhToan</td>
+                    <td>@order.DiaChiNhanHang</td>
+                    <td>@order.ThoiGianDatHang.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.TongTien.ToString("C")</td>
+
+                    <!-- Dropdown trạng thái thanh toán -->
+                    <td>
+                        <form asp-controller="Order" asp-action="ChangePaymentStatus" method="post">
+                            <input type="hidden" name="id" value="@order.MaDH" />
+                            <select name="newPaymentStatusId" class="form-select form-select-sm">
+                                @for (int i = 0; i < paymentStatuses.Count; i++)
+                                {
+                                    string selected = order.ThongTinThanhToan == paymentStatuses[i] ? "selected" : "";
+                                    @Html.Raw($"<option value='{i + 1}' {selected}>{paymentStatuses[i]}</option>") <!-- Đồng bộ ID -->
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-success mt-2">Cập nhật</button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <form asp-controller="Order" asp-action="ChangeOrderStatus" method="post">
+                            <input type="hidden" name="id" value="@order.MaDH" />
+                            <select name="newOrderStatusId" class="form-select form-select-sm" id="order-status-dropdown-@order.MaDH">
+                                @for (int i = 0; i < orderStatuses.Count; i++)
+                                {
+                                    string selected = (order.TinhTrang == orderStatuses[i] ? "selected" : "");
+                                    @Html.Raw($"<option value='{i + 1}' {selected}>{orderStatuses[i]}</option>")
+                                }
+                            </select>
+                            <button type="button" class="btn btn-sm btn-primary mt-2" onclick="updateOrderStatus('@order.MaDH', document.getElementById('order-status-dropdown-@order.MaDH').value)">
+                                Cập nhật
+                            </button>
+
+                        </form>
+                    </td>
+
+                    <td>@order.MaNV</td>
+                    <td>
+                        <form asp-controller="Order" asp-action="Delete" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@order.MaDH" />
+                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <script>
+        function updateOrderStatus(orderId, newStatusId) {
+            console.log("Updating order status:", orderId, newStatusId); // Log giá trị mới
+            fetch(`https://localhost:7101/api/Order/ChangeOrderStatus/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newStatusId)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Cập nhật trạng thái thành công!");
+                        location.reload();  // Làm mới trang sau khi cập nhật
+                    } else {
+                        alert("Lỗi khi cập nhật trạng thái");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Đã xảy ra lỗi.");
+                });
+        }
+
+
+
+    </script>
+}

@@ -4,6 +4,7 @@ using DynaDevAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynaDevAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250212022732_a")]
+    partial class a
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,15 +174,7 @@ namespace DynaDevAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-
                     b.Property<DateTime>("NgayDanhGia")
-
-                    b.Property<string>("MaVoucher")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ThoiGianDatHang")
-
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SanPhamMaSP")
@@ -192,12 +187,7 @@ namespace DynaDevAPI.Migrations
 
                     b.HasIndex("SanPhamMaSP");
 
-
                     b.ToTable("DanhGias");
-
-                    b.HasIndex("MaVoucher");
-
-                    b.ToTable("DonHangs");
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.KhachHang", b =>
@@ -290,36 +280,6 @@ namespace DynaDevAPI.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DynaDevAPI.Models.NhaCungCap", b =>
-                {
-                    b.Property<string>("MaNCC")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DiaChi")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SDT")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenNCC")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TinhTrang")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaNCC");
-
-                    b.ToTable("NhaCungCaps");
-                });
-
             modelBuilder.Entity("DynaDevAPI.Models.NhanVien", b =>
                 {
                     b.Property<string>("MaNV")
@@ -332,9 +292,6 @@ namespace DynaDevAPI.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Luong")
-                        .HasColumnType("real");
 
                     b.Property<string>("MatKhau")
                         .IsRequired()
@@ -463,30 +420,16 @@ namespace DynaDevAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("MaNCC")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("MoTa")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("NamXuatBan")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("NgayThem")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("NhaXuatBan")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("SoLuongTrongKho")
                         .HasColumnType("int");
-
-                    b.Property<string>("TacGia")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenSanPham")
                         .IsRequired()
@@ -502,11 +445,8 @@ namespace DynaDevAPI.Migrations
 
                     b.HasIndex("MaLoai");
 
-                    b.HasIndex("MaNCC");
-
                     b.ToTable("SanPhams");
                 });
-
 
             modelBuilder.Entity("DonHang", b =>
                 {
@@ -539,47 +479,6 @@ namespace DynaDevAPI.Migrations
                     b.Navigation("OrderStatus");
 
                     b.Navigation("PaymentStatus");
-
-            modelBuilder.Entity("DynaDevAPI.Models.Voucher", b =>
-                {
-                    b.Property<string>("MaVoucher")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DieuKien")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("GiamGia")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("LoaiGiamGia")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MoTa")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("NgayBatDau")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("NgayKetThuc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SoLuong")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenVoucher")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaVoucher");
-
-                    b.ToTable("Vouchers");
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.AnhSP", b =>
@@ -631,32 +530,6 @@ namespace DynaDevAPI.Migrations
                     b.Navigation("SanPham");
                 });
 
-
-            modelBuilder.Entity("DynaDevAPI.Models.DonHang", b =>
-                {
-                    b.HasOne("DynaDevAPI.Models.KhachHang", "KhachHang")
-                        .WithMany("DonHangs")
-                        .HasForeignKey("MaKH")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DynaDevAPI.Models.NhanVien", "NhanVien")
-                        .WithMany("DonHangs")
-                        .HasForeignKey("MaNV");
-
-                    b.HasOne("DynaDevAPI.Models.Voucher", "Voucher")
-                        .WithMany("DonHangs")
-                        .HasForeignKey("MaVoucher")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("KhachHang");
-
-                    b.Navigation("NhanVien");
-
-                    b.Navigation("Voucher");
-                });
-
             modelBuilder.Entity("DynaDevAPI.Models.SanPham", b =>
                 {
                     b.HasOne("DynaDevAPI.Models.LoaiSP", "LoaiSP")
@@ -665,15 +538,7 @@ namespace DynaDevAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DynaDevAPI.Models.NhaCungCap", "NhaCungCap")
-                        .WithMany("SanPhams")
-                        .HasForeignKey("MaNCC")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("LoaiSP");
-
-                    b.Navigation("NhaCungCap");
                 });
 
             modelBuilder.Entity("DonHang", b =>
@@ -689,11 +554,6 @@ namespace DynaDevAPI.Migrations
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.LoaiSP", b =>
-                {
-                    b.Navigation("SanPhams");
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.NhaCungCap", b =>
                 {
                     b.Navigation("SanPhams");
                 });
@@ -720,11 +580,6 @@ namespace DynaDevAPI.Migrations
                     b.Navigation("ChiTietDonHangs");
 
                     b.Navigation("DanhGias");
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.Voucher", b =>
-                {
-                    b.Navigation("DonHangs");
                 });
 #pragma warning restore 612, 618
         }

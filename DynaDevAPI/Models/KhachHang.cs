@@ -16,9 +16,14 @@ namespace DynaDevAPI.Models
         public string TinhTrang { get; set; }
         public DateTime NgayDangKy { get; set; }
 
+
+
+    public ICollection<DonHang> DonHangs { get; set; }
+        public ICollection<DanhGia> DanhGias { get; set; }
     
         public ICollection<DonHang>? DonHangs { get; set; } = null;
 
         public ICollection<DanhGia>? DanhGias { get; set; } = null;
+
     }
 }
