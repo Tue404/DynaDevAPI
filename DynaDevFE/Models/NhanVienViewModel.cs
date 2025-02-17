@@ -21,6 +21,8 @@ namespace DynaDevFE.Models
         public string DiaChi { get; set; }
         [JsonPropertyName("tinhTrang")]
         public string TinhTrang { get; set; }
+        [JsonPropertyName("luong")]
+        public float Luong { get; set; }
         [JsonPropertyName("ngayVaoLam")]
         public DateTime NgayVaoLam { get; set; }   
     }

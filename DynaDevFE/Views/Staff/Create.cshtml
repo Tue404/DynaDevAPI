@@ -43,6 +43,10 @@
         <input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ"  />
     </div>
     <div class="mb-3">
+        <label asp-for="Luong" class="form-label">Lương</label>
+        <input asp-for="Luong" class="form-control" placeholder="Nhập lương" />
+    </div>
+    <div class="mb-3">
         <label asp-for="TinhTrang" class="form-label">Tình trạng</label>
         <select asp-for="TinhTrang" class="form-control" >
             <option value="Đang làm việc">Đang làm việc</option>
@@ -62,6 +66,7 @@
         const sdt = form.querySelector('[name="SDT"]');
         const diaChi = form.querySelector('[name="DiaChi"]');
         const tinhTrang = form.querySelector('[name="TinhTrang"]');
+        const luong = form.querySelector('[name="Luong"]');
 
         // Hàm hiển thị lỗi
         function showError(input, message) {
@@ -118,6 +123,10 @@
             if (!tinhTrang.value.trim()) {
                 showError(tinhTrang, 'Tình trạng không được để trống.');
                 isValid = false;
+            }
+
+            if (!luong.value.trim() || parseFloat(luong.value) <= 0) {
+                showError(luong, 'Giá sản phẩm phải lớn hơn 0.');
             }
 
             // Nếu không hợp lệ, ngăn gửi form

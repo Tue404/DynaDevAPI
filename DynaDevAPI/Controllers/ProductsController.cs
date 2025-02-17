@@ -30,10 +30,14 @@ namespace DynaDevAPI.Data
             {
                 MaSP = sp.MaSP,
                 TenSanPham = sp.TenSanPham,
+                TacGia = sp.TacGia,
+                MaNCC = sp.MaNCC,
+                //NhaXuatBan = sp.NhaXuatBan,
+                NamXuatBan = sp.NamXuatBan,
                 Gia = sp.Gia,
                 MoTa = sp.MoTa,
                 DanhSachAnh = sp.AnhSPs?.Select(a => a.TenAnh).ToList(),
-                LoaiSP = sp.LoaiSP?.TenLoai // Hoặc tên thuộc tính trong LoaiSP
+                LoaiSP = sp.LoaiSP?.TenLoai 
             }).ToList();
 
             return Ok(sanPhamDtos);
@@ -67,7 +71,8 @@ namespace DynaDevAPI.Data
         public async Task<IActionResult> GetSanPham(string id)
         {
             var sanPham = await _db.SanPhams
-                                   .Include(sp => sp.AnhSPs) // Include bảng AnhSPs
+                                   .Include(sp => sp.AnhSPs)
+                                   .Include(sp => sp.NhaCungCap)// Include bảng AnhSPs
                                    .FirstOrDefaultAsync(sp => sp.MaSP == id);
 
             if (sanPham == null)
@@ -82,17 +87,18 @@ namespace DynaDevAPI.Data
                 MaLoai = sanPham.MaLoai,
                 SoLuongTrongKho = sanPham.SoLuongTrongKho,
                 TenSanPham = sanPham.TenSanPham,
+                TacGia = sanPham.TacGia,
+                TenNCC = sanPham.NhaXuatBan,
+                MaNCC = sanPham.MaNCC,
+                NamXuatBan = sanPham.NamXuatBan,
                 Gia = sanPham.Gia,
                 MoTa = sanPham.MoTa,
                 TinhTrang = sanPham.TinhTrang,
-                DanhSachAnh = sanPham.AnhSPs.Select(a => a.TenAnh).ToList() // Lấy danh sách ảnh
+                DanhSachAnh = sanPham.AnhSPs.Select(a => a.TenAnh).ToList() 
             };
 
             return Ok(sanPhamDto);
         }
-
-
-
 
         [HttpPost("UploadImages")]
         public async Task<IActionResult> UploadImages(List<IFormFile> files, string maSP)
@@ -198,27 +204,37 @@ namespace DynaDevAPI.Data
                 return BadRequest("Dữ liệu không hợp lệ.");
             }
 
-           
-            _db.SanPhams.Add(sanPham);
+                 
+            //if (sanPham.AnhSPs != null && sanPham.AnhSPs.Any())
+            //{
+            //    foreach (var anh in sanPham.AnhSPs)
+            //    {
+            //        anh.MaSP = sanPham.MaSP; // Gắn mã sản phẩm cho ảnh
+            //        _db.AnhSPs.Add(anh);
+            //    }
+            //}
 
-            if (sanPham.AnhSPs != null && sanPham.AnhSPs.Any())
+            var nhaCungCap = await _db.NhaCungCaps.FirstOrDefaultAsync(ncc => ncc.MaNCC == sanPham.MaNCC);
+            if (nhaCungCap == null)
             {
-                foreach (var anh in sanPham.AnhSPs)
-                {
-                    anh.MaSP = sanPham.MaSP; // Gắn mã sản phẩm cho ảnh
-                    _db.AnhSPs.Add(anh);
-                }
+                return BadRequest(new { success = false, message = "Nhà cung cấp không tồn tại." });
             }
+
+            // Gán Tên Nhà Cung Cấp làm Nhà Xuất Bản
+            sanPham.NhaXuatBan = nhaCungCap.TenNCC;
+            sanPham.NgayThem = DateTime.Now;
 
             try
             {
+                _db.SanPhams.Add(sanPham);
                 await _db.SaveChangesAsync();
-                return Ok(new { message = "Sản phẩm đã được thêm thành công!" });
+                return Ok(new { success = true, message = "Sản phẩm đã được thêm thành công!" });
             }
             catch (Exception ex)
             {
 
-                return StatusCode(500, new { message = "Đã xảy ra lỗi khi thêm sản phẩm.", error = ex.Message });
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Lỗi nội bộ máy chủ.", error = ex.Message });
             }   
         }
 
@@ -240,6 +256,9 @@ namespace DynaDevAPI.Data
 
             // Cập nhật thông tin sản phẩm
             existingSanPham.TenSanPham = updatedSanPham.TenSanPham;
+            existingSanPham.TacGia = updatedSanPham.TacGia;
+            //existingSanPham.NhaXuatBan = updatedSanPham.NhaXuatBan;
+            existingSanPham.NamXuatBan = updatedSanPham.NamXuatBan;
             existingSanPham.MaLoai = updatedSanPham.MaLoai;
             existingSanPham.Gia = updatedSanPham.Gia;
             existingSanPham.MoTa = updatedSanPham.MoTa;

@@ -13,6 +13,8 @@ namespace DynaDevAPI.Data
         }
 
         public DbSet<KhachHang> KhachHangs { get; set; }
+        public DbSet<NhaCungCap> NhaCungCaps { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<NhanVien> NhanViens { get; set; }
         public DbSet<LoaiSP> LoaiSPs { get; set; }
         public DbSet<SanPham> SanPhams { get; set; }
@@ -42,14 +44,35 @@ namespace DynaDevAPI.Data
                 .HasForeignKey(sp => sp.MaLoai)
                 .OnDelete(DeleteBehavior.Cascade); // Xóa LoaiSP sẽ xóa các sản phẩm liên quan
 
+
             // Cấu hình kiểu dữ liệu decimal
             modelBuilder.Entity<SanPham>()
                 .Property(sp => sp.Gia)
                 .HasColumnType("decimal(18,2)");
 
+            modelBuilder.Entity<SanPham>()
+                .HasOne(sp => sp.NhaCungCap)
+                .WithMany(ncc => ncc.SanPhams)
+                .HasForeignKey(sp => sp.MaNCC);
+
+            modelBuilder.Entity<AnhSP>()
+                .HasOne(asp => asp.SanPham)
+                .WithMany(sp => sp.AnhSPs)
+                .HasForeignKey(asp => asp.MaSP);
+
+            modelBuilder.Entity<DonHang>()
+                .HasOne(dh => dh.KhachHang)
+                .WithMany(kh => kh.DonHangs)
+                .HasForeignKey(dh => dh.MaKH);
+
             modelBuilder.Entity<DonHang>()
                 .Property(dh => dh.TongTien)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<DonHang>()
+                .HasOne(dh => dh.Voucher)
+                .WithMany(vc => vc.DonHangs)
+                .HasForeignKey(dh => dh.MaVoucher);
 
             modelBuilder.Entity<ChiTietDonHang>()
                 .Property(ctdh => ctdh.Gia)
