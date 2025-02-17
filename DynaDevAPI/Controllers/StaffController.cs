@@ -17,7 +17,6 @@ namespace DynaDevAPI.Controllers
             _db = db;
         }
 
-        // GET: api/NhanVien
         [HttpGet]
         public async Task<IActionResult> GetAllNhanViens()
         {
@@ -25,7 +24,6 @@ namespace DynaDevAPI.Controllers
             return Ok(nhanViens);
         }
 
-        // GET: api/NhanVien/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetNhanVienById(string id)
         {
@@ -47,7 +45,6 @@ namespace DynaDevAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Lưu vào cơ sở dữ liệu
             _db.NhanViens.Add(model);
             await _db.SaveChangesAsync();
 
@@ -122,7 +119,7 @@ namespace DynaDevAPI.Controllers
             catch (Exception ex)
             {
                 // Trả về lỗi dưới dạng JSON thay vì exception
-                return StatusCode(500, new { message = "Đã xảy ra lỗi trong quá trình xóa sản phẩm.", error = ex.Message });
+                return StatusCode(500, new { message = "Đã xảy ra lỗi trong quá trình xóa nhân viên.", error = ex.Message });
             }
         }
     }

@@ -17,6 +17,7 @@
 </head>
 <h2>Danh sách sản phẩm</h2>
 
+
 <a asp-action="Create" class="btn btn-primary mb-3">Thêm sản phẩm mới</a>
 
 <table class="table table-bordered">
@@ -91,11 +92,40 @@
     }
             });
     document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị thông báo thành công
+    @if (TempData["Success"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+        </text>
+    }
+
+            // Hiển thị thông báo lỗi
+    @if (TempData["Error"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                    showConfirmButton: true
+                });
+        </text>
+    }
+            });
+
+    document.addEventListener('DOMContentLoaded', function () {
         const deleteButtons = document.querySelectorAll('.btn-delete');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function () {
-                const maSP = this.getAttribute('data-id');
-                const apiUrl = `https://localhost:7101/api/Products/${maSP}`;
+                const maNV = this.getAttribute('data-id');
+                const apiUrl = `https://localhost:7101/api/Products/${maNV}`;
 
                 Swal.fire({
                     title: 'Bạn có chắc chắn muốn xóa?',
@@ -118,7 +148,7 @@
                                 if (!response.ok) {
                                     // Nếu không thành công, đọc JSON lỗi từ server
                                     return response.json().then(data => {
-                                        throw new Error(data.message || 'Không thể xóa sản phẩm');
+                                        throw new Error(data.message || 'Không thể xóa nhân viên');
                                     });
                                 }
                                 return response.json(); // Thành công, đọc phản hồi JSON
