@@ -1,0 +1,37 @@
+﻿@model List<DynaDevFE.Models.LoaiSPViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Danh Mục Sản Phẩm";
+}
+
+<h2>Danh Mục Sản Phẩm</h2>
+<a asp-action="Create" class="btn btn-primary">Thêm danh mục</a>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Mã Loại</th>
+            <th>Tên Loại</th>
+            <th>Mô Tả</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.MaLoai</td>
+                <td>@item.TenLoai</td>
+                <td>@item.MoTa</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MaLoai" class="btn btn-warning">Sửa</a>
+                    <a asp-action="Delete" asp-route-id="@item.MaLoai" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?');">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

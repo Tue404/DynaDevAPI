@@ -61,11 +61,19 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-card.html" aria-expanded="false">
+                            <a asp-controller="Order" asp-action="Index" class="sidebar-link" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-cards"></i>
+                                    <i class="ti ti-shopping-cart"></i>
                                 </span>
-                                <span class="hide-menu">Card</span>
+                                <span class="hide-menu">Quản lý đơn hàng</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a asp-controller="LoaiSP" asp-action="Index" class="sidebar-link" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-list"></i>
+                                </span>
+                                <span class="hide-menu">Quản lý danh mục sản phẩm</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
@@ -205,6 +213,9 @@
     <script src="~/admin/libs/apexcharts/dist/apexcharts.min.js"></script>
     <script src="~/admin/libs/simplebar/dist/simplebar.js"></script>
     <script src="~/admin/js/dashboard.js"></script>
+
+
+
 </body>
 
 </html>
