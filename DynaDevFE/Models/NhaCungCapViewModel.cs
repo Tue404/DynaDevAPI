@@ -9,6 +9,6 @@
         public string DiaChi { get; set; }
         public string TinhTrang { get; set; }
 
-        public List<SanPhamViewModel> SanPhams { get; set; }
+        /*public List<SanPhamViewModel> SanPhams { get; set; }*/
     }
 }

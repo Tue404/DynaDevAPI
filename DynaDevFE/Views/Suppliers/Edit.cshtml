@@ -1,0 +1,27 @@
+﻿@model DynaDevFE.Models.NhaCungCapViewModel
+
+<h2>Sửa Nhà Cung Cấp</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="TenNCC">Tên Nhà Cung Cấp</label>
+        <input type="text" class="form-control" id="TenNCC" name="TenNCC" value="@Model.TenNCC" required />
+    </div>
+    <div class="form-group">
+        <label for="SDT">Số Điện Thoại</label>
+        <input type="text" class="form-control" id="SDT" name="SDT" value="@Model.SDT" required />
+    </div>
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" required />
+    </div>
+    <div class="form-group">
+        <label for="DiaChi">Địa Chỉ</label>
+        <input type="text" class="form-control" id="DiaChi" name="DiaChi" value="@Model.DiaChi" required />
+    </div>
+    <div class="form-group">
+        <label for="TinhTrang">Tình Trạng</label>
+        <input type="text" class="form-control" id="TinhTrang" name="TinhTrang" value="@Model.TinhTrang" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+</form>

@@ -12,6 +12,6 @@ namespace DynaDevAPI.Models
         public string DiaChi { get; set; }
         public string TinhTrang { get; set; }
 
-        public ICollection<SanPham> SanPhams { get; set; }
+        /*public ICollection<SanPham> SanPhams { get; set; }*/
     }
 }
