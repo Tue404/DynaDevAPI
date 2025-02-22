@@ -16,6 +16,7 @@ public class DonHang
     [ForeignKey("MaVoucher")]
     public string? MaVoucher { get; set; }
     public string DiaChiNhanHang { get; set; }
+    public string? PhuongThucThanhToan {  get; set; }
     public DateTime ThoiGianDatHang { get; set; }
     public decimal TongTien { get; set; }
 
