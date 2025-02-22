@@ -11,10 +11,10 @@ namespace DynaDevAPI.Models
         //[Required(ErrorMessage = "Mã loại không được để trống.")]
         public string MaLoai { get; set; }
 
-        [Required(ErrorMessage = "Tên sản phẩm không được để trống.")]
-        [StringLength(100, ErrorMessage = "Tên sản phẩm không được vượt quá 100 ký tự.")]
+        //[Required(ErrorMessage = "Tên sản phẩm không được để trống.")]
+        //[StringLength(100, ErrorMessage = "Tên sản phẩm không được vượt quá 100 ký tự.")]
         public string TenSanPham { get; set; }
-        [Required(ErrorMessage = "Tác giả không được để trống.")]
+        //[Required(ErrorMessage = "Tác giả không được để trống.")]
         public string TacGia { get; set; }
         public string? NhaXuatBan { get; set; }
         public int NamXuatBan {  set; get; }
