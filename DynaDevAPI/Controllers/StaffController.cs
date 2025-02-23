@@ -39,6 +39,52 @@ namespace DynaDevAPI.Controllers
             return Ok(nhanVien);
         }
 
+
+
+        // GET: api/Customer/Search?query={query}
+        [HttpGet("Search")]
+        public async Task<ActionResult<IEnumerable<NhanVien>>> SearchNhanVien([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest(new { message = "Từ khóa tìm kiếm không hợp lệ." });
+            }
+
+            try
+            {
+                // Chuyển query về dạng chữ thường để tìm kiếm không phân biệt hoa thường
+                var lowercaseQuery = query.ToLower();
+
+                var results = await _db.NhanViens
+     .Where(kh =>
+         kh.MaNV.ToLower().Contains(lowercaseQuery) ||
+         kh.TenNV.ToLower().Contains(lowercaseQuery) ||
+         kh.Email.ToLower().Contains(lowercaseQuery) ||
+         kh.SDT.ToLower().Contains(query) ||
+         kh.Luong.ToString().ToLower().Contains(query) || // Chuyển Luong thành chuỗi
+         kh.TinhTrang.ToLower().Contains(query) ||
+
+         kh.DiaChi.ToLower().Contains(lowercaseQuery)
+     )
+     .ToListAsync();
+
+
+                // Nếu không có kết quả
+                if (results == null || !results.Any())
+                {
+                    return NotFound(new { message = "Không tìm thấy nhân viên nào phù hợp." });
+                }
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi tìm kiếm nhân viên.", error = ex.Message });
+            }
+        }
+
+
+
         [HttpPost]
         public async Task<IActionResult> AddNhanVien([FromBody] NhanVien model)
         {
@@ -54,7 +100,7 @@ namespace DynaDevAPI.Controllers
             return Ok(model);
         }
 
-       
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> EditNhanVien(string id, NhanVien model)

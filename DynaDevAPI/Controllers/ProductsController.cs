@@ -37,33 +37,12 @@ namespace DynaDevAPI.Data
                 Gia = sp.Gia,
                 MoTa = sp.MoTa,
                 DanhSachAnh = sp.AnhSPs?.Select(a => a.TenAnh).ToList(),
-                LoaiSP = sp.LoaiSP?.TenLoai 
+                LoaiSP = sp.LoaiSP?.TenLoai
             }).ToList();
 
             return Ok(sanPhamDtos);
         }
-        //Get chitietsanpham     
-
-        [HttpGet("GetImagesByProduct/{maSP}")]
-        public async Task<IActionResult> GetImagesByProduct(string maSP)
-        {
-            // Lấy danh sách ảnh theo mã sản phẩm
-            var images = await _db.AnhSPs
-                                  .Where(a => a.MaSP == maSP)
-                                  .Select(a => new
-                                  {
-                                      a.MaAnh,
-                                      a.TenAnh
-                                  })
-                                  .ToListAsync();
-
-            if (!images.Any())
-            {
-                return NotFound($"Không tìm thấy ảnh cho sản phẩm có mã: {maSP}");
-            }
-
-            return Ok(images); // Trả về danh sách ảnh
-        }
+        //Get chitietsanpham
 
 
         // GET: api/SanPham/{id}
@@ -94,11 +73,98 @@ namespace DynaDevAPI.Data
                 Gia = sanPham.Gia,
                 MoTa = sanPham.MoTa,
                 TinhTrang = sanPham.TinhTrang,
-                DanhSachAnh = sanPham.AnhSPs.Select(a => a.TenAnh).ToList() 
+                DanhSachAnh = sanPham.AnhSPs.Select(a => a.TenAnh).ToList()
             };
 
             return Ok(sanPhamDto);
         }
+
+
+        [HttpGet("GetImagesByProduct/{maSP}")]
+        public async Task<IActionResult> GetImagesByProduct(string maSP)
+        {
+            // Lấy danh sách ảnh theo mã sản phẩm
+            var images = await _db.AnhSPs
+                                  .Where(a => a.MaSP == maSP)
+                                  .Select(a => new
+                                  {
+                                      a.MaAnh,
+                                      a.TenAnh
+                                  })
+                                  .ToListAsync();
+
+            if (!images.Any())
+            {
+                return NotFound($"Không tìm thấy ảnh cho sản phẩm có mã: {maSP}");
+            }
+
+            return Ok(images); // Trả về danh sách ảnh
+        }
+
+
+
+
+
+
+        [HttpGet("Search")]
+        public async Task<ActionResult<IEnumerable<SanPham>>> SearchSanPham([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest(new { message = "Từ khóa tìm kiếm không hợp lệ." });
+            }
+
+            try
+            {
+                // Chuyển query về dạng chữ thường để tìm kiếm không phân biệt hoa thường
+                var lowercaseQuery = query.ToLower();
+
+                // Truy vấn tìm kiếm các sản phẩm
+                var results = await _db.SanPhams
+                    .Where(kh =>
+                        kh.MaSP.ToLower().Contains(lowercaseQuery) ||
+                        kh.TenSanPham.ToLower().Contains(lowercaseQuery) ||
+                        kh.MoTa.ToLower().Contains(lowercaseQuery) ||
+                        kh.TacGia.ToLower().Contains(lowercaseQuery) ||
+                        kh.Gia.ToString().ToLower().Contains(lowercaseQuery) ||
+                        kh.TinhTrang.ToLower().Contains(lowercaseQuery) ||
+                        kh.MaNCC.ToLower().Contains(lowercaseQuery))
+                    .ToListAsync();
+
+                // Nếu không có kết quả
+                if (results == null || !results.Any())
+                {
+                    return NotFound(new { message = "Không tìm thấy sản phẩm nào phù hợp." });
+                }
+
+                // Lấy danh sách ảnh cho mỗi sản phẩm
+                var result = results.Select(kh => new
+                {
+                    kh.MaSP,
+                    kh.TenSanPham,
+                    kh.TacGia,
+                    kh.Gia,
+                    kh.MoTa,
+                    kh.TinhTrang,
+                    kh.NhaXuatBan,
+                    kh.NamXuatBan,
+                    DanhSachAnh = _db.AnhSPs
+                        .Where(a => a.MaSP == kh.MaSP)
+                        .Select(a => a.TenAnh)
+                        .ToList()
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi tìm kiếm sản phẩm.", error = ex.Message });
+            }
+        }
+
+
+
+
 
         [HttpPost("UploadImages")]
         public async Task<IActionResult> UploadImages(List<IFormFile> files, string maSP)
@@ -198,13 +264,13 @@ namespace DynaDevAPI.Data
         [HttpPost]
         public async Task<IActionResult> CreateSanPham([FromBody] SanPham sanPham)
         {
-           
+
             if (!ModelState.IsValid)
             {
                 return BadRequest("Dữ liệu không hợp lệ.");
             }
 
-                 
+
             //if (sanPham.AnhSPs != null && sanPham.AnhSPs.Any())
             //{
             //    foreach (var anh in sanPham.AnhSPs)
@@ -235,7 +301,7 @@ namespace DynaDevAPI.Data
 
                 Console.WriteLine($"Error: {ex.Message}");
                 return StatusCode(500, new { success = false, message = "Lỗi nội bộ máy chủ.", error = ex.Message });
-            }   
+            }
         }
 
 

@@ -42,6 +42,35 @@ namespace DynaDevFE.Controllers
             return View("Index");
         }
 
+        public async Task<JsonResult> Search(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return Json(new List<NhanVienViewModel>());
+            }
+
+            try
+            {
+                var response = await _httpClient.GetAsync($"https://localhost:7101/api/Staff/Search?query={Uri.EscapeDataString(query)}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonData = await response.Content.ReadAsStringAsync();
+                    var staffs = JsonSerializer.Deserialize<List<NhanVienViewModel>>(jsonData, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return Json(staffs);
+                }
+
+                return Json(new List<NhanVienViewModel>()); // Trả về danh sách rỗng nếu không tìm thấy
+            }
+            catch (Exception)
+            {
+                return Json(new List<NhanVienViewModel>()); // Xử lý lỗi bằng cách trả về danh sách rỗng
+            }
+        }
+
         public async Task<IActionResult> Details(string id)
         {
             // Gọi API để lấy thông tin nhân viên từ backend
@@ -111,7 +140,7 @@ namespace DynaDevFE.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                  
+
                     TempData["Success"] = "Thêm nhân viên thành công!";
                     return RedirectToAction("Index");
                 }

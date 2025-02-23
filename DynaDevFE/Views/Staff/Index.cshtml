@@ -7,7 +7,7 @@
 }
 
 @{
-    ViewData["Title"] = "Danh sách sản phẩm";
+    ViewData["Title"] = "Danh sách nhân viên";
 }
 
 <head>
@@ -16,8 +16,16 @@
     <!-- SweetAlert2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <h2>Danh sách Nhân Viên</h2>
+
+<!-- Search Bar -->
+<div class="mb-3">
+    <input id="searchStaff" class="form-control" type="text" placeholder="Tìm kiếm nhân viên (mã, tên, email, số điện thoại)" />
+</div>
+
 <a asp-action="Create" class="btn btn-primary mb-3">Thêm nhân viên mới</a>
+
 <table class="table">
     <thead>
         <tr>
@@ -26,31 +34,28 @@
             <th>Email</th>
             <th>Số Điện Thoại</th>
             <th>Ngày Vào Làm</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="staffTableBody">
         @foreach (var staff in Model)
         {
-
             <tr>
                 <td>@staff.MaNV</td>
                 <td>@staff.TenNV</td>
                 <td>@staff.Email</td>
                 <td>@staff.SDT</td>
                 <td>@staff.NgayVaoLam.ToShortDateString()</td>
-    
-
-        <td>
+                <td>
                     <a asp-action="Details" asp-route-id="@staff.MaNV" class="btn btn-warning btn-sm">Chi tiết</a>
                     <a asp-action="Edit" asp-route-id="@staff.MaNV" class="btn btn-warning btn-sm">Sửa</a>
                     <button class="btn btn-danger btn-sm btn-delete" data-id="@staff.MaNV">Xóa</button>
-        </td>
+                </td>
             </tr>
         }
-
-
     </tbody>
 </table>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Hiển thị thông báo thành công
@@ -73,58 +78,143 @@
         <text>
                 Swal.fire({
                     icon: 'error',
-                    title: 'Lỗi!',
-                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+                    title: 'Lỗi!', a
+                            text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
                     showConfirmButton: true
                 });
         </text>
     }
-        });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const maNV = this.getAttribute('data-id');
-                    const apiUrl = `https://localhost:7101/api/Staff/${maNV}`;
+                    // Delete button functionality
+                    const deleteButtons = document.querySelectorAll('.btn-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const maNV = this.getAttribute('data-id');
+                const apiUrl = `https://localhost:7101/api/Staff/${maNV}`;
 
-                    Swal.fire({
-                        title: 'Bạn có chắc chắn muốn xóa?',
-                        text: "Hành động này không thể hoàn tác!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Xóa',
-                        cancelButtonText: 'Hủy'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            fetch(apiUrl, {
-                                method: 'DELETE',
-                                headers: {
-                                    'Accept': 'application/json',
+                Swal.fire({
+                    title: 'Bạn có chắc chắn muốn xóa?',
+                    text: "Hành động này không thể hoàn tác!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(apiUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(data => {
+                                        throw new Error(data.message || 'Không thể xóa nhân viên');
+                                    });
                                 }
+                                return response.json();
                             })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        // Nếu không thành công, đọc JSON lỗi từ server
-                                        return response.json().then(data => {
-                                            throw new Error(data.message || 'Không thể xóa nhân viên');
-                                        });
-                                    }
-                                    return response.json(); // Thành công, đọc phản hồi JSON
-                                })
-                                .then(data => {
-                                    Swal.fire('Đã xóa!', data.message, 'success')
-                                        .then(() => location.reload());
-                                })
-                                .catch(error => {
-                                    Swal.fire('Lỗi!', error.message, 'error'); // Hiển thị lỗi từ backend
-                                    console.error('Error:', error);
-                                });
-                        }
-                    });
+                            .then(data => {
+                                Swal.fire('Đã xóa!', data.message, 'success')
+                                    .then(() => location.reload());
+                            })
+                            .catch(error => {
+                                Swal.fire('Lỗi!', error.message, 'error');
+                                console.error('Error:', error);
+                            });
+                    }
                 });
             });
         });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchStaff');
+        const staffTableBody = document.getElementById('staffTableBody');
+
+        searchInput.addEventListener('input', async function () {
+            const query = searchInput.value.trim();
+
+            if (query.length === 0) {
+                // If no query, reload the full list
+                location.reload();
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://localhost:7101/api/Staff/Search?query=${encodeURIComponent(query)}`);
+                const staffList = await response.json();
+
+                renderStaff(staffList);
+            } catch (error) {
+                console.error('Lỗi tìm kiếm:', error);
+                staffTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Lỗi khi tìm kiếm nhân viên.</td></tr>';
+            }
+        });
+
+        function renderStaff(staffList) {
+            staffTableBody.innerHTML = '';
+
+            if (staffList.length > 0) {
+                staffList.forEach(staff => {
+                    const row = `
+                                    <tr>
+                                        <td>${staff.maNV}</td>
+                                        <td>${staff.tenNV}</td>
+                                        <td>${staff.email}</td>
+                                        <td>${staff.sdt}</td>
+                                        <td>${new Date(staff.ngayVaoLam).toLocaleDateString()}</td>
+                                        <td>
+                                            <a href="/Staff/Details/${staff.maNV}" class="btn btn-warning btn-sm">Chi tiết</a>
+                                            <a href="/Staff/Edit/${staff.maNV}" class="btn btn-warning btn-sm">Sửa</a>
+                                            <button class="btn btn-danger btn-sm btn-delete" data-id="${staff.maNV}">Xóa</button>
+                                        </td>
+                                    </tr>
+                                `;
+                    staffTableBody.innerHTML += row;
+                });
+
+                // Re-attach the delete functionality after rendering
+                const deleteButtons = document.querySelectorAll('.btn-delete');
+                deleteButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        const maNV = this.getAttribute('data-id');
+                        const apiUrl = `https://localhost:7101/api/Staff/${maNV}`;
+
+                        Swal.fire({
+                            title: 'Bạn có chắc chắn muốn xóa?',
+                            text: "Hành động này không thể hoàn tác!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Xóa',
+                            cancelButtonText: 'Hủy'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(apiUrl, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                    }
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        Swal.fire('Đã xóa!', data.message, 'success')
+                                            .then(() => location.reload());
+                                    })
+                                    .catch(error => {
+                                        Swal.fire('Lỗi!', error.message, 'error');
+                                    });
+                            }
+                        });
+                    });
+                });
+            } else {
+                staffTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Không tìm thấy nhân viên.</td></tr>';
+            }
+        }
+    });
 </script>

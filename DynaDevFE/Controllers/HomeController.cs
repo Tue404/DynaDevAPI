@@ -1,5 +1,6 @@
 ﻿using DynaDevAPI.Models;
 using DynaDevFE.Models;
+using DynaDevFE.Models.DynaDevFE.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
@@ -10,6 +11,7 @@ namespace DynaDevFE.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _httpClient;
+
         public HomeController(ILogger<HomeController> logger, HttpClient httpClient)
         {
             _logger = logger;
@@ -18,41 +20,56 @@ namespace DynaDevFE.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // URL của API để lấy danh sách sản phẩm
-            var apiUrl = "https://localhost:7101/api/Products";
-            var response = await _httpClient.GetAsync(apiUrl);
+            var apiProductUrl = "https://localhost:7101/api/Products";
+            var apiVoucherUrl = "https://localhost:7101/api/voucher?pageNumber=1&pageSize=8";
 
-            if (response.IsSuccessStatusCode)
+            var products = new List<SanPhamViewModel>();
+            var vouchers = new List<VoucherViewModel>();
+
+            try
             {
-                var jsonData = await response.Content.ReadAsStringAsync();
-                var products = JsonSerializer.Deserialize<List<SanPhamViewModel>>(jsonData, new JsonSerializerOptions
+                // Lấy sản phẩm
+                var productResponse = await _httpClient.GetAsync(apiProductUrl);
+                if (productResponse.IsSuccessStatusCode)
                 {
-                    PropertyNameCaseInsensitive = true
-                });
+                    var productJson = await productResponse.Content.ReadAsStringAsync();
+                    products = JsonSerializer.Deserialize<List<SanPhamViewModel>>(productJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                               ?? new List<SanPhamViewModel>();
 
-                // Gọi API để lấy danh sách ảnh cho từng sản phẩm
-                foreach (var product in products)
-                {
-                    var imagesResponse = await _httpClient.GetAsync($"https://localhost:7101/api/Products/GetImagesByProduct/{product.MaSP}");
-                    if (imagesResponse.IsSuccessStatusCode)
+                    // Lấy hình ảnh cho từng sản phẩm
+                    foreach (var product in products)
                     {
-                        var imagesJson = await imagesResponse.Content.ReadAsStringAsync();
-                        var imageObjects = JsonSerializer.Deserialize<List<AnhSP>>(imagesJson, new JsonSerializerOptions
+                        var imgResponse = await _httpClient.GetAsync($"https://localhost:7101/api/Products/GetImagesByProduct/{product.MaSP}");
+                        if (imgResponse.IsSuccessStatusCode)
                         {
-                            PropertyNameCaseInsensitive = true
-                        });
-
-                        // Chỉ lấy đường dẫn ảnh
-                        product.DanhSachAnh = imageObjects.Select(img => img.TenAnh).ToList();
+                            var imgJson = await imgResponse.Content.ReadAsStringAsync();
+                            var images = JsonSerializer.Deserialize<List<AnhSP>>(imgJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                                         ?? new List<AnhSP>();
+                            product.DanhSachAnh = images.Select(img => img.TenAnh).ToList();
+                        }
                     }
-
                 }
 
+                // Lấy voucher
+                var voucherResponse = await _httpClient.GetAsync(apiVoucherUrl);
+                if (voucherResponse.IsSuccessStatusCode)
+                {
+                    var voucherJson = await voucherResponse.Content.ReadAsStringAsync();
+                    var voucherResult = JsonSerializer.Deserialize<VoucherResultViewModel>(voucherJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    // Tránh lỗi CS0019 bằng cách đảm bảo kiểu dữ liệu phù hợp
+                    vouchers = voucherResult?.Vouchers ?? new List<VoucherViewModel>();
+                }
+
+                // Truyền dữ liệu sang View
+                ViewBag.Vouchers = vouchers;
                 return View(products);
             }
-
-            // Nếu có lỗi, trả về View rỗng
-            return View(new List<SanPhamViewModel>());
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi tải dữ liệu");
+                return View(new List<SanPhamViewModel>());
+            }
         }
 
         public IActionResult Privacy()

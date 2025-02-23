@@ -18,19 +18,35 @@ namespace DynaDevFE.Controllers
             _httpClient = httpClient;
         }
 
-      
-        public async Task<IActionResult> Index()
+        // GET: api/Voucher (with pagination)
+        public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 8)
         {
             try
             {
-                var vouchers = await _httpClient.GetFromJsonAsync<List<Models.VoucherViewModel>>("https://localhost:7101/api/Voucher");
+                var response = await _httpClient.GetAsync($"https://localhost:7101/api/Voucher?pageNumber={pageNumber}&pageSize={pageSize}");
 
-                if (vouchers == null)
+                if (response.IsSuccessStatusCode)
                 {
-                    ViewBag.Message = "Không có voucher nào";
+                    var jsonData = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<dynamic>(jsonData, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    var vouchers = result["Vouchers"].ToObject<List<VoucherViewModel>>();
+                    var totalVouchers = result["TotalVouchers"].ToObject<int>();
+                    var totalPages = result["TotalPages"].ToObject<int>();
+
+                    ViewBag.TotalVouchers = totalVouchers;
+                    ViewBag.TotalPages = totalPages;
+                    ViewBag.CurrentPage = pageNumber;
+                    ViewBag.PageSize = pageSize;
+
+                    return View(vouchers);
                 }
 
-                return View(vouchers);
+                ViewBag.Message = "Không có voucher nào";
+                return View();
             }
             catch (Exception ex)
             {
@@ -39,43 +55,47 @@ namespace DynaDevFE.Controllers
             }
         }
 
-        public async Task<JsonResult> Search(string query)
+        public async Task<JsonResult> Search(string query, int pageNumber = 1, int pageSize = 8)
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return Json(new List<VoucherViewModel>());
+                return Json(new { vouchers = new List<VoucherViewModel>(), totalPages = 0 });
             }
 
             try
             {
-                var response = await _httpClient.GetAsync($"https://localhost:7101/api/Voucher/Search?query={Uri.EscapeDataString(query)}");
+                var response = await _httpClient.GetAsync($"https://localhost:7101/api/Voucher/Search?query={Uri.EscapeDataString(query)}&pageNumber={pageNumber}&pageSize={pageSize}");
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonData = await response.Content.ReadAsStringAsync();
-                    var vouchers = JsonSerializer.Deserialize<List<VoucherViewModel>>(jsonData, new JsonSerializerOptions
+                    var data = JsonSerializer.Deserialize<dynamic>(jsonData, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
 
-                    return Json(vouchers);
+                    var vouchers = data.vouchers.ToObject<List<VoucherViewModel>>();
+                    var totalPages = data.totalPages;
+
+                    return Json(new { vouchers = vouchers, totalPages = totalPages });
                 }
 
-                return Json(new List<VoucherViewModel>()); // Trả về danh sách rỗng nếu không tìm thấy
+                return Json(new { vouchers = new List<VoucherViewModel>(), totalPages = 0 });
             }
             catch (Exception)
             {
-                return Json(new List<VoucherViewModel>()); // Xử lý lỗi bằng cách trả về danh sách rỗng
+                return Json(new { vouchers = new List<VoucherViewModel>(), totalPages = 0 });
             }
         }
 
 
+        // GET: Create voucher
         public IActionResult Create()
         {
             return View();
         }
 
-    
+        // POST: Create voucher
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(VoucherViewModel voucher)
@@ -88,27 +108,27 @@ namespace DynaDevFE.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
-                        TempData["Success"] = "Thêm voucher thành công!";  
+                        TempData["Success"] = "Thêm voucher thành công!";
                         return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = "Lỗi khi thêm voucher"; 
+                        TempData["Error"] = "Lỗi khi thêm voucher";
                     }
                 }
                 catch (Exception ex)
                 {
-                    TempData["Error"] = "Lỗi khi thêm voucher: " + ex.Message;  
+                    TempData["Error"] = "Lỗi khi thêm voucher: " + ex.Message;
                 }
             }
 
             return View(voucher);
         }
 
-       
+        // GET: Edit voucher
         public async Task<IActionResult> Edit(string id)
         {
-            var voucher = await _httpClient.GetFromJsonAsync<Models.VoucherViewModel>($"https://localhost:7101/api/Voucher/{id}");
+            var voucher = await _httpClient.GetFromJsonAsync<VoucherViewModel>($"https://localhost:7101/api/Voucher/{id}");
 
             if (voucher == null)
             {
@@ -118,7 +138,7 @@ namespace DynaDevFE.Controllers
             return View(voucher);
         }
 
-       
+        // POST: Edit voucher
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, VoucherViewModel voucher)
@@ -136,24 +156,24 @@ namespace DynaDevFE.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
-                        TempData["Success"] = "Cập nhật voucher thành công!";  
+                        TempData["Success"] = "Cập nhật voucher thành công!";
                         return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = "Lỗi khi cập nhật voucher"; 
+                        TempData["Error"] = "Lỗi khi cập nhật voucher";
                     }
                 }
                 catch (Exception ex)
                 {
-                    TempData["Error"] = "Lỗi khi cập nhật voucher: " + ex.Message;  
+                    TempData["Error"] = "Lỗi khi cập nhật voucher: " + ex.Message;
                 }
             }
 
             return View(voucher);
         }
 
-        
+        // GET: Delete voucher
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -162,20 +182,22 @@ namespace DynaDevFE.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    TempData["Success"] = "Xóa voucher thành công!";  
+                    TempData["Success"] = "Xóa voucher thành công!";
                 }
                 else
                 {
-                    TempData["Error"] = "Lỗi khi xóa voucher";  
+                    TempData["Error"] = "Lỗi khi xóa voucher";
                 }
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Lỗi khi xóa voucher: " + ex.Message;  
+                TempData["Error"] = "Lỗi khi xóa voucher: " + ex.Message;
             }
 
             return RedirectToAction("Index");
         }
+
+        // GET: View voucher details
         public async Task<IActionResult> Details(string id)
         {
             try
@@ -189,7 +211,7 @@ namespace DynaDevFE.Controllers
                         PropertyNameCaseInsensitive = true
                     });
 
-                    return View(voucher);  // Truyền một đối tượng VoucherViewModel vào view
+                    return View(voucher);
                 }
 
                 ViewBag.ErrorMessage = "Không thể tải thông tin Voucher.";
@@ -201,6 +223,5 @@ namespace DynaDevFE.Controllers
 
             return View("Error");
         }
-
     }
 }
