@@ -21,7 +21,7 @@ namespace DynaDevFE.Controllers
             // URL của API để lấy danh sách sản phẩm
             var apiUrl = "https://localhost:7101/api/Products";
             var response = await _httpClient.GetAsync(apiUrl);
-
+            
             if (response.IsSuccessStatusCode)
             {
                 var jsonData = await response.Content.ReadAsStringAsync();

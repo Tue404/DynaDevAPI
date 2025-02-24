@@ -25,6 +25,19 @@ namespace DynaDevAPI.Controllers
             return Ok(nhaCungCaps);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetNCCById(string id)
+        {
+            var nhanVien = await _db.NhaCungCaps.FindAsync(id);
+
+            if (nhanVien == null)
+            {
+                return NotFound($"Không tìm thấy nhân viên với mã {id}.");
+            }
+
+            return Ok(nhanVien);
+        }
+
         // Thêm mới nhà cung cấp
         [HttpPost]
         public async Task<IActionResult> CreateSupplier([FromBody] NhaCungCap supplier)
@@ -79,19 +92,27 @@ namespace DynaDevAPI.Controllers
 
 
         // Xóa nhà cung cấp
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteNhaCungCap(string id)
+        [HttpDelete("{maNCC}")]
+        public IActionResult Delete(string maNCC)
         {
-            var nhaCungCap = await _db.NhaCungCaps.FindAsync(id);
-            if (nhaCungCap == null)
+            try
             {
-                return NotFound("Nhà cung cấp không tồn tại.");
+                var ncc = _db.NhaCungCaps.FirstOrDefault(p => p.MaNCC == maNCC);
+                if (ncc == null)
+                {
+                    return NotFound(new { message = "Nhà cung cấp không tồn tại" });
+                }
+
+                _db.NhaCungCaps.Remove(ncc);
+                _db.SaveChanges();
+
+                return Ok(new { message = "Xóa nhà cung cấp thành công" });
             }
-
-            _db.NhaCungCaps.Remove(nhaCungCap);
-            await _db.SaveChangesAsync();
-
-            return NoContent(); // Trả về trạng thái 204 No Content
+            catch (Exception ex)
+            {
+                // Trả về lỗi dưới dạng JSON thay vì exception
+                return StatusCode(500, new { message = "Đã xảy ra lỗi trong quá trình xóa nhà cung cấp.", error = ex.Message });
+            }
         }
 
 

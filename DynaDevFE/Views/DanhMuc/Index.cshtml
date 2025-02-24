@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Danh Mục Sản Phẩm";
+}
+
+<h2>Danh Mục Sản Phẩm</h2>
+
+<ul id="danhMucList">
+    <!-- Danh mục sẽ được hiển thị ở đây -->
+</ul>
+
+<script>
+    $(document).ready(function () {
+        let urlParams = new URLSearchParams(window.location.search);
+        let maLoai = urlParams.get("maLoai");
+
+        if (maLoai) {
+            $.ajax({
+                url: "https://localhost:7101/api/DanhMuc/" + maLoai, // Nếu API hỗ trợ lấy chi tiết danh mục
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    $("#danhMucList").append(`<li>${data.tenLoai}</li>`);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Lỗi khi lấy danh mục:", error);
+                    $("#danhMucList").append('<li class="text-danger">Không thể tải danh mục</li>');
+                }
+            });
+        } else {
+            $("#danhMucList").append('<li class="text-muted">Vui lòng chọn danh mục</li>');
+        }
+    });
+</script>
