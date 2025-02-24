@@ -8,6 +8,8 @@ namespace DynaDevFE.Models
     {
         public string MaDH { get; set; }
         public string MaKH { get; set; }
+        public string TenNguoiNhan { get; set; }
+        public string SDT { get; set; }
 
         [JsonPropertyName("paymentStatus")]
         public string ThongTinThanhToan { get; set; }

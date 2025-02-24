@@ -20,6 +20,7 @@ namespace DynaDevFE.Controllers
 
         public async Task<IActionResult> Index()
         {
+
             var apiProductUrl = "https://localhost:7101/api/Products";
             var apiVoucherUrl = "https://localhost:7101/api/voucher?pageNumber=1&pageSize=8";
 
@@ -27,6 +28,12 @@ namespace DynaDevFE.Controllers
             var vouchers = new List<VoucherViewModel>();
 
             try
+
+            // URL của API để lấy danh sách sản phẩm
+            var apiUrl = "https://localhost:7101/api/Products";
+            var response = await _httpClient.GetAsync(apiUrl);
+            
+            if (response.IsSuccessStatusCode)
             {
                 // Lấy sản phẩm
                 var productResponse = await _httpClient.GetAsync(apiProductUrl);

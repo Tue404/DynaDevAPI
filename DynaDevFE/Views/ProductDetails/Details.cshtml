@@ -1,0 +1,413 @@
+﻿@model DynaDevFE.Models.SanPhamViewModel
+
+<div class="product-details-container">
+    <div class="product-left">
+        <img src="@Model.DanhSachAnh.FirstOrDefault()" alt="@Model.TenSanPham" class="product-main-image" id="mainImage" />
+        <div class="product-gallery">
+            @if (Model.DanhSachAnh != null && Model.DanhSachAnh.Any())
+            {
+                foreach (var anh in Model.DanhSachAnh)
+                {
+                    <img src="@anh" alt="@Model.TenSanPham" class="product-gallery-image" onclick="openImageModal('@anh')" />
+                }
+            }
+            else
+            {
+                <p>Không có hình ảnh cho sản phẩm này.</p>
+            }
+        </div>
+    </div>
+
+    <div id="imageModal" class="image-modal">
+        <span class="close" onclick="closeImageModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="caption"></div>
+    </div>
+
+
+    <div class="product-right">
+        <h1 class="product-title">@Model.TenSanPham</h1>
+
+        <div class="product-info-horizontal">
+            <div class="info-row">
+         
+                <p class="product-author"><strong>Tác giả:</strong> @Model.TacGia</p>
+           
+                <p class="product-publisher"><strong>Nhà xuất bản:</strong>@Model.TenNCC</p>
+            </div>
+
+            <div class="info-row">
+                <p class="product-supplier"><strong>Năm xuất bản:</strong> @Model.NamXuatBan</p>
+                <p class="product-age"><strong>Số lượng còn lại:</strong>@Model.SoLuongTrongKho</p>
+            </div>
+
+        </div>
+
+        <!-- Flash Sale -->
+    @*     <div class="flash-sale">
+            <span class="flash-sale-text">FLASH SALE</span>
+            <span class="flash-sale-timer">01:50:30</span>
+        </div> *@
+
+        <!-- Giá sản phẩm -->
+        <p class="product-price">
+            <span class="current-price">@String.Format("{0:N0} VND", @Model.Gia)</span>
+            <span class="original-price">159,000 VND</span>
+            <span class="discount">-50%</span>
+        </p>
+
+        <!-- Tình trạng -->
+        <p class="product-stock"><strong>Tình trạng:</strong> @Model.TinhTrang</p>
+        <p class="product-sold"><strong>Đã bán:</strong> 204</p>
+
+        <!-- Nút hành động -->
+        <div class="product-actions">
+            <button class="btn add-to-cart" onclick="addToCart()">Thêm vào giỏ hàng</button>
+            <button class="btn buy-now">Mua ngay</button>
+        </div>
+
+        <!-- Thông tin vận chuyển -->
+    @*     <div class="shipping-info">
+            <p><strong>Giao hàng đến:</strong> Phường Bến Nghé, Quận 1, Hồ Chí Minh</p>
+            <p><strong>Giao hàng tiêu chuẩn:</strong> Dự kiến giao Thứ ba - 21/01</p>
+        </div> *@
+
+        <!-- Ưu đãi liên quan -->
+        <div class="related-offers">
+            <p class="offer">Mã giảm 20k - sách mới</p>
+            <p class="offer">Mã giảm phí vận chuyển</p>
+            <p class="offer">Tặng voucher bộ truyện</p>
+        </div>
+
+        <!-- Số lượng -->
+        <div class="product-quantity">
+            <label for="quantity">Số lượng:</label>
+            <input type="number" id="quantity" min="1" value="1" />
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hàm mở modal khi click vào ảnh
+    function openImageModal(imageSrc) {
+        var modal = document.getElementById("imageModal");
+        var modalImage = document.getElementById("modalImage");
+
+        modal.style.display = "block";
+        modalImage.src = imageSrc;
+        caption.innerHTML = imageSrc;
+    }
+
+    // Hàm đóng modal
+    function closeImageModal() {
+        var modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+    }
+    // Định nghĩa addToCart trong phạm vi toàn cục (global scope)
+    function addToCart() {
+        const product = {
+            MaSP: "@Model.MaSP",
+            TenSanPham: `@Html.Raw(Model.TenSanPham)`,
+            Anh: "@Model.DanhSachAnh.FirstOrDefault()",
+            Gia: @Model.Gia,
+            SoLuong: parseInt(document.getElementById("quantity").value)
+        };
+
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let existingItem = cart.find(item => item.MaSP === product.MaSP);
+
+        if (existingItem) {
+            existingItem.SoLuong += product.SoLuong;
+        } else {
+            cart.push(product);
+        }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        syncCartToServer(cart);
+        alert("Sản phẩm đã được thêm vào giỏ hàng!");
+    }
+
+    // Hàm đồng bộ giỏ hàng lên API
+    function syncCartToServer(cart) {
+        fetch("https://localhost:7101/api/cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(cart)
+        })
+            .then(response => response.json())
+            .then(data => console.log("Đã đồng bộ giỏ hàng:", data))
+            .catch(err => console.error("Lỗi đồng bộ giỏ hàng:", err));
+    }
+
+    // Khi tải trang, tải giỏ hàng từ server về localStorage
+    function loadCartFromServer() {
+        fetch("http://localhost:7101/api/cart")
+            .then(response => response.json())
+            .then(cart => {
+                if (cart && cart.length > 0) {
+                    console.log("Dữ liệu giỏ hàng từ server:", cart);
+                    localStorage.setItem("cart", JSON.stringify(cart)); // Chỉ đồng bộ nếu có dữ liệu
+                }
+            })
+            .catch(err => console.error("Lỗi tải giỏ hàng:", err));
+    }
+
+    window.onload = function () {
+        let cart = JSON.parse(localStorage.getItem("cart"));
+        if (!cart || cart.length === 0) {
+            loadCartFromServer();
+        }
+    };
+</script>
+
+
+
+    <style >
+
+    .product-details-container {
+        display: flex;
+        gap: 30px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: auto;
+        font-family: Arial, sans-serif;
+    }
+
+    .product-left {
+        flex: 1;
+    }
+
+    .product-main-image {
+        width: 100%;
+        max-width: 400px; /* Set max width to avoid image getting too large */
+        max-height: 500px; /* Optional: set a max height to maintain aspect ratio */
+        object-fit: contain; /* Ensure image doesn't stretch or distort */
+        border-radius: 8px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-gallery {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .product-gallery-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 5px;
+        object-fit: cover;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+        .product-gallery-image:hover {
+            transform: scale(1.1);
+        }
+
+    .product-right {
+        flex: 2;
+    }
+
+    .product-title {
+        font-size: 22px !important;
+        font-weight: bold !important;
+        line-height: 1.2; 
+        color: #333; 
+    }
+
+    .product-author,
+    .product-publisher,
+    .product-age,
+    .product-stock,
+    .product-sold {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .flash-sale {
+        display: inline-block;
+        background-color: #ff4c4c;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        padding: 5px 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .flash-sale-timer {
+        margin-left: 10px;
+        background-color: white;
+        color: #ff4c4c;
+        padding: 2px 8px;
+        border-radius: 5px;
+    }
+
+    .product-price {
+        font-size: 24px;
+        color: #e74c3c;
+        margin: 10px 0;
+    }
+
+    .current-price {
+        font-weight: bold;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        margin-left: 10px;
+    }
+
+    .discount {
+        background-color: #ffcccc;
+        color: #e74c3c;
+        padding: 2px 6px;
+        margin-left: 10px;
+        border-radius: 3px;
+    }
+    .product-actions {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        text-transform: uppercase;
+        transition: background-color 0.3s ease;
+    }
+
+    .add-to-cart {
+        background-color: #ff9800;
+        color: white;
+    }
+
+        .add-to-cart:hover {
+            background-color: #e67e00;
+        }
+
+    .buy-now {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+        .buy-now:hover {
+            background-color: #c0392b;
+        }
+
+    .shipping-info {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+    }
+
+        .shipping-info p {
+            margin: 5px 0;
+        }
+
+    .related-offers {
+        margin-top: 20px;
+    }
+
+        .related-offers .offer {
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+    .product-quantity {
+        margin-top: 20px;
+    }
+
+        .product-quantity input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 5px;
+        }
+
+    .product-info-horizontal {
+        display: flex;
+        flex-direction: column; /* Hiển thị các dòng theo chiều dọc */
+        gap: 5px; /* Giảm khoảng cách giữa các dòng */
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Chia đều 2 cột */
+        align-items: center; /* Căn giữa dọc */
+        gap: 10px; /* Khoảng cách giữa các cột */
+    }
+
+        /* Căn chỉnh các mục trong dòng */
+        .info-row p {
+            font-size: 16px; /* Đồng nhất kích thước chữ */
+            margin: 0; /* Loại bỏ margin mặc định */
+            color: #333; /* Màu chữ */
+            line-height: 1.5; /* Căn đều dòng chữ */
+            white-space: nowrap; /* Ngăn chữ bị xuống dòng */
+        }
+
+        .info-row strong {
+            font-weight: bold; /* Làm đậm tiêu đề */
+        }
+
+
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        padding-top: 100px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    /* Image inside the modal */
+    .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 90%; /* Set max width to 90% of screen */
+        max-height: 80%; /* Set max height to 80% of screen */
+        width: auto; /* Allow width to scale according to the height */
+        height: auto; /* Allow height to scale according to the width */
+    }
+
+
+    /* Close button */
+    .close {
+        color: #fff;
+        font-size: 30px;
+        font-weight: bold;
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        transition: 0.3s;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>
+
+
+ 

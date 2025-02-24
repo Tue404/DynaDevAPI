@@ -52,12 +52,12 @@ namespace DynaDevAPI.Data
 
             modelBuilder.Entity<SanPham>()
                 .HasOne(sp => sp.NhaCungCap)
-                .WithMany(ncc => ncc.SanPhams)
+                .WithMany()
                 .HasForeignKey(sp => sp.MaNCC);
 
             modelBuilder.Entity<SanPham>()
                 .HasOne(sp => sp.NhaCungCap)
-                .WithMany(ncc => ncc.SanPhams)
+                .WithMany()
                 .HasForeignKey(sp => sp.MaNCC);
 
             modelBuilder.Entity<AnhSP>()
@@ -185,12 +185,6 @@ namespace DynaDevAPI.Data
                     AnhLoai = null
                 }
             );
-
-
-
-
-
-
         }
     }
 }

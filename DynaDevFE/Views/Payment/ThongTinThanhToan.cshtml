@@ -1,0 +1,236 @@
+﻿    @model DynaDevAPI.Models.DatHangRequest
+
+    @{
+        ViewData["Title"] = "Thanh toán";
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <h2>Thanh toán</h2>
+
+    <form id="checkout-form">
+        <!-- Input ẩn chứa MaKH -->
+        <input hidden id="MaKH" value="@ViewBag.MaKH">
+
+        <div>
+            <label>Tên khách hàng:</label>
+            <input type="text" id="TenKH" required>
+        </div>
+
+        <div>
+            <label>Số điện thoại:</label>
+            <input type="text" id="SoDienThoai" required>
+        </div>
+
+        <div>
+            <label>Địa chỉ nhận hàng:</label>
+            <textarea id="DiaChiNhanHang" required></textarea>
+        </div>
+
+        <div>
+            <label>Phương thức thanh toán:</label>
+            <select id="PhuongThucThanhToan">
+                <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                <option value="ChuyenKhoan">Chuyển khoản</option>
+            </select>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody id="checkout-items"></tbody>
+        </table>
+
+        <div>
+            <strong>Tổng tiền: </strong><span id="checkout-total"></span> đ
+        </div>
+
+        <button type="submit" class="btn btn-primary">Xác nhận thanh toán</button>
+    </form>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let tableBody = document.getElementById("checkout-items");
+        let totalPrice = 0;
+
+        cart.forEach(item => {
+            let row = `<tr>
+                            <td>${item.TenSanPham}</td>
+                            <td>${item.SoLuong}</td>
+                            <td>${item.Gia.toLocaleString()} đ</td>
+                            <td>${(item.SoLuong * item.Gia).toLocaleString()} đ</td>
+                        </tr>`;
+            tableBody.innerHTML += row;
+            totalPrice += item.SoLuong * item.Gia;
+        });
+
+        document.getElementById("checkout-total").textContent = totalPrice.toLocaleString();
+
+        document.getElementById("checkout-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            let maKH = document.getElementById("MaKH").value;
+            if (!maKH) {
+                alert("Bạn cần đăng nhập trước khi thanh toán!");
+                window.location.href = "/TaiKhoan/DangNhap";
+                return;
+            }
+
+            let orderData = {
+                MaKH: maKH,
+                TenKH: document.getElementById("TenKH").value,
+                SoDienThoai: document.getElementById("SoDienThoai").value,
+                DiaChiNhanHang: document.getElementById("DiaChiNhanHang").value,
+                ThoiGianDatHang: new Date().toISOString(),
+                PhuongThucThanhToan: document.getElementById("PhuongThucThanhToan").value,
+                GioHang: JSON.parse(localStorage.getItem("cart"))
+            };
+
+            fetch("https://localhost:7101/api/DonHang/DatHang", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Phản hồi từ API:", data);
+
+                    if (data.MaDH) {
+                        alert("Đặt hàng thất bại! Vui lòng thử lại.");
+                    } else {
+                        localStorage.removeItem("cart");
+                        window.location.href = "/Payment/Success";                
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                    alert("Không thể kết nối đến máy chủ, vui lòng thử lại!");
+                });
+        });
+    });
+
+
+    </script>
+
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7fc;
+        margin: 0;
+        padding: 0;
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        font-size: 30px;
+        margin-top: 30px;
+    }
+
+    h3 {
+        color: #333;
+        font-size: 24px;
+        margin-top: 20px;
+    }
+
+    form {
+        width: 70%;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    div {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-size: 16px;
+        color: #333;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, textarea, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        margin-top: 5px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        height: 120px;
+    }
+
+    select {
+        padding: 8px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f7f7f7;
+        }
+
+        .table td {
+            font-size: 16px;
+        }
+
+    .btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background-color: #4CAF50;
+        color: white;
+        font-size: 18px;
+        text-align: center;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+    .checkout-total {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: right;
+    }
+
+        .checkout-total span {
+            color: #e74c3c;
+            font-size: 20px;
+        }
+
+</style>
+

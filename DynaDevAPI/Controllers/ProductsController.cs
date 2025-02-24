@@ -268,7 +268,7 @@ namespace DynaDevAPI.Data
             if (!ModelState.IsValid)
             {
                 return BadRequest("Dữ liệu không hợp lệ.");
-            }
+            }               
 
 
             //if (sanPham.AnhSPs != null && sanPham.AnhSPs.Any())

@@ -1,0 +1,133 @@
+﻿@model List<DynaDevFE.Models.NhaCungCapViewModel>
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Nhà Cung Cấp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<head>
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<h2>Danh Sách Nhà Cung Cấp</h2>
+<a asp-controller="Suppliers" asp-action="Create" class="btn btn-primary mb-3">Thêm Nhà Cung Cấp</a>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Mã NCC</th>
+            <th>Tên NCC</th>
+            <th>SĐT</th>
+            <th>Email</th>
+            <th>Địa Chỉ</th>
+            <th>Tình Trạng</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.MaNCC</td>
+                <td>@item.TenNCC</td>
+                <td>@item.SDT</td>
+                <td>@item.Email</td>
+                <td>@item.DiaChi</td>
+                <td>@item.TinhTrang</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MaNCC" class="btn btn-warning">Sửa</a>
+                    <button class="btn btn-danger btn-sm btn-delete" data-id="@item.MaNCC">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hiển thị thông báo thành công
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["SuccessMessage"])),
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+        </text>
+    }
+
+            // Hiển thị thông báo lỗi
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["ErrorMessage"])),
+                    showConfirmButton: true
+                });
+        </text>
+    }
+        });
+
+    // Xử lý xóa nhà cung cấp
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const maNCC = this.getAttribute('data-id');
+                const apiUrl = `https://localhost:7101/api/Suppliers/${maNCC}`;
+
+                Swal.fire({
+                    title: 'Bạn có chắc chắn muốn xóa?',
+                    text: "Hành động này không thể hoàn tác!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(apiUrl, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json' }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(data => {
+                                        throw new Error(data.message || 'Không thể xóa nhà cung cấp.');
+                                    });
+                                }
+                                return response.json(); // Thành công, đọc phản hồi JSON
+                            })
+                            .then(data => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Đã xóa!',
+                                    text: data.message,
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }).then(() => location.reload());
+                            })
+                            .catch(error => {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi!',
+                                    text: error.message,
+                                    showConfirmButton: true
+                                });
+                            });
+                    }
+                });
+            });
+        });
+    });
+</script>
