@@ -4,6 +4,7 @@ using DynaDevAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynaDevAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250223055332_sdfsdf")]
+    partial class sdfsdf
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,15 +50,6 @@ namespace DynaDevAPI.Migrations
                     b.Property<int>("PaymentStatusId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PhuongThucThanhToan")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SoDienThoai")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenNguoiNhan")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("ThoiGianDatHang")
                         .HasColumnType("datetime2");
 
@@ -86,9 +80,6 @@ namespace DynaDevAPI.Migrations
                             OrderStatusId = 1,
                             PaymentStatusId = 1,
                             ThoiGianDatHang = new DateTime(2025, 2, 20, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7417),
-
-                            ThoiGianDatHang = new DateTime(2025, 2, 19, 16, 34, 1, 154, DateTimeKind.Local).AddTicks(208),
-
                             TongTien = 240000m
                         },
                         new
@@ -99,11 +90,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 3,
                             PaymentStatusId = 2,
-
                             ThoiGianDatHang = new DateTime(2025, 2, 21, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7948),
-
-                            ThoiGianDatHang = new DateTime(2025, 2, 20, 16, 34, 1, 154, DateTimeKind.Local).AddTicks(685),
-
                             TongTien = 90000m
                         });
                 });
@@ -133,14 +120,22 @@ namespace DynaDevAPI.Migrations
                     b.Property<string>("MaChiTiet")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("DonHangMaDH")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<decimal>("Gia")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("MaDH")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaSP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SanPhamMaSP")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -149,9 +144,9 @@ namespace DynaDevAPI.Migrations
 
                     b.HasKey("MaChiTiet");
 
-                    b.HasIndex("MaDH");
+                    b.HasIndex("DonHangMaDH");
 
-                    b.HasIndex("MaSP");
+                    b.HasIndex("SanPhamMaSP");
 
                     b.ToTable("ChiTietDonHangs");
                 });
@@ -202,24 +197,30 @@ namespace DynaDevAPI.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DiaChi")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MatKhau")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("NgayDangKy")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SDT")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenKH")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TinhTrang")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MaKH");
@@ -233,11 +234,7 @@ namespace DynaDevAPI.Migrations
                             DiaChi = "Hà Nội",
                             Email = "vana@gmail.com",
                             MatKhau = "123456",
-
                             NgayDangKy = new DateTime(2025, 2, 23, 12, 53, 27, 965, DateTimeKind.Local).AddTicks(4370),
-
-                            NgayDangKy = new DateTime(2025, 2, 22, 16, 34, 1, 152, DateTimeKind.Local).AddTicks(9682),
-
                             SDT = "0123456789",
                             TenKH = "Nguyễn Văn A",
                             TinhTrang = "Hoạt động"
@@ -361,11 +358,7 @@ namespace DynaDevAPI.Migrations
                             Email = "vanb@gmail.com",
                             Luong = 0f,
                             MatKhau = "admin123",
-
                             NgayVaoLam = new DateTime(2023, 2, 23, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(6550),
-
-                            NgayVaoLam = new DateTime(2023, 2, 22, 16, 34, 1, 153, DateTimeKind.Local).AddTicks(9543),
-
                             SDT = "0987654321",
                             TenNV = "Trần Văn B",
                             TinhTrang = "Đang làm việc"
@@ -489,11 +482,13 @@ namespace DynaDevAPI.Migrations
 
                     b.Property<string>("TenSanPham")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("TinhTrang")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("MaSP");
 
@@ -600,13 +595,13 @@ namespace DynaDevAPI.Migrations
                 {
                     b.HasOne("DonHang", "DonHang")
                         .WithMany("ChiTietDonHangs")
-                        .HasForeignKey("MaDH")
+                        .HasForeignKey("DonHangMaDH")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DynaDevAPI.Models.SanPham", "SanPham")
                         .WithMany("ChiTietDonHangs")
-                        .HasForeignKey("MaSP")
+                        .HasForeignKey("SanPhamMaSP")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

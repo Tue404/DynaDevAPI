@@ -96,18 +96,18 @@
             if (customers.length > 0) {
                 customers.forEach(customer => {
                     const row = `
-                            <tr>
-                                <td>${customer.maKH}</td>
-                                <td>${customer.tenKH}</td>
-                                <td>${customer.email}</td>
-                                <td>${customer.sdt}</td>
-                                <td>${customer.diaChi}</td>
-                                <td>
-                                    <a href="/HomeAdmin/Details/${customer.maKH}" class="btn btn-info btn-sm">Chi tiết</a>
-                                    <a href="/HomeAdmin/Edit/${customer.maKH}" class="btn btn-warning btn-sm">Sửa</a>
-                                    <button class="btn btn-danger btn-sm btn-delete" data-id="${customer.maKH}">Xóa</button>
-                                </td>
-                            </tr>`;
+                                <tr>
+                                    <td>${customer.maKH}</td>
+                                    <td>${customer.tenKH}</td>
+                                    <td>${customer.email}</td>
+                                    <td>${customer.sdt}</td>
+                                    <td>${customer.diaChi}</td>
+                                    <td>
+                                        <a href="/HomeAdmin/Details/${customer.maKH}" class="btn btn-info btn-sm">Chi tiết</a>
+                                        <a href="/HomeAdmin/Edit/${customer.maKH}" class="btn btn-warning btn-sm">Sửa</a>
+                                        <button class="btn btn-danger btn-sm btn-delete" data-id="${customer.maKH}">Xóa</button>
+                                    </td>
+                                </tr>`;
                     customerTable.innerHTML += row;
                 });
 
@@ -213,7 +213,7 @@
                 });
         </text>
     }
-           });
+               });
 
     document.addEventListener('DOMContentLoaded', function () {
         const deleteButtons = document.querySelectorAll('.btn-delete');

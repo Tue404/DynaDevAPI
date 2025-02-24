@@ -51,7 +51,7 @@ namespace DynaDevAPI.Controllers
                         Thang = g.Key.Month,
                         Ngay = g.Key.Day,
                         TongDoanhThu = g.Sum(dh => dh.TongTien),
-                        TongDonHang = g.Count() 
+                        TongDonHang = g.Count()
                     })
                     .OrderBy(g => g.Nam)
                     .ThenBy(g => g.Thang)

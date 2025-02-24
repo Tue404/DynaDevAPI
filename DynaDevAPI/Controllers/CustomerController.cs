@@ -42,7 +42,16 @@ namespace DynaDevAPI.Controllers
 
                 return Ok(new
                 {
-                    data = customers,
+                    data = customers.Select(kh => new
+                    {
+                        kh.MaKH,
+                        kh.TenKH,
+                        kh.Email,
+                        kh.SDT,
+                        kh.DiaChi,
+                        kh.TinhTrang,
+                        kh.NgayDangKy
+                    }),
                     pagination = new
                     {
                         currentPage = page,
@@ -58,7 +67,6 @@ namespace DynaDevAPI.Controllers
             }
         }
 
-
         // GET: api/Customer/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<KhachHang>> GetKhachHang(string id)
@@ -72,15 +80,22 @@ namespace DynaDevAPI.Controllers
                     return NotFound(new { message = "Không tìm thấy khách hàng." });
                 }
 
-                return Ok(khachHang);
+                return Ok(new
+                {
+                    khachHang.MaKH,
+                    khachHang.TenKH,
+                    khachHang.Email,
+                    khachHang.SDT,
+                    khachHang.DiaChi,
+                    khachHang.TinhTrang,
+                    khachHang.NgayDangKy
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Lỗi khi lấy thông tin khách hàng.", error = ex.Message });
             }
         }
-
-
 
         // GET: api/Customer/Search?query={query}
         [HttpGet("Search")]
@@ -112,17 +127,22 @@ namespace DynaDevAPI.Controllers
                     return NotFound(new { message = "Không tìm thấy khách hàng nào phù hợp." });
                 }
 
-                return Ok(results);
+                return Ok(results.Select(kh => new
+                {
+                    kh.MaKH,
+                    kh.TenKH,
+                    kh.Email,
+                    kh.SDT,
+                    kh.DiaChi,
+                    kh.TinhTrang,
+                    kh.NgayDangKy
+                }));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Lỗi khi tìm kiếm khách hàng.", error = ex.Message });
             }
         }
-
-
-
-
 
         // POST: api/Customer
         [HttpPost]
@@ -144,9 +164,7 @@ namespace DynaDevAPI.Controllers
                 // Gán ngày đăng ký nếu không có
                 khachHang.NgayDangKy = DateTime.Now;
 
-                // Đặt các trường liên kết là null
-                khachHang.DonHangs = null;
-                khachHang.DanhGias = null;
+
 
                 await _db.KhachHangs.AddAsync(khachHang);
                 await _db.SaveChangesAsync();
@@ -158,7 +176,6 @@ namespace DynaDevAPI.Controllers
                 return StatusCode(500, new { message = "Lỗi khi thêm khách hàng.", error = ex.Message });
             }
         }
-
 
         // PUT: api/Customer/{id}
         [HttpPut("{id}")]
@@ -191,7 +208,8 @@ namespace DynaDevAPI.Controllers
                 // Giữ nguyên các trường không thay đổi
                 existingCustomer.NgayDangKy = existingCustomer.NgayDangKy;
 
-                // Không xử lý các trường liên kết như DonHangs, DanhGias
+
+
                 _db.Entry(existingCustomer).State = EntityState.Modified;
 
                 // Lưu thay đổi
@@ -204,11 +222,6 @@ namespace DynaDevAPI.Controllers
                 return StatusCode(500, new { message = "Lỗi khi cập nhật khách hàng.", error = ex.Message });
             }
         }
-
-
-
-
-
 
 
         // DELETE: api/Customer/{id}

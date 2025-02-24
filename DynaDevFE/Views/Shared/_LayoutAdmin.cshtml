@@ -61,12 +61,10 @@
                         </li>
                         <li class="sidebar-item">
 
-                            <a asp-controller="Staff" asp-action="Index"  class="sidebar-link" aria-expanded="false">
+                            <a asp-controller="Staff" asp-action="Index" class="sidebar-link" aria-expanded="false">
                                 <span>
 
-                                    <i class="fas fa-user"></i>
-
-                                    <i class="ti ti-alert-circle"></i>
+                                    <i class="fas fa-user-friends"></i>
 
                                 </span>
                                 <span class="hide-menu">Quản lý nhân viên</span>
@@ -75,15 +73,14 @@
 
                         <li class="sidebar-item">
 
+
                             <a asp-controller="Order" asp-action="Index" class="sidebar-link" aria-expanded="false"> </a>
 
                             <a asp-controller="Customer" asp-action="Index" class="sidebar-link" aria-expanded="false">
-
                                 <span>
-                                    <i class="ti ti-shopping-cart"></i>
+                                    <i class="fas fa-user"></i>
                                 </span>
-
-                                <span class="hide-menu">Quản lý đơn hàng</span>
+                                <span class="hide-menu">Quản lý khách hàng</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
@@ -93,10 +90,9 @@
                                 </span>
                                 <span class="hide-menu">Quản lý danh mục sản phẩm</span>
 
-                                <span class="hide-menu">Quản lý khách hàng</span>
+
 
                             </a>
-                        </li>
                         <li class="sidebar-item">
 
                             <a asp-controller="Suppliers" asp-action="Index" class="sidebar-link" aria-expanded="false">
@@ -115,10 +111,10 @@
                                 <span>
                                     <i class="ti ti-file-description"></i>
                                 </span>
-                                <span class="hide-menu">Forms</span>
+                                <span class="hide-menu">Đơn Hàng</span>
                             </a>
                         </li>
-                        
+
                         <li class="sidebar-item">
                             <a asp-controller="Voucher" asp-action="Index" class="sidebar-link" aria-expanded="false">
                                 <span>
@@ -200,7 +196,7 @@
         <!--  Main wrapper -->
         <div class="body-wrapper">
             <!--  Header Start -->
-            <header class="app-header"  > 
+            <header class="app-header">
                 <nav class="navbar navbar-expand-lg navbar-light">
                     <ul class="navbar-nav">
                         <li class="nav-item d-block d-xl-none">
@@ -248,8 +244,8 @@
             <!--  Header End -->
             <div class="container-fluid">
 
-            @RenderBody()
-             
+                @RenderBody()
+
             </div>
         </div>
     </div>

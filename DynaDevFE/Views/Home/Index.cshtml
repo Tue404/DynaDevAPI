@@ -214,6 +214,55 @@
 </section>
 
 
+
+
+
+<section id="customers-reviews" class="position-relative padding-large"
+         style="background-image: url(images/banner-image-bg.jpg); background-size: cover; background-repeat: no-repeat; background-position: center; height: 600px;">
+    <div class="container offset-md-3 col-md-6">
+        <div class="position-absolute top-50 end-0 pe-0 pe-xxl-5 me-0 me-xxl-5 swiper-next testimonial-button-next">
+            <svg class="chevron-forward-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
+                <use xlink:href="#alt-arrow-right-outline"></use>
+            </svg>
+        </div>
+        <div class="position-absolute top-50 start-0 ps-0 ps-xxl-5 ms-0 ms-xxl-5 swiper-prev testimonial-button-prev">
+            <svg class="chevron-back-circle d-flex justify-content-center align-items-center p-2" width="80" height="80">
+                <use xlink:href="#alt-arrow-left-outline"></use>
+            </svg>
+        </div>
+        <div class="section-title mb-4 text-center">
+            <h3 class="mb-4">Voucher dành cho bạn ngày hôm nay!!!</h3>
+        </div>
+        <div class="swiper testimonial-swiper ">
+            <div class="swiper-wrapper">
+                @foreach (var voucher in ViewBag.Vouchers as List<DynaDevFE.Models.VoucherViewModel>)
+                {
+                    // Kiểm tra điều kiện trạng thái và ngày bắt đầu
+                    if (voucher.TrangThai != "Không hoạt động" && voucher.NgayBatDau <= DateTime.Now)
+                    {
+                        <div class="swiper-slide">
+                            <div class="card position-relative text-left p-4 border rounded-3 shadow-sm" style="background-color: rgba(255, 255, 255, 0.8);">
+                                <h5 class="mt-2 fw-bold text-dark">Nhập mã Voucher: <span class="text-primary">@voucher.MaVoucher</span></h5>
+                                <h5 class="mt-2 fw-bold text-dark">Giảm sốc: <span class="text-primary">@voucher.GiamGia % (Tổng đơn hàng)</span></h5>
+                                <p class="mt-1"><span class="fw-bold">Tên voucher:</span> <span class="text-success">@voucher.TenVoucher</span></p>
+                                <p class="mt-2"><span class="fw-bold">Ngày hết hạn:</span> @voucher.NgayKetThuc.ToString("dd/MM/yyyy")</p>
+                                <p class="mt-1"><span class="fw-bold">Chỉ còn lại:</span> <span class="text-success">@voucher.SoLuong mã.</span></p>
+                                <p class="mt-1"><span class="fw-bold">Điều kiện khi mua</span> @voucher.DieuKien</p>
+                                <p class="mt-1"><span class="fw-bold">Loại giảm giá:</span> @voucher.LoaiGiamGia</p>
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
 <section id="limited-offer" class="padding-large"
          style="background-image: url(images/banner-image-bg-1.jpg); background-size: cover; background-repeat: no-repeat; background-position: center; height: 800px;">
     <div class="container">

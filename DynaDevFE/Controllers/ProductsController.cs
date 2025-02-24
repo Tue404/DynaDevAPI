@@ -50,13 +50,44 @@ namespace DynaDevFE.Controllers
                         product.DanhSachAnh = imageObjects.Select(img => img.TenAnh).ToList();
                     }
 
-                }                      
+                }
                 return View(products);
             }
 
             // Nếu có lỗi, trả về View rỗng
             return View(new List<SanPhamViewModel>());
         }
+
+
+        public async Task<JsonResult> Search(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return Json(new List<SanPhamViewModel>());
+            }
+
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/Products/Search?query={Uri.EscapeDataString(query)}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonData = await response.Content.ReadAsStringAsync();
+                    var customers = JsonSerializer.Deserialize<List<SanPhamViewModel>>(jsonData, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return Json(customers);
+                }
+
+                return Json(new List<SanPhamViewModel>()); // Trả về danh sách rỗng nếu không tìm thấy
+            }
+            catch (Exception)
+            {
+                return Json(new List<SanPhamViewModel>()); // Xử lý lỗi bằng cách trả về danh sách rỗng
+            }
+        }
+
 
         public async Task<IActionResult> Details(string id)
         {
@@ -208,7 +239,7 @@ namespace DynaDevFE.Controllers
                             return View(productViewModel);
                         }
                     }
-                }         
+                }
             }
 
             return RedirectToAction("Index");
@@ -241,7 +272,7 @@ namespace DynaDevFE.Controllers
         {
 
             if (!ModelState.IsValid)
-            {        
+            {
                 return View(productViewModel);
             }
 

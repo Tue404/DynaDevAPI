@@ -48,6 +48,15 @@ builder.Services.AddCors(options =>
 });
 
 
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddControllersWithViews();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -78,6 +87,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+app.UseSession();
+=======
+
+app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
+
 
 // ✅ Đặt `app.UseSession();` TRƯỚC `app.UseAuthorization();`
 app.UseSession(); // 👈 Đặt TRƯỚC khi dùng Authentication & Authorization

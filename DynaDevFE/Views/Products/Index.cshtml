@@ -1,12 +1,8 @@
 ﻿@model List<DynaDevFE.Models.SanPhamViewModel>
 @using System.Text.Json
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-}
-
-@{
     ViewData["Title"] = "Danh sách sản phẩm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
 <head>
@@ -15,11 +11,18 @@
     <!-- SweetAlert2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <h2>Danh sách sản phẩm</h2>
 
+<!-- Tìm kiếm sản phẩm -->
+<div class="mb-3">
+    <input id="searchProducts" class="form-control" type="text" placeholder="Tìm kiếm sản phẩm" />
+</div>
 
+<!-- Thêm sản phẩm mới -->
 <a asp-action="Create" class="btn btn-primary mb-3">Thêm sản phẩm mới</a>
 
+<!-- Bảng danh sách sản phẩm -->
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -30,7 +33,7 @@
             <th>Hành động</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="productsTableBody">
         @foreach (var item in Model)
         {
             <tr>
@@ -47,8 +50,6 @@
                         <span>Chưa có ảnh</span>
                     }
                 </td>
-
-
                 <td>
                     <a asp-action="Details" asp-route-id="@item.MaSP" class="btn btn-warning btn-sm">Chi tiết</a>
                     <a asp-action="Edit" asp-route-id="@item.MaSP" class="btn btn-warning btn-sm">Sửa</a>
@@ -56,38 +57,90 @@
                 </td>
             </tr>
         }
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="5" class="text-center">Không có sản phẩm nào</td>
+            </tr>
+        }
     </tbody>
 </table>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-
     document.addEventListener('DOMContentLoaded', function () {
-        // Hiển thị thông báo thành công
-    @if (TempData["Success"] != null)
-    {
-        <text>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-        </text>
-    }
+        const searchInput = document.getElementById('searchProducts');
+        const productsTableBody = document.getElementById('productsTableBody');
 
-            // Hiển thị thông báo lỗi
-    @if (TempData["Error"] != null)
-    {
-        <text>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
-                    showConfirmButton: true
+        // Hàm render danh sách sản phẩm
+        function renderProducts(products) {
+            productsTableBody.innerHTML = ''; // Xóa hết dữ liệu cũ trong bảng
+
+            if (products.length > 0) {
+                products.forEach(product => {
+                    const imageElements = product.danhSachAnh.map(img => `<img src="${img}" alt="Ảnh sản phẩm" style="width: 100px;" />`).join('');
+                    const row = `
+                                <tr>
+                                    <td>${product.maSP}</td>
+                                    <td>${product.tenSanPham}</td>
+                                    <td>${product.gia} ₫</td>
+                                    <td>${imageElements || '<span>Chưa có ảnh</span>'}</td>
+                                    <td>
+                                        <a href="/Products/Details/${product.maSP}" class="btn btn-warning btn-sm">Chi tiết</a>
+                                        <a href="/Products/Edit/${product.maSP}" class="btn btn-warning btn-sm">Sửa</a>
+                                        <button class="btn btn-danger btn-sm btn-delete" data-id="${product.maSP}">Xóa</button>
+                                    </td>
+                                </tr>
+                            `;
+                    productsTableBody.innerHTML += row;
                 });
+
+                bindDeleteButtons();
+            } else {
+                productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Không tìm thấy sản phẩm.</td></tr>';
+            }
+        }
+
+        // Hàm tìm kiếm sản phẩm
+        searchInput.addEventListener('input', async function () {
+            const query = searchInput.value.trim();
+            if (query.length === 0) {
+                location.reload(); // Tải lại danh sách gốc nếu không nhập gì
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://localhost:7101/api/Products/Search?query=${encodeURIComponent(query)}`);
+                const products = await response.json();
+                renderProducts(products);
+            } catch (error) {
+                console.error('Lỗi tìm kiếm:', error);
+                productsTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Lỗi khi tìm kiếm sản phẩm.</td></tr>';
+            }
+        });
+
+        // Hàm xử lý xóa sản phẩm
+        function bindDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const maSP = this.getAttribute('data-id');
+                    const apiUrl = `https://localhost:7101/api/Products/${maSP}`;
+
+                    Swal.fire({
+                        title: 'Bạn có chắc chắn muốn xóa?',
+                        text: "Hành động này không thể hoàn tác!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(apiUrl, {
+                                method: 'DELETE',
+                                headers: { 'Accept': 'application/json' }
+=======
         </text>
     }
             });
@@ -157,13 +210,21 @@
                                 Swal.fire('Đã xóa!', data.message, 'success')
                                     .then(() => location.reload());
                             })
-                            .catch(error => {
-                                Swal.fire('Lỗi!', error.message, 'error'); // Hiển thị lỗi từ backend
-                                console.error('Error:', error);
-                            });
-                    }
+                                .then(response => response.json())
+                                .then(data => {
+                                    Swal.fire('Đã xóa!', data.message, 'success')
+                                        .then(() => location.reload()); // Tải lại trang sau khi xóa
+                                })
+                                .catch(error => {
+                                    Swal.fire('Lỗi!', error.message, 'error');
+                                });
+                        }
+                    });
                 });
             });
-        });
+        }
+
+        // Gắn sự kiện xóa ban đầu khi trang tải lần đầu
+        bindDeleteButtons();
     });
 </script>

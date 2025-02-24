@@ -19,6 +19,11 @@ namespace DynaDevAPI.Models
         public ICollection<DonHang>? DonHangs { get; set; }
         public ICollection<DanhGia>? DanhGias { get; set; }
 
+        [JsonIgnore]
+        public ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
+        [JsonIgnore]
+        public ICollection<DanhGia> DanhGias { get; set; } = new List<DanhGia>();
+
 
     }
 }
