@@ -130,7 +130,9 @@ namespace DynaDevAPI.Controllers
                 MaKH = user.MaKH, // ✅ Trả về MaKH
             });
         }
-
+            var token = GenerateJwtToken(user);
+            return Ok(new { success = true, message = "Đăng nhập thành công", token });
+    }
 
         [HttpGet("GetUserInfo")]
         public IActionResult GetUserInfo()
