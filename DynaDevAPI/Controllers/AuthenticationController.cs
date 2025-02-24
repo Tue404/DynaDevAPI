@@ -23,6 +23,21 @@ namespace DynaDevAPI.Controllers
             _context = context;
         }
 
+
+        [HttpGet]
+        public IActionResult GetMaKH()
+        {
+            string maKH = Request.Cookies["MaKH"];
+
+            if (string.IsNullOrEmpty(maKH))
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy MaKH trong cookie!" });
+            }
+
+            return Ok(new { success = true, MaKH = maKH });
+        }
+
+
         // Đăng ký người dùng
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] KhachHangVM khach)
@@ -92,12 +107,35 @@ namespace DynaDevAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login loginModel)
         {
+
+            // 🔹 Tìm user trong bảng KhachHang theo Email
+
             var user = await _context.KhachHangs.FirstOrDefaultAsync(k => k.Email == loginModel.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginModel.Password, user.MatKhau))
             {
                 return Unauthorized(new { success = false, message = "Email hoặc mật khẩu không đúng." });
             }
+
+            // ✅ Kiểm tra MaKH
+            if (string.IsNullOrEmpty(user.MaKH))
+            {
+                return BadRequest(new { success = false, message = "Không tìm thấy MaKH trong database!" });
+            }
+
+            var token = GenerateJwtToken(user);
+
+            // ✅ Trả về Token + MaKH + Role
+            return Ok(new
+            {
+                success = true,
+                message = "Đăng nhập thành công",
+                token = token,
+                MaKH = user.MaKH, // ✅ Trả về MaKH
+            });
+        }
+
+
 
             var token = GenerateJwtToken(user);
             return Ok(new { success = true, message = "Đăng nhập thành công", token });

@@ -103,6 +103,18 @@
 
         console.log("Updated total price:", totalPrice);
     }
+
+    document.getElementById("checkout-button").addEventListener("click", function () {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        if (cart.length === 0) {
+            alert("Giỏ hàng trống! Vui lòng thêm sản phẩm trước khi thanh toán.");
+            return;
+        }
+
+        // Chuyển hướng đến trang nhập địa chỉ nhận hàng
+        window.location.href = "/Payment/ThongTinThanhToan";
+    });
 </script>
 
 <style>

@@ -4,6 +4,7 @@ using DynaDevAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynaDevAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250222071009_addAllToDb")]
+    partial class addAllToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,12 +53,6 @@ namespace DynaDevAPI.Migrations
                     b.Property<string>("PhuongThucThanhToan")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SoDienThoai")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenNguoiNhan")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("ThoiGianDatHang")
                         .HasColumnType("datetime2");
 
@@ -85,7 +82,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 1,
                             PaymentStatusId = 1,
-                            ThoiGianDatHang = new DateTime(2025, 2, 19, 16, 34, 1, 154, DateTimeKind.Local).AddTicks(208),
+                            ThoiGianDatHang = new DateTime(2025, 2, 19, 14, 10, 8, 997, DateTimeKind.Local).AddTicks(9655),
                             TongTien = 240000m
                         },
                         new
@@ -96,7 +93,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 3,
                             PaymentStatusId = 2,
-                            ThoiGianDatHang = new DateTime(2025, 2, 20, 16, 34, 1, 154, DateTimeKind.Local).AddTicks(685),
+                            ThoiGianDatHang = new DateTime(2025, 2, 20, 14, 10, 8, 998, DateTimeKind.Local).AddTicks(181),
                             TongTien = 90000m
                         });
                 });
@@ -195,24 +192,30 @@ namespace DynaDevAPI.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DiaChi")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MatKhau")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("NgayDangKy")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SDT")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenKH")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TinhTrang")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MaKH");
@@ -226,7 +229,7 @@ namespace DynaDevAPI.Migrations
                             DiaChi = "Hà Nội",
                             Email = "vana@gmail.com",
                             MatKhau = "123456",
-                            NgayDangKy = new DateTime(2025, 2, 22, 16, 34, 1, 152, DateTimeKind.Local).AddTicks(9682),
+                            NgayDangKy = new DateTime(2025, 2, 22, 14, 10, 8, 996, DateTimeKind.Local).AddTicks(8681),
                             SDT = "0123456789",
                             TenKH = "Nguyễn Văn A",
                             TinhTrang = "Hoạt động"
@@ -350,7 +353,7 @@ namespace DynaDevAPI.Migrations
                             Email = "vanb@gmail.com",
                             Luong = 0f,
                             MatKhau = "admin123",
-                            NgayVaoLam = new DateTime(2023, 2, 22, 16, 34, 1, 153, DateTimeKind.Local).AddTicks(9543),
+                            NgayVaoLam = new DateTime(2023, 2, 22, 14, 10, 8, 997, DateTimeKind.Local).AddTicks(9039),
                             SDT = "0987654321",
                             TenNV = "Trần Văn B",
                             TinhTrang = "Đang làm việc"

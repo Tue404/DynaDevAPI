@@ -11,11 +11,14 @@ public class DonHang
     [Required]
     [ForeignKey("KhachHang")]
     public string MaKH { get; set; }
-    public KhachHang KhachHang { get; set; }
+    public KhachHang KhachHang { get; set; }    
 
     [ForeignKey("MaVoucher")]
     public string? MaVoucher { get; set; }
+    public string? TenNguoiNhan { get; set; } 
+    public string? SoDienThoai { get; set; }
     public string DiaChiNhanHang { get; set; }
+    public string? PhuongThucThanhToan {  get; set; }
     public DateTime ThoiGianDatHang { get; set; }
     public decimal TongTien { get; set; }
 
