@@ -1,6 +1,7 @@
 ﻿using DynaDevFE.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -77,21 +78,40 @@ namespace DynaDevFE.Controllers
             }
         }
 
+
         // Đăng nhập
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
+
+ 
+
+        // Đăng nhập
+        [HttpPost]
+        public async Task<IActionResult> Login(Login model)
+
         {
             if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
             {
                 return BadRequest(new { success = false, message = "Email và mật khẩu không được để trống" });
             }
 
+
             var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+
+            var loginModel = new Login
+            {
+                Email = model.Email,
+                Password = model.Password
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(loginModel), Encoding.UTF8, "application/json");
+
             var response = await _httpClient.PostAsync("https://localhost:7101/api/Authentication/login", content);
 
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
+
                 Console.WriteLine("🔹 Response từ API: " + responseContent); // ✅ Kiểm tra API trả về gì
 
                 // ✅ Deserialize JSON từ API
@@ -109,6 +129,20 @@ namespace DynaDevFE.Controllers
                 var role = result.Role ?? "User";
                 var maKH = result.MaKH; // ✅ Lấy MaKH từ API
 
+
+                Console.WriteLine("🔹 Response từ API: " + responseContent);
+                var result = JsonSerializer.Deserialize<TokenResponse>(responseContent);
+
+                if (result == null || string.IsNullOrEmpty(result.Token))
+                {
+                    return BadRequest(new { success = false, message = "Lỗi xác thực, token rỗng!" });
+                }
+
+                var token = result.Token;
+                var role = result.Role ?? "User"; // Nếu không có role thì mặc định là User
+
+                // ✅ Lưu token vào Cookie
+
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
@@ -117,12 +151,26 @@ namespace DynaDevFE.Controllers
                     Expires = DateTime.UtcNow.AddMinutes(30)
                 };
 
+
                 // ✅ Lưu token, role và MaKH vào Cookie
                 Response.Cookies.Append("JwtToken", token, cookieOptions);
                 Response.Cookies.Append("UserRole", role, cookieOptions);
                 Response.Cookies.Append("MaKH", maKH, cookieOptions);
 
                 return Ok(new { success = true, message = "Đăng nhập thành công!", MaKH = maKH });
+
+                Response.Cookies.Append("JwtToken", token, cookieOptions);
+                Response.Cookies.Append("UserRole", role, cookieOptions);
+
+                // ✅ Kiểm tra vai trò và trả về thông báo phù hợp
+                if (role == "Admin")
+                {
+                    return Ok(new { success = true, message = "Đăng nhập thành công! Chào mừng Admin!" });
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
             return BadRequest(new { success = false, message = "Đăng nhập thất bại!" });

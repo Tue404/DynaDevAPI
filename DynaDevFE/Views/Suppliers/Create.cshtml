@@ -1,0 +1,67 @@
+﻿@model DynaDevFE.Models.NhaCungCapViewModel
+
+@{
+    ViewData["Title"] = "Thêm Nhà Cung Cấp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<h2>Thêm Nhà Cung Cấp</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: "Thành công!",
+            text: "@TempData["SuccessMessage"]",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+    </script>
+}
+
+<form id="createForm" asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="MaNCC" class="form-label">Mã nhà cung cấp</label>
+        <input asp-for="MaNCC" class="form-control" />
+        <span asp-validation-for="MaNCC" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TenNCC" class="form-label">Tên nhà cung cấp</label>
+        <input asp-for="TenNCC" class="form-control" placeholder="Nhập tên nhà cung cấp" />
+        <span asp-validation-for="TenNCC" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SDT" class="form-label">Số điện thoại</label>
+        <input asp-for="SDT" class="form-control" placeholder="Nhập số điện thoại" />
+        <span asp-validation-for="SDT" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" type="email" placeholder="Nhập email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DiaChi" class="form-label">Địa chỉ</label>
+        <input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ" />
+        <span asp-validation-for="DiaChi" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TinhTrang" class="form-label">Tình trạng</label>
+        <select asp-for="TinhTrang" class="form-control">
+            <option value="Đang làm việc">Đang làm việc</option>
+            <option value="Nghỉ việc">Nghỉ việc</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Thêm</button>
+</form>

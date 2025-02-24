@@ -240,23 +240,41 @@
                         <ul id="navbar"
                             class="navbar-nav text-uppercase justify-content-start justify-content-lg-center align-items-start align-items-lg-center flex-grow-1">
                             <li class="nav-item">
-                                <a class="nav-link me-4 active" href="index.html">Trang chủ</a>
+                                <a class="nav-link me-4 active" href="/">Trang chủ</a>
                             </li>
 
+                           
                             <li class="nav-item">
-                                <a class="nav-link me-4" href="index.html">Cửa hàng</a>
+                                <a class="nav-link me-4" href="/CuaHang">Cửa hàng</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link me-4" href="index.html">Liên hệ</a>
+                                <a class="nav-link me-4" href="/LienHe">Liên hệ</a>
                             </li>
+                            <li class="nav-item">
+                                <!-- Dropdown danh mục sản phẩm -->
+                                @* <ul class="navbar-nav"> *@
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Danh Mục
+                                        </a>
+                                        <ul class="dropdown-menu" id="danhMucDropdown">
+                                            <!-- Danh mục sẽ được thêm vào đây -->
+                                        </ul>
+                                    </li>
+                                @* </ul> *@
 
+
+                                
                             <li class="nav-item">
-                                <a class="nav-link me-4" href="index.html">Giảm giá</a>
+                                <a class="nav-link me-4" href="/GiamGia">Giảm giá</a>
+                            </li>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link me-4" href="index.html">Xem thêm</a>
+                                <a class="nav-link me-4" href="/XemThem">Xem thêm</a>
                             </li>
                         </ul>
+
+
                         <div class="user-items d-flex">
                             <ul class="d-flex justify-content-end list-unstyled mb-0">
                                 <li class="search-item pe-3">
@@ -592,6 +610,7 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
     <script type="text/javascript" src="~/js/script.js"></script>
     <script>
         $(document).ready(function () {
@@ -639,8 +658,7 @@
             renderCart();
         });
 
-    </script>
-      <script>
+
       $(document).ready(function () {
           function getCart() {
               return JSON.parse(localStorage.getItem("cart")) || [];
@@ -685,8 +703,42 @@
 
           renderCart();
       });
-
+        
   </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("Đang gọi API danh mục...");
+
+            $.ajax({
+                url: "https://localhost:7101/api/DanhMuc", // Đảm bảo API chạy đúng
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    console.log("Dữ liệu danh mục nhận được:", data); // Debug console
+
+                    var dropdown = $("#danhMucDropdown");
+                    dropdown.empty(); // Xóa danh mục cũ
+
+                    if (data.length > 0) {
+                        $.each(data, function (index, item) {
+                            dropdown.append(`
+                                <li><a class="dropdown-item" href="/DanhMuc/Index?maLoai=${item.maLoai}">${item.tenLoai}</a></li>
+                            `);
+
+                               });
+                    } else {
+                        dropdown.append('<li class="dropdown-item text-muted">Không có danh mục</li>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Lỗi khi lấy danh mục:", error);
+                    $("#danhMucDropdown").append('<li class="dropdown-item text-danger">Lỗi tải danh mục</li>');
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
 <style>
@@ -711,4 +763,28 @@
         display: block; 
         margin: 0 auto; 
     }
+
+
+    /* Định dạng Dropdown */
+    #danhMucDropdown {
+        min-width: 220px; /* Giữ dropdown rộng hơn để không bị chồng chéo */
+    }
+
+        #danhMucDropdown li a {
+            font-size: 16px; /* Cỡ chữ to hơn */
+            padding: 10px 15px;
+            color: #333; /* Màu chữ tối hơn */
+            display: block;
+        }
+
+            #danhMucDropdown li a:hover {
+                background-color: #f8f9fa; /* Màu nền khi hover */
+                color: #d63384; /* Màu chữ khi hover */
+                transition: 0.3s;
+            }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block; /* Hiện dropdown khi hover */
+    }
+
 </style>

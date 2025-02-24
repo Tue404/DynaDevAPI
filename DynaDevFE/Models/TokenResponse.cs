@@ -9,7 +9,9 @@ namespace DynaDevFE.Models
 
         [JsonPropertyName("role")]
         public string Role { get; set; }
+
         [JsonPropertyName("MaKH")]
         public string MaKH { get; set; }
+
     }
 }
