@@ -120,10 +120,6 @@ namespace DynaDevAPI.Controllers
             }
         }
 
-
-
-
-
         // POST: api/Customer
         [HttpPost]
         public async Task<ActionResult> AddKhachHang([FromBody] KhachHang khachHang)
