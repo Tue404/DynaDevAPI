@@ -87,7 +87,7 @@ namespace DynaDevAPI.Migrations
                             PaymentStatusId = 1,
                             ThoiGianDatHang = new DateTime(2025, 2, 20, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7417),
 
-                            ThoiGianDatHang = new DateTime(2025, 2, 19, 16, 34, 1, 154, DateTimeKind.Local).AddTicks(208),
+
 
                             TongTien = 240000m
                         },
@@ -101,9 +101,6 @@ namespace DynaDevAPI.Migrations
                             PaymentStatusId = 2,
 
                             ThoiGianDatHang = new DateTime(2025, 2, 21, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7948),
-
-                            ThoiGianDatHang = new DateTime(2025, 2, 20, 16, 34, 1, 154, DateTimeKind.Local).AddTicks(685),
-
                             TongTien = 90000m
                         });
                 });
@@ -236,7 +233,6 @@ namespace DynaDevAPI.Migrations
 
                             NgayDangKy = new DateTime(2025, 2, 23, 12, 53, 27, 965, DateTimeKind.Local).AddTicks(4370),
 
-                            NgayDangKy = new DateTime(2025, 2, 22, 16, 34, 1, 152, DateTimeKind.Local).AddTicks(9682),
 
                             SDT = "0123456789",
                             TenKH = "Nguyễn Văn A",
@@ -364,7 +360,6 @@ namespace DynaDevAPI.Migrations
 
                             NgayVaoLam = new DateTime(2023, 2, 23, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(6550),
 
-                            NgayVaoLam = new DateTime(2023, 2, 22, 16, 34, 1, 153, DateTimeKind.Local).AddTicks(9543),
 
                             SDT = "0987654321",
                             TenNV = "Trần Văn B",

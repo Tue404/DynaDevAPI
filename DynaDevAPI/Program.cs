@@ -88,7 +88,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseSession();
-=======
+
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");

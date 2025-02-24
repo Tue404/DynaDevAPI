@@ -30,12 +30,15 @@ namespace DynaDevAPI.Data
             {
                 MaSP = sp.MaSP,
                 TenSanPham = sp.TenSanPham,
+                MaLoai = sp.MaLoai,
                 TacGia = sp.TacGia,
                 MaNCC = sp.MaNCC,
                 //NhaXuatBan = sp.NhaXuatBan,
                 NamXuatBan = sp.NamXuatBan,
+                SoLuongTrongKho = sp.SoLuongTrongKho,
                 Gia = sp.Gia,
                 MoTa = sp.MoTa,
+                TinhTrang = sp.TinhTrang,
                 DanhSachAnh = sp.AnhSPs?.Select(a => a.TenAnh).ToList(),
                 LoaiSP = sp.LoaiSP?.TenLoai
             }).ToList();
