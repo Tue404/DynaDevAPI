@@ -14,38 +14,34 @@
     <a asp-action="Create" class="btn btn-primary mb-3">Thêm Voucher mới</a>
 </div>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-warning">
-        <td colspan="6" class="text-center">Không có voucher nào để hiển thị.</td>
-    </div>
-}
-else
-{
-    <div class="mb-3">
-        <input id="searchVoucher" class="form-control" type="text" placeholder="Tìm kiếm voucher (mã, tên, mô tả)" />
-    </div>
+<div class="mb-3">
+    <input id="searchVoucher" class="form-control" type="text" placeholder="Tìm kiếm voucher (mã, tên, mô tả)" />
+</div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Mã Voucher</th>
-                <th>Tên Voucher</th>
-                <th>Giảm Giá</th>
-                <th>Ngày Bắt Đầu</th>
-                <th>Ngày Kết Thúc</th>
-                <th>Số Lượng</th>
-                <th>Trạng Thái</th>
-                <th>Hành Động</th>
-            </tr>
-        </thead>
-        <tbody id="voucherTableBody">
-           
-        </tbody>
-    </table>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Mã Voucher</th>
+            <th>Tên Voucher</th>
+            <th>Giảm Giá</th>
+            <th>Ngày Bắt Đầu</th>
+            <th>Ngày Kết Thúc</th>
+            <th>Số Lượng</th>
+            <th>Trạng Thái</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody id="voucherTableBody">
+        <!-- Dữ liệu voucher sẽ được chèn ở đây -->
+    </tbody>
+</table>
 
-
-}
+<!-- Phân trang -->
+<div id="paginationControls" class="mt-3">
+    <ul class="pagination">
+        <!-- Các nút phân trang sẽ được chèn ở đây -->
+    </ul>
+</div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -55,46 +51,69 @@ else
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchVoucher');
             const voucherTable = document.getElementById('voucherTableBody');
+            const paginationControls = document.getElementById('paginationControls');
+
+            let currentPage = 1;
+            const pageSize = 8;
 
             // Hàm render danh sách voucher
-            function renderVouchers(vouchers) {
+            function renderVouchers(vouchers, totalPages) {
                 voucherTable.innerHTML = '';
+                paginationControls.innerHTML = '';
 
                 if (vouchers.length > 0) {
                     vouchers.forEach(voucher => {
                         const row = `
-                                    <tr>
-                                        <td>${voucher.maVoucher}</td>
-                                        <td>${voucher.tenVoucher}</td>
-                                        <td>${voucher.giamGia <= 100 ? voucher.giamGia + ' %' : voucher.giamGia.toLocaleString() + ' VND'}</td>
-
-                                        <td>${new Date(voucher.ngayBatDau).toLocaleDateString()}</td>
-                                        <td>${new Date(voucher.ngayKetThuc).toLocaleDateString()}</td>
-                                        <td>${voucher.soLuong}</td>
-                                        <td>${voucher.trangThai}</td>
-                                        <td>
-                                            <a href="/Voucher/Edit/${voucher.maVoucher}" class="btn btn-warning btn-sm">Sửa</a>
-                                                     <a href="/Voucher/Details/${voucher.maVoucher}"class="btn btn-info btn-sm">Chi Tiết</a>
-                                            <button class="btn btn-danger btn-sm btn-delete" data-id="${voucher.maVoucher}">Xóa</button>
-                                        </td>
-                                    </tr>`;
+                                                                    <tr>
+                                                                        <td>${voucher.maVoucher}</td>
+                                                                        <td>${voucher.tenVoucher}</td>
+                                                                        <td>${voucher.giamGia <= 100 ? voucher.giamGia + ' %' : voucher.giamGia.toLocaleString() + ' VND'}</td>
+                                                                        <td>${new Date(voucher.ngayBatDau).toLocaleDateString()}</td>
+                                                                        <td>${new Date(voucher.ngayKetThuc).toLocaleDateString()}</td>
+                                                                        <td>${voucher.soLuong}</td>
+                                                                        <td>${voucher.trangThai}</td>
+                                                                        <td>
+                                                                            <a href="/Voucher/Details/${voucher.maVoucher}" class="btn btn-info btn-sm">Chi Tiết</a>
+                                                                            <a href="/Voucher/Edit/${voucher.maVoucher}" class="btn btn-warning btn-sm">Sửa</a>
+                                                                            <button class="btn btn-danger btn-sm btn-delete" data-id="${voucher.maVoucher}">Xóa</button>
+                                                                        </td>
+                                                                    </tr>`;
                         voucherTable.innerHTML += row;
                     });
 
                     bindDeleteButtons();
+
+                    // Hiển thị các nút phân trang
+                    let paginationHTML = '';
+                    for (let i = 1; i <= totalPages; i++) {
+                        paginationHTML += `
+                                                                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                                                        <a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>
+                                                                    </li>`;
+                    }
+                    paginationControls.innerHTML = `<ul class="pagination">${paginationHTML}</ul>`;
                 } else {
-                    voucherTable.innerHTML = '<tr><td colspan="11" class="text-center">Không tìm thấy voucher nào.</td></tr>';
+                    voucherTable.innerHTML = '<tr><td colspan="8" class="text-center">Không tìm thấy voucher nào.</td></tr>';
                 }
             }
 
             // Tải tất cả vouchers
-            async function loadAllVouchers() {
+            async function loadVouchers(pageNumber) {
                 try {
-                    const response = await axios.get('https://localhost:7101/api/Voucher');
-                    renderVouchers(response.data);
+                    const response = await axios.get(`https://localhost:7101/api/Voucher?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+                    console.log(response.data); // Kiểm tra dữ liệu từ API
+
+                    // Kiểm tra phản hồi để đảm bảo đúng cấu trúc dữ liệu
+                    if (response && response.data && response.data.vouchers) {
+                        const data = response.data;
+                        renderVouchers(data.vouchers, data.totalPages); // Đảm bảo hàm renderVouchers được gọi đúng
+                    } else {
+                        // Xử lý nếu phản hồi không có dữ liệu như mong đợi
+                        Swal.fire('Lỗi!', 'Không có dữ liệu từ API.', 'error');
+                    }
                 } catch (error) {
                     console.error('Lỗi tải danh sách voucher:', error);
-                    Swal.fire('Lỗi!', 'Không thể tải danh sách voucher.', 'error');
+                    Swal.fire('Thông báo!', 'Chưa có voucher nào.', 'error');
                 }
             }
 
@@ -103,20 +122,32 @@ else
                 const query = searchInput.value.trim();
 
                 if (query.length === 0) {
-                    loadAllVouchers();
+                    loadVouchers(currentPage);
                     return;
                 }
 
                 try {
-                    const response = await axios.get(`/Voucher/Search?query=${encodeURIComponent(query)}`);
-                    renderVouchers(response.data);
+                    const response = await axios.get(`https://localhost:7101/api/Voucher/Search?query=${encodeURIComponent(query)}&pageNumber=${currentPage}&pageSize=${pageSize}`);
+                    if (response.status === 200) {
+                        const data = response.data;
+                        renderVouchers(data.vouchers, data.totalPages);
+                    } else {
+                        console.error('Lỗi tìm kiếm:', response.data.message);
+                        voucherTable.innerHTML = `<tr><td colspan="8" class="text-center">${response.data.message || 'Không tìm thấy voucher nào.'}</td></tr>`;
+                    }
                 } catch (error) {
                     console.error('Lỗi tìm kiếm:', error);
-                    voucherTable.innerHTML = '<tr><td colspan="11" class="text-center">Lỗi khi tìm kiếm voucher.</td></tr>';
+                    voucherTable.innerHTML = '<tr><td colspan="8" class="text-center">Không tìm thấy voucher nào.</td></tr>';
                 }
             });
 
-            // Hàm xử lý xóa voucher
+            // Chuyển trang
+            window.goToPage = function (pageNumber) {
+                currentPage = pageNumber;
+                loadVouchers(currentPage);
+            };
+
+            // Xử lý nút xóa
             function bindDeleteButtons() {
                 const deleteButtons = document.querySelectorAll('.btn-delete');
                 deleteButtons.forEach(button => {
@@ -149,7 +180,7 @@ else
                                     })
                                     .then(data => {
                                         Swal.fire('Đã xóa!', data.message, 'success')
-                                            .then(() => location.reload()); // Làm mới trang sau khi xóa thành công
+                                            .then(() => loadVouchers(currentPage)); // Làm mới danh sách sau khi xóa
                                     })
                                     .catch(error => {
                                         Swal.fire('Lỗi!', error.message, 'error');
@@ -161,34 +192,33 @@ else
                 });
             }
 
-            window.onload = bindDeleteButtons;
-
-            loadAllVouchers();
+            // Tải dữ liệu lần đầu
+            loadVouchers(currentPage);
+        });
 
         @if (TempData["Success"] != null)
         {
             <text>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công!',
-                        text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])) ,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             </text>
         }
 
         @if (TempData["Error"] != null)
         {
             <text>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi!',
-                        text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
-                        showConfirmButton: true
-                    });
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])) ,
+                    showConfirmButton: true
+                });
             </text>
         }
-                });
     </script>
 }

@@ -1,6 +1,7 @@
 ﻿using DynaDevFE.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -76,6 +77,7 @@ namespace DynaDevFE.Controllers
                 return StatusCode(500, new { success = false, message = "Đăng ký thất bại", error = ex.Message });
             }
         }
+
 
         // Đăng nhập
         [HttpPost]

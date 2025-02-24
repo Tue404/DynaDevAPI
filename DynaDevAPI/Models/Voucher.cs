@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DynaDevAPI.Models
 {
@@ -16,6 +17,7 @@ namespace DynaDevAPI.Models
         public int SoLuong { get; set; }
         public string TrangThai { get; set; }
 
-        public ICollection<DonHang>? DonHangs { get; set; }
+        [JsonIgnore]
+        public ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
     }
 }
