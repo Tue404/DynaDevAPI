@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
+using System.Net.Http.Json;
+using DynaDevFE.Models;
 
 namespace DynaDevFE.Controllers
 {
@@ -17,40 +19,42 @@ namespace DynaDevFE.Controllers
         [HttpGet]
         public IActionResult ThongTinThanhToan()
         {
+            string maKH = Request.Cookies["MaKH"];
+
+            if (string.IsNullOrEmpty(maKH))
+            {
+                return RedirectToAction("DangNhap", "TaiKhoan");
+            }
+
+            ViewBag.MaKH = maKH;
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> DatHang([FromBody] DatHangRequest request)
         {
-            if (request == null || request.GioHang == null || !request.GioHang.Any())
+            if (string.IsNullOrEmpty(request.MaKH))
             {
-                return BadRequest(new { Message = "Giỏ hàng trống!" });
+                return Json(new { success = false, message = "Bạn chưa đăng nhập!" });
             }
 
-            var requestData = new
-            {
-                MaKH = "KH01", // Lấy từ user đăng nhập nếu có
-                DiaChiNhanHang = request.DiaChiNhanHang,
-                PhuongThucThanhToan = request.PhuongThucThanhToan,
-                GioHang = request.GioHang
-            };
+            var apiUrl = "https://localhost:7101/api/DonHang/DatHang";
+            var jsonData = JsonSerializer.Serialize(request);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            var jsonContent = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("https://localhost:7101/api/DonHang/DatHang", jsonContent);
-
+            var response = await _httpClient.PostAsync(apiUrl, content);
             if (response.IsSuccessStatusCode)
             {
-                return Ok(new { Message = "Đặt hàng thành công!" }); // Trả JSON về frontend để xóa localStorage
+                var result = await response.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<ApiResponse>(result, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                return Json(new { success = true, MaDH = data.MaDH });
             }
-            else
-            {
-                return StatusCode(500, new { Message = "Đặt hàng thất bại, vui lòng thử lại." });
-            }
+
+            return Json(new { success = false, message = "Đặt hàng thành công!" });
         }
 
-
-        public IActionResult ThanhCong()
+        public IActionResult Success()
         {
             return View();
         }

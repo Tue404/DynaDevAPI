@@ -1,137 +1,236 @@
-﻿@* @model DynaDevAPI.Models.DatHangRequest *@
-<div class="checkout-container">
-    <h2>Nhập Thông Tin Giao Hàng</h2>
+﻿    @model DynaDevAPI.Models.DatHangRequest
+
+    @{
+        ViewData["Title"] = "Thanh toán";
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <h2>Thanh toán</h2>
 
     <form id="checkout-form">
-        <div class="shipping-info">
-            <label>Tỉnh/Thành phố:</label>
-            <select id="province" required>
-                <option value="">Chọn tỉnh/thành phố</option>
-            </select>
+        <!-- Input ẩn chứa MaKH -->
+        <input hidden id="MaKH" value="@ViewBag.MaKH">
 
-            <label>Quận/Huyện:</label>
-            <select id="district" required>
-                <option value="">Chọn quận/huyện</option>
-            </select>
-
-            <label>Phường/Xã:</label>
-            <select id="ward" required>
-                <option value="">Chọn phường/xã</option>
-            </select>
-
-            <label>Địa chỉ cụ thể:</label>
-            <input type="text" id="DiaChiCuThe" required />
+        <div>
+            <label>Tên khách hàng:</label>
+            <input type="text" id="TenKH" required>
         </div>
 
-        <div class="payment-method">
-            <label>Chọn phương thức thanh toán:</label>
-            <select id="PhuongThucThanhToan" required>
+        <div>
+            <label>Số điện thoại:</label>
+            <input type="text" id="SoDienThoai" required>
+        </div>
+
+        <div>
+            <label>Địa chỉ nhận hàng:</label>
+            <textarea id="DiaChiNhanHang" required></textarea>
+        </div>
+
+        <div>
+            <label>Phương thức thanh toán:</label>
+            <select id="PhuongThucThanhToan">
                 <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                <option value="Bank">Chuyển khoản ngân hàng</option>
-                <option value="Momo">Ví Momo</option>
+                <option value="ChuyenKhoan">Chuyển khoản</option>
             </select>
         </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody id="checkout-items"></tbody>
+        </table>
 
-        <button type="button" id="submit-order">ĐẶT HÀNG</button>
+        <div>
+            <strong>Tổng tiền: </strong><span id="checkout-total"></span> đ
+        </div>
+
+        <button type="submit" class="btn btn-primary">Xác nhận thanh toán</button>
     </form>
-</div>
 
-<script>
+    <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Gọi API để lấy danh sách tỉnh/thành phố
-        fetch("https://provinces.open-api.vn/api/?depth=1")
-            .then(response => response.json())
-            .then(data => {
-                let provinceSelect = document.getElementById("province");
-                data.forEach(province => {
-                    let option = document.createElement("option");
-                    option.value = province.code;
-                    option.textContent = province.name;
-                    provinceSelect.appendChild(option);
-                });
-            });
-
-        // Khi chọn tỉnh/thành phố, load danh sách quận/huyện
-        document.getElementById("province").addEventListener("change", function () {
-            let provinceCode = this.value;
-            let districtSelect = document.getElementById("district");
-            districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
-
-            fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
-                .then(response => response.json())
-                .then(data => {
-                    data.districts.forEach(district => {
-                        let option = document.createElement("option");
-                        option.value = district.code;
-                        option.textContent = district.name;
-                        districtSelect.appendChild(option);
-                    });
-                });
-        });
-
-        // Khi chọn quận/huyện, load danh sách phường/xã
-        document.getElementById("district").addEventListener("change", function () {
-            let districtCode = this.value;
-            let wardSelect = document.getElementById("ward");
-            wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-
-            fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
-                .then(response => response.json())
-                .then(data => {
-                    data.wards.forEach(ward => {
-                        let option = document.createElement("option");
-                        option.value = ward.code;
-                        option.textContent = ward.name;
-                        wardSelect.appendChild(option);
-                    });
-                });
-        });
-    });
-
-    document.getElementById("submit-order").addEventListener("click", function () {
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        let maKH = localStorage.getItem("KH01"); // Lấy mã khách hàng từ localStorage
+        let tableBody = document.getElementById("checkout-items");
+        let totalPrice = 0;
 
-        if (!maKH) {
-            alert("Bạn cần đăng nhập để đặt hàng!");
-            return;
-        }
+        cart.forEach(item => {
+            let row = `<tr>
+                            <td>${item.TenSanPham}</td>
+                            <td>${item.SoLuong}</td>
+                            <td>${item.Gia.toLocaleString()} đ</td>
+                            <td>${(item.SoLuong * item.Gia).toLocaleString()} đ</td>
+                        </tr>`;
+            tableBody.innerHTML += row;
+            totalPrice += item.SoLuong * item.Gia;
+        });
 
-        if (cart.length === 0) {
-            alert("Giỏ hàng trống! Vui lòng thêm sản phẩm trước khi thanh toán.");
-            return;
-        }
+        document.getElementById("checkout-total").textContent = totalPrice.toLocaleString();
 
-        let data = {
-            MaKH: maKH,
-            DiaChiNhanHang: document.getElementById("province").selectedOptions[0].text + ", " +
-                document.getElementById("district").selectedOptions[0].text + ", " +
-                document.getElementById("ward").selectedOptions[0].text + ", " +
-                document.getElementById("DiaChiCuThe").value,
-            PhuongThucThanhToan: document.getElementById("PhuongThucThanhToan").value,
-            GioHang: cart
-        };
+        document.getElementById("checkout-form").addEventListener("submit", function (event) {
+            event.preventDefault();
 
-        fetch("/api/DonHang/DatHang", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => response.json())
-            .then(result => {
-                if (response.ok) {
-                    alert(result.Message);
-                    localStorage.removeItem("cart"); // Xóa giỏ hàng trên trình duyệt
-                    window.location.href = "/Payment/ThanhCong"; // Chuyển hướng đến trang thành công
-                } else {
-                    alert(result.Message);
-                }
+            let maKH = document.getElementById("MaKH").value;
+            if (!maKH) {
+                alert("Bạn cần đăng nhập trước khi thanh toán!");
+                window.location.href = "/TaiKhoan/DangNhap";
+                return;
+            }
+
+            let orderData = {
+                MaKH: maKH,
+                TenKH: document.getElementById("TenKH").value,
+                SoDienThoai: document.getElementById("SoDienThoai").value,
+                DiaChiNhanHang: document.getElementById("DiaChiNhanHang").value,
+                ThoiGianDatHang: new Date().toISOString(),
+                PhuongThucThanhToan: document.getElementById("PhuongThucThanhToan").value,
+                GioHang: JSON.parse(localStorage.getItem("cart"))
+            };
+
+            fetch("https://localhost:7101/api/DonHang/DatHang", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(orderData)
             })
-            .catch(error => {
-                console.error("Lỗi khi đặt hàng:", error);
-                alert("Đặt hàng thất bại. Vui lòng thử lại.");
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Phản hồi từ API:", data);
+
+                    if (data.MaDH) {
+                        alert("Đặt hàng thất bại! Vui lòng thử lại.");
+                    } else {
+                        localStorage.removeItem("cart");
+                        window.location.href = "/Payment/Success";                
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                    alert("Không thể kết nối đến máy chủ, vui lòng thử lại!");
+                });
+        });
     });
-</script>
+
+
+    </script>
+
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7fc;
+        margin: 0;
+        padding: 0;
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        font-size: 30px;
+        margin-top: 30px;
+    }
+
+    h3 {
+        color: #333;
+        font-size: 24px;
+        margin-top: 20px;
+    }
+
+    form {
+        width: 70%;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    div {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-size: 16px;
+        color: #333;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, textarea, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        margin-top: 5px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        height: 120px;
+    }
+
+    select {
+        padding: 8px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f7f7f7;
+        }
+
+        .table td {
+            font-size: 16px;
+        }
+
+    .btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background-color: #4CAF50;
+        color: white;
+        font-size: 18px;
+        text-align: center;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+    .checkout-total {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: right;
+    }
+
+        .checkout-total span {
+            color: #e74c3c;
+            font-size: 20px;
+        }
+
+</style>
+

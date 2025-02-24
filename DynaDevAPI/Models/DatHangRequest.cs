@@ -2,6 +2,8 @@
 {
     public class DatHangRequest
     {
+        public string TenKH { get; set; }
+        public string SoDienThoai { get; set; }
         public string MaKH { get; set; }
         public string DiaChiNhanHang { get; set; }
         public DateTime ThoiGianDatHang { get; set; }
