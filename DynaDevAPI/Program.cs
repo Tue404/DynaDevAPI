@@ -1,5 +1,6 @@
 ﻿using DynaDevAPI.Controllers;
 using DynaDevAPI.Data;
+using DynaDevAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -48,7 +49,7 @@ builder.Services.AddCors(options =>
 });
 
 
-
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

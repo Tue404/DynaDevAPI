@@ -43,12 +43,6 @@
 
         </div>
 
-        <!-- Flash Sale -->
-    @*     <div class="flash-sale">
-            <span class="flash-sale-text">FLASH SALE</span>
-            <span class="flash-sale-timer">01:50:30</span>
-        </div> *@
-
         <!-- Giá sản phẩm -->
         <p class="product-price">
             <span class="current-price">@String.Format("{0:N0} VND", @Model.Gia)</span>
@@ -65,12 +59,6 @@
             <button class="btn add-to-cart" onclick="addToCart()">Thêm vào giỏ hàng</button>
             <button class="btn buy-now">Mua ngay</button>
         </div>
-
-        <!-- Thông tin vận chuyển -->
-    @*     <div class="shipping-info">
-            <p><strong>Giao hàng đến:</strong> Phường Bến Nghé, Quận 1, Hồ Chí Minh</p>
-            <p><strong>Giao hàng tiêu chuẩn:</strong> Dự kiến giao Thứ ba - 21/01</p>
-        </div> *@
 
         <!-- Ưu đãi liên quan -->
         <div class="related-offers">
@@ -105,19 +93,30 @@
     }
     // Định nghĩa addToCart trong phạm vi toàn cục (global scope)
     function addToCart() {
+        const maxQuantity = @Model.SoLuongTrongKho;
+        const inputQuantity = parseInt(document.getElementById("quantity").value);
+        if (inputQuantity > maxQuantity) {
+            alert("Số lượng bạn chọn vượt quá số lượng trong kho! Vui lòng chọn ít hơn.");
+            return;
+        }
         const product = {
             MaSP: "@Model.MaSP",
             TenSanPham: `@Html.Raw(Model.TenSanPham)`,
             Anh: "@Model.DanhSachAnh.FirstOrDefault()",
             Gia: @Model.Gia,
-            SoLuong: parseInt(document.getElementById("quantity").value)
+            SoLuong: inputQuantity
         };
 
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
         let existingItem = cart.find(item => item.MaSP === product.MaSP);
 
         if (existingItem) {
-            existingItem.SoLuong += product.SoLuong;
+            let newTotal = existingItem.SoLuong + inputQuantity;
+            if (newTotal > maxQuantity) {
+                alert("Tổng số lượng trong giỏ hàng vượt quá số lượng trong kho!");
+                return;
+            }
+            existingItem.SoLuong = newTotal;
         } else {
             cart.push(product);
         }
