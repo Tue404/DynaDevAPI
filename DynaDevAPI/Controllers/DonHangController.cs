@@ -1,8 +1,13 @@
 ﻿using DynaDevAPI.Data;
+using DynaDevAPI.Helpers;
 using DynaDevAPI.Models;
+using DynaDevAPI.Services;
+using DynaDevAPI.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+
 
 namespace DynaDevAPI.Controllers
 {
@@ -11,10 +16,13 @@ namespace DynaDevAPI.Controllers
     public class DonHangController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
-
-        public DonHangController(ApplicationDbContext db)
+        private readonly IVnPayService _vnPayservice;
+        private readonly IConfiguration _configuration;
+        public DonHangController(ApplicationDbContext db, IConfiguration configuration, IVnPayService vnPayservice)
         {
             _db = db;
+            _configuration = configuration;
+            _vnPayservice = vnPayservice;
         }
 
         [HttpGet("{maDH}")]
@@ -44,51 +52,6 @@ namespace DynaDevAPI.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetProvinces")]
-        public async Task<IActionResult> GetProvinces()
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("https://provinces.open-api.vn/api/?depth=1");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode((int)response.StatusCode, "Lỗi khi lấy danh sách tỉnh/thành.");
-            }
-
-            var jsonData = await response.Content.ReadAsStringAsync();
-            return Content(jsonData, "application/json");
-        }
-
-        [HttpGet("GetDistricts")]
-        public async Task<IActionResult> GetDistricts(string provinceId)
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"https://provinces.open-api.vn/api/districts/{provinceId}?depth=2");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode((int)response.StatusCode, "Lỗi khi lấy danh sách quận/huyện.");
-            }
-
-            var jsonData = await response.Content.ReadAsStringAsync();
-            return Content(jsonData, "application/json");
-        }
-
-        [HttpGet("GetWards")]
-        public async Task<IActionResult> GetWards(string districtId)
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"https://provinces.open-api.vn/api/wards/{districtId}?depth=3");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode((int)response.StatusCode, "Lỗi khi lấy danh sách xã/phường.");
-            }
-
-            var jsonData = await response.Content.ReadAsStringAsync();
-            return Content(jsonData, "application/json");
-        }
-
         [HttpPost("DatHang")]
         public async Task<IActionResult> DatHang([FromBody] DatHangRequest request)
         {
@@ -96,13 +59,12 @@ namespace DynaDevAPI.Controllers
             {
                 return BadRequest(new { Message = "Giỏ hàng trống!" });
             }
-       
+
             try
             {
-                // **Bước 1: Tạo đơn hàng mới**
                 var donHang = new DonHang
                 {
-                    MaDH = Guid.NewGuid().ToString(), // ✅ Đảm bảo MaDH không NULL
+                    MaDH = Guid.NewGuid().ToString(),
                     MaKH = request.MaKH,
                     TenNguoiNhan = request.TenKH,
                     SoDienThoai = request.SoDienThoai,
@@ -110,39 +72,103 @@ namespace DynaDevAPI.Controllers
                     PhuongThucThanhToan = request.PhuongThucThanhToan,
                     ThoiGianDatHang = DateTime.Now,
                     TongTien = request.GioHang.Sum(x => (decimal)(x.Gia * x.SoLuong)),
-                    PaymentStatusId = request.PhuongThucThanhToan == "COD" ? 1 : 0,
-                    OrderStatusId = 1
+                    OrderStatusId = 1,
+                    PaymentStatusId = request.PhuongThucThanhToan == PaymentType.VNPAY ? 2 : 1
                 };
 
-                // **Bước 2: Lưu đơn hàng vào database trước**
                 _db.DonHangs.Add(donHang);
-                await _db.SaveChangesAsync(); // 🔹 Save trước để có MaDH trong database
+                await _db.SaveChangesAsync();
 
-                // **Bước 3: Kiểm tra nếu giỏ hàng không rỗng**
-                if (request.GioHang != null && request.GioHang.Any())
+                foreach (var sp in request.GioHang)
                 {
-                    foreach (var sp in request.GioHang)
+                    var chiTiet = new ChiTietDonHang
                     {
-                        var chiTiet = new ChiTietDonHang
-                        {
-                            MaChiTiet = Guid.NewGuid().ToString(), // ✅ Đảm bảo khóa chính
-                            MaDH = donHang.MaDH,  // ✅ Lấy MaDH từ đơn hàng đã lưu
-                            MaSP = sp.MaSP,
-                            SoLuong = sp.SoLuong,
-                            Gia = sp.Gia
-                        };
-                        _db.ChiTietDonHangs.Add(chiTiet);
-                    }
-
-                    // **Bước 4: Lưu danh sách sản phẩm vào database**
-                    await _db.SaveChangesAsync(); // 🔹 Save toàn bộ sản phẩm vào đơn hàng
+                        MaChiTiet = Guid.NewGuid().ToString(),
+                        MaDH = donHang.MaDH,
+                        MaSP = sp.MaSP,
+                        SoLuong = sp.SoLuong,
+                        Gia = sp.Gia
+                    };
+                    _db.ChiTietDonHangs.Add(chiTiet);
                 }
 
-                return Ok(new { success = true, Message = "Đặt hàng thành công!", MaDH = donHang.MaDH });
+                await _db.SaveChangesAsync();
+
+                return Ok(new { Success = true, Message = "Đặt hàng thành công!", MaDH = donHang.MaDH });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "Đặt hàng thất bại!", Error = ex.Message });
+                return StatusCode(500, new { Success = false, Message = "Đặt hàng thất bại: " + ex.Message });
+            }
+        }
+
+        [HttpPost("create-payment-url")]
+        public IActionResult CreatePaymentUrl([FromBody] VnPaymentRequestModel model)
+        {
+            try
+            {
+                var paymentUrl = _vnPayservice.CreatePaymentUrl(HttpContext, model);
+                return Ok(new { PaymentUrl = paymentUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = "Lỗi khi tạo URL thanh toán: " + ex.Message });
+            }
+        }
+
+        [HttpGet("callback")]
+        public IActionResult PaymentCallback()
+        {
+            var response = _vnPayservice.PaymentExecute(Request.Query);
+            return Ok(response);
+        }
+
+        [HttpPost("payment-callback")]
+        public async Task<IActionResult> PaymentCallback([FromBody] VnPaymentResponseModel responseModel)
+        {
+            if (!responseModel.Success || responseModel.VnPayResponseCode != "00")
+            {
+                return Ok(new { Success = false, Message = "Thanh toán thất bại", RedirectUrl = "/Checkout/OrderConfirmationFail" });
+            }
+
+            try
+            {
+                var donHang = await _db.DonHangs
+                    .Include(dh => dh.ChiTietDonHangs)
+                    .FirstOrDefaultAsync(dh => dh.MaDH == responseModel.OrderId);
+
+                if (donHang == null)
+                {
+                    return BadRequest(new { Success = false, Message = "Không tìm thấy đơn hàng!" });
+                }
+
+                donHang.OrderStatusId = 2;
+                donHang.PhuongThucThanhToan = "VnPay";
+                donHang.ThoiGianDatHang = DateTime.Now;
+
+                foreach (var chiTiet in donHang.ChiTietDonHangs)
+                {
+                    var sanPham = await _db.SanPhams.FirstOrDefaultAsync(sp => sp.MaSP == chiTiet.MaSP);
+                    if (sanPham != null)
+                    {
+                        sanPham.SoLuongTrongKho -= chiTiet.SoLuong;
+                    }
+                }
+
+                await _db.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "Thanh toán thành công",
+                    RedirectUrl = "/Checkout/OrderConfirmation",
+                    OrderId = donHang.MaDH,
+                    TransactionId = responseModel.TransactionId
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Success = false, Message = "Lỗi xử lý thanh toán: " + ex.Message });
             }
         }
     }

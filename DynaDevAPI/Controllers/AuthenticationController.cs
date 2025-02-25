@@ -133,7 +133,7 @@ namespace DynaDevAPI.Controllers
                 token = token,
                 MaKH = user.MaKH, // ✅ Trả về MaKH
             });
-        }
+        }   
 
         [HttpGet("GetUserInfo")]
         public IActionResult GetUserInfo()
