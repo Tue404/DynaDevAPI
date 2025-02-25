@@ -148,5 +148,15 @@ namespace DynaDevAPI.Controllers
 
             return Ok(new { success = true, token, role, isAdmin = (role == "Admin") });
         }
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("JwtToken");
+            Response.Cookies.Delete("UserRole");
+            Response.Cookies.Delete("MaKH");
+
+            return Ok(new { success = true, message = "Đăng xuất thành công!" });
+        }
+
     }
 }
