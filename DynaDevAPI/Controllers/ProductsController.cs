@@ -70,7 +70,7 @@ namespace DynaDevAPI.Data
                 SoLuongTrongKho = sanPham.SoLuongTrongKho,
                 TenSanPham = sanPham.TenSanPham,
                 TacGia = sanPham.TacGia,
-                TenNCC = sanPham.NhaXuatBan,
+                TenNCC = sanPham.NhaCungCap?.TenNCC,
                 MaNCC = sanPham.MaNCC,
                 NamXuatBan = sanPham.NamXuatBan,
                 Gia = sanPham.Gia,
@@ -317,60 +317,34 @@ namespace DynaDevAPI.Data
             }
 
             // Tìm sản phẩm theo mã sản phẩm
-            var existingSanPham = await _db.SanPhams.Include(s => s.AnhSPs).FirstOrDefaultAsync(sp => sp.MaSP == id);
+            var existingSanPham = await _db.SanPhams.FirstOrDefaultAsync(sp => sp.MaSP == id);
             if (existingSanPham == null)
             {
                 return NotFound($"Không tìm thấy sản phẩm với mã {id}");
             }
 
-            // Cập nhật thông tin sản phẩm
+            // Cập nhật thông tin sản phẩm (không xử lý ảnh ở đây)
             existingSanPham.TenSanPham = updatedSanPham.TenSanPham;
             existingSanPham.TacGia = updatedSanPham.TacGia;
-            //existingSanPham.NhaXuatBan = updatedSanPham.NhaXuatBan;
             existingSanPham.NamXuatBan = updatedSanPham.NamXuatBan;
             existingSanPham.MaLoai = updatedSanPham.MaLoai;
+            existingSanPham.MaNCC = updatedSanPham.MaNCC;
+            existingSanPham.NhaXuatBan = updatedSanPham.NhaXuatBan; // Nếu cần
             existingSanPham.Gia = updatedSanPham.Gia;
             existingSanPham.MoTa = updatedSanPham.MoTa;
             existingSanPham.SoLuongTrongKho = updatedSanPham.SoLuongTrongKho;
             existingSanPham.TinhTrang = updatedSanPham.TinhTrang;
 
-            // Xử lý danh sách ảnh
-            if (updatedSanPham.AnhSPs != null && updatedSanPham.AnhSPs.Any())
-            {
-                // Xóa các ảnh cũ khỏi hệ thống tệp
-                foreach (var oldImage in existingSanPham.AnhSPs)
-                {
-                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", oldImage.TenAnh.TrimStart('/'));
-                    if (System.IO.File.Exists(oldImagePath))
-                    {
-                        System.IO.File.Delete(oldImagePath);
-                    }
-                }
-
-                // Xóa các ảnh cũ khỏi cơ sở dữ liệu
-                _db.AnhSPs.RemoveRange(existingSanPham.AnhSPs);
-
-                // Thêm các ảnh mới
-                foreach (var anh in updatedSanPham.AnhSPs)
-                {
-                    anh.MaSP = id; // Gắn mã sản phẩm cho ảnh
-                    anh.MaAnh = Guid.NewGuid().ToString(); // Tạo mã ảnh mới
-                    _db.AnhSPs.Add(anh);
-                }
-            }
-
             try
             {
                 await _db.SaveChangesAsync();
+                return Ok(new { success = true, message = "Cập nhật sản phẩm thành công!" });
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi đầy đủ (nên sử dụng công cụ logging, ví dụ: Serilog, NLog, hoặc ILogger)
                 Console.WriteLine($"Error updating product: {ex.Message}");
-                return StatusCode(500, "Lỗi khi cập nhật sản phẩm.");
+                return StatusCode(500, $"Lỗi khi cập nhật sản phẩm: {ex.Message}");
             }
-
-            return Ok(existingSanPham);
         }
 
         [HttpPost("DeleteImages")]

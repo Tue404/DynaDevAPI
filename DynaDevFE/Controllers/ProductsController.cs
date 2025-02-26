@@ -262,8 +262,22 @@ namespace DynaDevFE.Controllers
                 PropertyNameCaseInsensitive = true
             });
 
+            // Lấy danh sách nhà cung cấp
+            var supplierResponse = await _httpClient.GetAsync("api/Suppliers");
+            if (supplierResponse.IsSuccessStatusCode)
+            {
+                var suppliers = await supplierResponse.Content.ReadFromJsonAsync<List<NhaCungCap>>();
+                ViewBag.NhaCungCaps = new SelectList(suppliers, "MaNCC", "TenNCC", product.MaNCC);
+            }
+            else
+            {
+                ViewBag.NhaCungCaps = new SelectList(new List<NhaCungCap>(), "MaNCC", "TenNCC");
+                TempData["Error"] = "Không thể lấy danh sách nhà cung cấp.";
+            }
+
             return View(product);
         }
+
 
 
         // POST: Products/Edit/{id}
