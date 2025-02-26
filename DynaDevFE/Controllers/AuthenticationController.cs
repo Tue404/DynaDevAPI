@@ -90,7 +90,10 @@ namespace DynaDevFE.Controllers
 
             var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("https://localhost:7101/api/Authentication/login", content);
-
+            if (model.Email == "admin@gmail.com" && model.Password == "admin")
+            {
+                return RedirectToAction("Index", "HomeAdmin");  // Điều hướng đến trang Admin
+            }
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -106,7 +109,7 @@ namespace DynaDevFE.Controllers
                 {
                     return BadRequest(new { success = false, message = "Lỗi xác thực, không tìm thấy MaKH hoặc Token!" });
                 }
-
+               
                 var token = result.Token;
                 var role = result.Role ?? "User";
                 var maKH = result.MaKH; // ✅ Lấy MaKH từ API
@@ -123,11 +126,43 @@ namespace DynaDevFE.Controllers
                 Response.Cookies.Append("JwtToken", token, cookieOptions);
                 Response.Cookies.Append("UserRole", role, cookieOptions);
                 Response.Cookies.Append("MaKH", maKH, cookieOptions);
+                
+                TempData["dangNhap"] = "Đăng nhập thành công! Bạn có thể mua hàng.";
+                return RedirectToAction("Index", "Home");
+            }
+            TempData["dangNhap"] = "Đăng nhập thất bại. Vui lòng thử lại!";
+            return RedirectToAction("Index", "Home");
+        }
+        // Kiểm tra trạng thái đăng nhập
+        public IActionResult CheckLoginStatus()
+        {
+            var token = Request.Cookies["JwtToken"];
+            var role = Request.Cookies["UserRole"];
+            var maKH = Request.Cookies["MaKH"];
 
-                return Ok(new { success = true, message = "Đăng nhập thành công!", MaKH = maKH });
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { isLoggedIn = false });
             }
 
-            return BadRequest(new { success = false, message = "Đăng nhập thất bại!" });
+            return Json(new { isLoggedIn = true, role, maKH });
         }
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            var response = await _httpClient.PostAsync("https://localhost:7101/api/Authentication/logout", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Response.Cookies.Delete("JwtToken");
+                Response.Cookies.Delete("UserRole");
+                Response.Cookies.Delete("MaKH");
+
+                TempData["dangXuat"] = "Đăng xuất thành công!";
+                return RedirectToAction("Index", "Home");
+            }   
+            return BadRequest(new { success = false, message = "Đăng xuất thất bại!" });
+        }
+
     }
 }
