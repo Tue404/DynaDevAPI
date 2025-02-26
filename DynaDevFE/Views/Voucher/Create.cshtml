@@ -70,17 +70,18 @@
         <span asp-validation-for="LoaiGiamGia" class="text-danger"></span>
     </div>
 
-   
+
     <div class="mb-3">
         <label asp-for="NgayBatDau" class="form-label">Ngày Bắt Đầu</label>
-        <input asp-for="NgayBatDau" type="date" class="form-control" required />
+        <input asp-for="NgayBatDau" type="date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="NgayBatDau" class="text-danger"></span>
     </div>
+
 
    
     <div class="mb-3">
         <label asp-for="NgayKetThuc" class="form-label">Ngày Kết Thúc</label>
-        <input asp-for="NgayKetThuc" type="date" class="form-control" required />
+        <input asp-for="NgayKetThuc" type="date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="NgayKetThuc" class="text-danger"></span>
     </div>
 

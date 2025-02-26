@@ -712,10 +712,9 @@
                     if (data.length > 0) {
                         $.each(data, function (index, item) {
                             dropdown.append(`
-                                <li><a class="dropdown-item" href="/DanhMuc/Index?maLoai=${item.maLoai}">${item.tenLoai}</a></li>
-                            `);
-
-                               });
+                                    <li><a class="dropdown-item" href="/DanhMuc/Index?maLoai=${item.maLoai}">${item.tenLoai}</a></li>
+                                `);
+                        });
                     } else {
                         dropdown.append('<li class="dropdown-item text-muted">Không có danh mục</li>');
                     }
@@ -727,6 +726,7 @@
             });
         });
     </script>
+
 
 </body>
 </html>

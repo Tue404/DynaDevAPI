@@ -32,5 +32,31 @@ namespace DynaDevAPI.Controllers
             return Ok(danhMucs);
         }
 
+
+
+        [HttpGet("Search")]
+        public IActionResult SearchProducts([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest(new { message = "Từ khóa tìm kiếm không hợp lệ." });
+            }
+
+            var results = _context.SanPhams
+                .Where(p => p.TenSanPham.Contains(query) || p.MoTa.Contains(query)) 
+                .ToList();
+
+            if (!results.Any())
+            {
+                return NotFound(new { message = "Không tìm thấy sản phẩm phù hợp." });
+            }
+
+            return Ok(results);
+        }
+
+
+
     }
+
+
 }
