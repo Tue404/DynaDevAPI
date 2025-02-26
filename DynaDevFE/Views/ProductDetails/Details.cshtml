@@ -30,9 +30,9 @@
 
         <div class="product-info-horizontal">
             <div class="info-row">
-         
+
                 <p class="product-author"><strong>Tác giả:</strong> @Model.TacGia</p>
-           
+
                 <p class="product-publisher"><strong>Nhà xuất bản:</strong>@Model.TenNCC</p>
             </div>
 
@@ -74,6 +74,109 @@
         </div>
     </div>
 </div>
+
+
+@{
+    var approvedReviews = Model.DanhGiaSanPham.Where(d => d.TrangThai == "Đã Duyệt").ToList();
+    var totalPoints = approvedReviews.Sum(d => d.DiemDanhGia);
+    var averageRating = approvedReviews.Count > 0 ? (double)totalPoints / approvedReviews.Count : 0;
+}
+
+<div id="review-section">
+    <h3>Đánh giá sản phẩm</h3>
+    <h4>
+        Điểm trung bình @averageRating.ToString("F1") ⭐
+    </h4>
+
+    @if (approvedReviews.Any())
+    {
+        <div id="reviews-list">
+            @foreach (var danhGia in approvedReviews)
+            {
+                <div class="review">
+                    <strong style="font-weight: bold;">@danhGia.Email</strong> <br />
+                    <strong>Đánh giá:</strong> @danhGia.DiemDanhGia ⭐ <br />
+                    <strong>Bình luận:</strong> @danhGia.BinhLuan <br />
+                    <small>@danhGia.NgayDanhGia.ToString("dd/MM/yyyy")</small>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p id="no-reviews">Chưa có đánh giá nào.</p>
+    }
+
+    <!-- Form thêm đánh giá -->
+    <h3>Thêm đánh giá</h3>
+    <form id="formDanhGia">
+        <input type="hidden" id="MaSP" value="@Model.MaSP" />
+        <label>Điểm số (1-5):</label>
+        <select id="DiemDanhGia" required>
+            <option value="" disabled selected>Chọn điểm đánh giá</option>
+            <option value="1">1 - ⭐</option>
+            <option value="2">2 - ⭐⭐</option>
+            <option value="3">3 - ⭐⭐⭐</option>
+            <option value="4">4 - ⭐⭐⭐⭐</option>
+            <option value="5">5 - ⭐⭐⭐⭐⭐</option>
+        </select>
+
+        <label>Bình luận:</label>
+        <textarea id="BinhLuan" required></textarea>
+        <button type="submit">Gửi đánh giá</button>
+    </form>
+</div>
+
+
+<script>
+    async function getUserInfo() {
+        try {
+            let response = await fetch("https://localhost:7101/api/Authentication", {
+                method: "GET",
+                headers: { "Accept": "application/json" },
+                credentials: "include"
+            });
+
+            let userData = await response.json();
+            return userData.success ? userData.maKH : null;
+        } catch (error) {
+            console.error("Lỗi lấy MaKH:", error);
+            return null;
+        }
+    }
+
+    document.getElementById("formDanhGia").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        let maKH = await getUserInfo();
+        if (!maKH) {
+            alert("Bạn chưa đăng nhập.");
+            return;
+        }
+
+        let danhGia = {
+            MaSP: document.getElementById("MaSP").value,
+            MaKH: maKH,
+            DiemDanhGia: parseInt(document.getElementById("DiemDanhGia").value),
+            BinhLuan: document.getElementById("BinhLuan").value
+        };
+
+        await fetch("https://localhost:7101/api/ProductDetails/AddReview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(danhGia)
+        });
+
+        alert("Đánh giá của bạn đã được ghi lại và chờ duyệt, sẽ sớm được hiển thị!");
+        location.reload();
+    });
+
+</script>
+
+
+
+
+
 
 <script>
     // Hàm mở modal khi click vào ảnh
@@ -160,8 +263,92 @@
 </script>
 
 
+<style>
+    #review-section {
+        width: 55%;
+        margin-top: 20px;
+        margin-left: 140px;
+        padding: 15px;
+        border: 1px solid #ccc; /* Viền cho phần đánh giá */
+        border-radius: 8px; /* Bo tròn viền */
+        background-color: #fff; /* Màu nền trắng */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    }
 
-    <style >
+        #review-section h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+    /* Điều chỉnh cho danh sách bình luận */
+    #reviews-list {
+        margin-bottom: 15px;
+        max-height: 380px; /* Điều chỉnh chiều cao cho danh sách bình luận */
+        width: 100%; /* Làm rộng danh sách đánh giá */
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        padding: 10px;
+    }
+
+    .review {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        color: #555;
+    }
+
+        .review:last-child {
+            border-bottom: none;
+        }
+
+    #no-reviews {
+        color: #999;
+        text-align: center;
+        font-style: italic;
+    }
+
+    /* Điều chỉnh cho form đánh giá */
+    #formDanhGia label {
+        font-weight: bold;
+        margin-top: 10px;
+        display: block;
+    }
+
+    #formDanhGia select, #formDanhGia textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.9em; /* Giảm kích thước chữ */
+        margin-bottom: 10px;
+    }
+
+    #formDanhGia textarea {
+        height: 80px; /* Giới hạn chiều cao của ô nhập bình luận */
+    }
+
+    #formDanhGia button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        background-color: #ff9800;
+        color: white;
+        cursor: pointer;
+        font-size: 1em;
+    }
+
+        #formDanhGia button:hover {
+            background-color: #e68900;
+        }
+</style>
+
+
+
+
+
+<style>
 
     .product-details-container {
         display: flex;
@@ -212,8 +399,8 @@
     .product-title {
         font-size: 22px !important;
         font-weight: bold !important;
-        line-height: 1.2; 
-        color: #333; 
+        line-height: 1.2;
+        color: #333;
     }
 
     .product-author,
@@ -267,6 +454,7 @@
         margin-left: 10px;
         border-radius: 3px;
     }
+
     .product-actions {
         display: flex;
         gap: 10px;
@@ -409,4 +597,3 @@
 </style>
 
 
- 
