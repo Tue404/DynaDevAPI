@@ -81,7 +81,7 @@ namespace DynaDevFE.Controllers
                     });
 
                     return Json(customers);
-                }
+                }       
 
                 return Json(new List<KhachHangViewModel>()); // Trả về danh sách rỗng nếu không tìm thấy
             }
