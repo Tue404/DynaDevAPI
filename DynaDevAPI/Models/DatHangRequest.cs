@@ -10,5 +10,6 @@
         public string PhuongThucThanhToan { get; set; }
 
         public List<ChiTietDonHangRequest> GioHang { get; set; }
+        public string? MaVoucher { get; set; }
     }
 }

@@ -126,6 +126,7 @@ namespace DynaDevFE.Controllers
         }
 
         // GET: Edit voucher
+        [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
             var voucher = await _httpClient.GetFromJsonAsync<VoucherViewModel>($"https://localhost:7101/api/Voucher/{id}");

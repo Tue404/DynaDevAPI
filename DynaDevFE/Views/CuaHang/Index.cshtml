@@ -11,10 +11,14 @@
     {
         <div class="col-md-4 mb-4">
             <div class="card shadow-lg">
-                @if (product.DanhSachAnh != null && product.DanhSachAnh.Any())
-                {
-                    <img src="@Url.Content("~/images/" + product.DanhSachAnh.FirstOrDefault())" class="card-img-top" alt="@product.TenSanPham" />
-                }
+                    @if (product.DanhSachAnh != null && product.DanhSachAnh.Any())
+                    {
+                        <img src="@product.DanhSachAnh.First()" alt="Ảnh sản phẩm" />
+                    }
+                    else
+                    {
+                        <span>Chưa có ảnh</span>
+                    }
                 <div class="card-body">
                     <h5 class="card-title text-center text-primary">@product.TenSanPham</h5>
                     <p class="card-text">@product.MoTa</p>
@@ -118,6 +122,60 @@
     .col-md-6 {
         padding-left: 15px;
         padding-right: 15px;
+    }
+
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        border: 1px solid #ddd;
+        background-color: #fff;
+    }
+
+        .card:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px; /* Điều chỉnh chiều cao ảnh */
+            object-fit: cover;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+    .card-body {
+        padding: 20px;
+        background-color: #fdfdfd;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #ff5733;
+    }
+
+    .card-text {
+        font-size: 1rem;
+        color: #555;
+    }
+
+    .btn-primary {
+        background-color: #ff5733;
+        border-color: #ff5733;
+        transition: all 0.3s ease-in-out;
+        font-weight: bold;
+    }
+
+        .btn-primary:hover {
+            background-color: #c74822;
+            border-color: #c74822;
+        }
+
+    .text-danger {
+        font-size: 1.1rem;
+        font-weight: bold;
     }
 
 

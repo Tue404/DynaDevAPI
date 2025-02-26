@@ -62,6 +62,67 @@ namespace DynaDevAPI.Controllers
 
             try
             {
+                decimal tongTien = request.GioHang.Sum(x => (decimal)(x.Gia * x.SoLuong));
+                decimal giamGia = 0;
+                if (!string.IsNullOrEmpty(request.MaVoucher))
+                {
+                    var voucher = await _db.Vouchers.FirstOrDefaultAsync(v => v.MaVoucher == request.MaVoucher);
+                    if (voucher == null)
+                    {
+                        return BadRequest(new { Success = false, Message = "Mã voucher không hợp lệ!" });
+                    }
+
+                    if (voucher.TrangThai != "Hoạt động")
+                    {
+                        return BadRequest(new { Success = false, Message = "Mã voucher không còn hoạt động!" });
+                    }
+
+                    if (DateTime.Now < voucher.NgayBatDau || DateTime.Now > voucher.NgayKetThuc)
+                    {
+                        return BadRequest(new { Success = false, Message = "Mã voucher đã hết thời gian sử dụng!" });
+                    }
+
+                    if (voucher.SoLuong <= 0)
+                    {
+                        return BadRequest(new { Success = false, Message = "Mã voucher đã hết số lượng!" });
+                    }
+
+                    // Parse điều kiện từ DieuKien
+                    string[] dieuKienParts = voucher.DieuKien.Split(':');
+                    if (dieuKienParts.Length == 2 && dieuKienParts[0] == "DonHangToiThieu")
+                    {
+                        if (!decimal.TryParse(dieuKienParts[1], out decimal dieuKienToiThieu))
+                        {
+                            return BadRequest(new { Success = false, Message = "Điều kiện voucher không hợp lệ!" });
+                        }
+
+                        if (tongTien < dieuKienToiThieu)
+                        {
+                            return BadRequest(new { Success = false, Message = $"Đơn hàng phải tối thiểu {dieuKienToiThieu:N0} VNĐ để áp dụng voucher!" });
+                        }
+                    }
+
+                    // Áp dụng giảm giá dựa trên LoaiGiamGia
+                    if (voucher.LoaiGiamGia == "Giảm giá theo phần trăm")
+                    {
+                        giamGia = tongTien * (voucher.GiamGia / 100);
+                    }
+                    else if (voucher.LoaiGiamGia == "SoTien")
+                    {
+                        giamGia = voucher.GiamGia;
+                        if (giamGia > tongTien)
+                        {
+                            giamGia = tongTien; // Không giảm vượt quá tổng tiền
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest(new { Success = false, Message = "Loại giảm giá không hợp lệ!" });
+                    }
+
+                    voucher.SoLuong--; // Giảm số lượng voucher còn lại
+                    _db.Vouchers.Update(voucher);
+                }
                 var donHang = new DonHang
                 {
                     MaDH = Guid.NewGuid().ToString(),
@@ -71,7 +132,7 @@ namespace DynaDevAPI.Controllers
                     DiaChiNhanHang = request.DiaChiNhanHang,
                     PhuongThucThanhToan = request.PhuongThucThanhToan,
                     ThoiGianDatHang = DateTime.Now,
-                    TongTien = request.GioHang.Sum(x => (decimal)(x.Gia * x.SoLuong)),
+                    TongTien = tongTien - giamGia,
                     OrderStatusId = 1,
                     PaymentStatusId = request.PhuongThucThanhToan == PaymentType.VNPAY ? 2 : 1
                 };
@@ -94,12 +155,91 @@ namespace DynaDevAPI.Controllers
 
                 await _db.SaveChangesAsync();
 
-                return Ok(new { Success = true, Message = "Đặt hàng thành công!", MaDH = donHang.MaDH });
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "Đặt hàng thành công!",
+                    MaDH = donHang.MaDH,
+                    TongTienSauGiam = donHang.TongTien, // Trả về tổng tiền sau khi giảm
+                    GiamGia = giamGia // Trả về số tiền đã giảm
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { Success = false, Message = "Đặt hàng thất bại: " + ex.Message });
             }
+        }
+
+        [HttpGet("CheckVoucher")]
+        public IActionResult CheckVoucher(string maVoucher, decimal tongTien)
+        {
+            if (string.IsNullOrEmpty(maVoucher))
+            {
+                return BadRequest(new { Success = false, Message = "Vui lòng nhập mã voucher!" });
+            }
+
+            var voucher = _db.Vouchers.FirstOrDefault(v => v.MaVoucher == maVoucher);
+            if (voucher == null)
+            {
+                return BadRequest(new { Success = false, Message = "Mã voucher không hợp lệ!" });
+            }
+
+            if (voucher.TrangThai != "Hoạt động")
+            {
+                return BadRequest(new { Success = false, Message = "Mã voucher không còn hoạt động!" });
+            }
+
+            if (DateTime.Now < voucher.NgayBatDau || DateTime.Now > voucher.NgayKetThuc)
+            {
+                return BadRequest(new { Success = false, Message = "Mã voucher đã hết thời gian sử dụng!" });
+            }
+
+            if (voucher.SoLuong <= 0)
+            {
+                return BadRequest(new { Success = false, Message = "Mã voucher đã hết số lượng!" });
+            }
+
+            // Parse điều kiện từ DieuKien
+            string[] dieuKienParts = voucher.DieuKien.Split(':');
+            if (dieuKienParts.Length == 2 && dieuKienParts[0] == "DonHangToiThieu")
+            {
+                if (!decimal.TryParse(dieuKienParts[1], out decimal dieuKienToiThieu))
+                {
+                    return BadRequest(new { Success = false, Message = "Điều kiện voucher không hợp lệ!" });
+                }
+
+                if (tongTien < dieuKienToiThieu)
+                {
+                    return BadRequest(new { Success = false, Message = $"Đơn hàng phải tối thiểu {dieuKienToiThieu:N0} VNĐ để áp dụng voucher!" });
+                }
+            }
+
+            decimal giamGia = 0;
+            if (voucher.LoaiGiamGia == "Giảm giá theo phần trăm")
+            {
+                giamGia = tongTien * (voucher.GiamGia / 100);
+            }
+            else if (voucher.LoaiGiamGia == "SoTien")
+            {
+                giamGia = voucher.GiamGia;
+                if (giamGia > tongTien)
+                {
+                    giamGia = tongTien;
+                }
+            }
+            else
+            {
+                return BadRequest(new { Success = false, Message = "Loại giảm giá không hợp lệ!" });
+            }
+
+            decimal tongTienSauGiam = tongTien - giamGia;
+
+            return Ok(new
+            {
+                Success = true,
+                TongTienSauGiam = tongTienSauGiam,
+                GiamGia = giamGia
+            });
         }
 
         [HttpPost("create-payment-url")]

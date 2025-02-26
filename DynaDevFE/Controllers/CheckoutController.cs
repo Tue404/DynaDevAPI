@@ -52,6 +52,7 @@ namespace DynaDevFE.Controllers
                 SoDienThoai = request.SoDienThoai,
                 DiaChiNhanHang = request.DiaChiNhanHang,
                 PhuongThucThanhToan = request.PaymentMethod,
+                MaVoucher = request.MaVoucher,
                 GioHang = request.CartItems.Select(item => new ChiTietDonHangRequest
                 {
                     MaSP = item.MaSP,
@@ -80,7 +81,7 @@ namespace DynaDevFE.Controllers
                     OrderId = result.MaDH,
                     FullName = request.TenKH,
                     Description = $"Thanh toán đơn hàng {result.MaDH}",
-                    Amount = request.CartItems.Sum(item => item.SoLuong * item.Gia),
+                    Amount = (double)result.TongTienSauGiam,
                     CreatedDate = DateTime.Now
                 };
 
@@ -96,6 +97,26 @@ namespace DynaDevFE.Controllers
             }
 
             return Json(new { success = true, redirectUrl = "/Checkout/Success" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckVoucher(string maVoucher, decimal tongTien)
+        {
+            if (string.IsNullOrEmpty(maVoucher))
+            {
+                return Json(new { success = false, message = "Vui lòng nhập mã voucher!" });
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_apiBaseUrl}/api/DonHang/CheckVoucher?maVoucher={maVoucher}&tongTien={tongTien}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return Json(new { success = false, message = $"Lỗi kiểm tra voucher: {error}" });
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<CheckVoucherResponse>();
+            return Json(new { success = true, tongTienSauGiam = result.TongTienSauGiam, giamGia = result.GiamGia });
         }
 
         [HttpGet]

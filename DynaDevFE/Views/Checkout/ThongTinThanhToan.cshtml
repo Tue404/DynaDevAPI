@@ -22,6 +22,10 @@
         <textarea id="DiaChiNhanHang" required></textarea>
     </div>
     <div>
+        <label>Mã voucher (tùy chọn):</label>
+        <input type="text" id="MaVoucher" placeholder="Nhập mã voucher nếu có">
+    </div>
+    <div>
         <label>Phương thức thanh toán:</label>
         <select id="PaymentMethod" name="PaymentMethod">
             <option value="COD">Thanh toán khi nhận hàng (COD)</option>
@@ -41,6 +45,9 @@
     </table>
     <div>
         <strong>Tổng tiền: </strong><span id="checkout-total"></span> đ
+    </div>
+    <div>
+        <strong>Tổng tiền sau giảm: </strong><span id="checkout-total-after-discount"></span> đ
     </div>
     <button type="submit" class="btn btn-primary">Xác nhận thanh toán</button>
 </form>
@@ -63,7 +70,52 @@
         });
 
         document.getElementById("checkout-total").textContent = totalPrice.toLocaleString();
-
+        const maVoucherInput = document.getElementById("MaVoucher");
+        maVoucherInput.addEventListener("input", function () {
+            const maVoucher = this.value.trim();
+            if (maVoucher) {
+                // Gọi API để kiểm tra và tính toán giảm giá
+                fetch(`/Checkout/CheckVoucher?maVoucher=${encodeURIComponent(maVoucher)}&tongTien=${totalPrice}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const tongTienSauGiam = data.tongTienSauGiam;
+                            const giamGia = data.giamGia;
+                            document.getElementById("checkout-total-after-discount").textContent = tongTienSauGiam.toLocaleString();
+                            Swal.fire({
+                                icon: "success",
+                                title: "Thành công",
+                                text: `Áp dụng mã voucher thành công! Bạn được giảm: ${giamGia.toLocaleString()} VNĐ`
+                            });
+                        } else {
+                            document.getElementById("checkout-total-after-discount").textContent = "0";
+                            Swal.fire({
+                                icon: "error",
+                                title: "Lỗi",
+                                text: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Lỗi chi tiết:", error);
+                        document.getElementById("checkout-total-after-discount").textContent = "0";
+                        Swal.fire("Lỗi", "Không thể kiểm tra mã voucher, vui lòng thử lại!", "error");
+                    });
+            } else {
+                // Nếu xóa mã voucher, reset về tổng tiền ban đầu
+                document.getElementById("checkout-total-after-discount").textContent = "0";
+            }
+        });
         document.getElementById("checkout-form").addEventListener("submit", function (event) {
             event.preventDefault();
 
@@ -80,7 +132,8 @@
                 SoDienThoai: document.getElementById("SoDienThoai").value,
                 DiaChiNhanHang: document.getElementById("DiaChiNhanHang").value,
                 PaymentMethod: document.getElementById("PaymentMethod").value,
-                CartItems: JSON.parse(localStorage.getItem("cart"))
+                CartItems: JSON.parse(localStorage.getItem("cart")),
+                MaVoucher: document.getElementById("MaVoucher").value
             };
 
             fetch("/Checkout/DatHang", {
