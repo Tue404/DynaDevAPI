@@ -1,38 +1,180 @@
-﻿@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-}
+﻿@model List<DynaDevFE.Models.SanPhamViewModel>
 
-@{
-    ViewData["Title"] = "Danh Mục Sản Phẩm";
-}
+    <h2 class="text-center mb-4">Danh sách sản phẩm</h2>
 
-<h2>Danh Mục Sản Phẩm</h2>
+    <!-- Ô tìm kiếm sản phẩm -->
+    <input type="text" id="searchQuery" class="form-control mb-4" placeholder="Tìm kiếm sản phẩm..." />
 
-<ul id="danhMucList">
-    <!-- Danh mục sẽ được hiển thị ở đây -->
-</ul>
+    <!-- Danh sách sản phẩm -->
+    <div class="row" id="productList">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-lg">
+                    @if (product.DanhSachAnh != null && product.DanhSachAnh.Any())
+                    {
+                        <img src="@Url.Content("~/images/" + product.DanhSachAnh.FirstOrDefault())" class="card-img-top" alt="@product.TenSanPham" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title text-center text-primary">@product.TenSanPham</h5>
+                        <p class="card-text">@product.MoTa</p>
+                        <p class="font-weight-bold">Giá: <span class="text-danger">@product.Gia.ToString("N0") VNĐ</span></p>
+                        <p><b>Ngày xuất bản:</b> @product.NamXuatBan</p>
+                        <a href="#" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 
+    <!-- Nếu không có sản phẩm nào -->
+    @if (!Model.Any())
+    {
+        <p class="text-muted text-center">Không có sản phẩm nào trong danh mục này.</p>
+    }
+
+
+<style>
+    #searchQuery {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto 20px;
+        padding: 10px 15px;
+        border-radius: 25px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+        #searchQuery:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+    .product-card-container {
+        padding: 10px;
+    }
+
+    .product-card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #ddd;
+    }
+
+        .product-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+    .card-img-top {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .card-body {
+        padding: 15px;
+        background-color: #f9f9f9;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .card-text {
+        font-size: 1rem;
+        color: #666;
+    }
+
+    .btn-primary {
+        background-color: #FF5733;
+        border-color: #FF5733;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #C74822;
+            border-color: #C74822;
+        }
+
+    .font-weight-bold {
+        font-weight: 700;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+    /* Tạo khoảng cách giữa các sản phẩm */
+    .row {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    /* Điều chỉnh các cột sản phẩm */
+    .col-md-6 {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+</style>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        let urlParams = new URLSearchParams(window.location.search);
-        let maLoai = urlParams.get("maLoai");
+        // Lắng nghe sự kiện input (khi người dùng gõ vào ô tìm kiếm)
+        $("#searchQuery").on("input", function () {
+            let query = $(this).val().trim();  // Lấy giá trị từ khóa tìm kiếm
 
-        if (maLoai) {
-            $.ajax({
-                url: "https://localhost:7101/api/DanhMuc/" + maLoai, // Nếu API hỗ trợ lấy chi tiết danh mục
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                    $("#danhMucList").append(`<li>${data.tenLoai}</li>`);
-                },
-                error: function (xhr, status, error) {
-                    console.error("Lỗi khi lấy danh mục:", error);
-                    $("#danhMucList").append('<li class="text-danger">Không thể tải danh mục</li>');
-                }
-            });
-        } else {
-            $("#danhMucList").append('<li class="text-muted">Vui lòng chọn danh mục</li>');
-        }
+            // Đảm bảo xóa sản phẩm cũ trong #productList
+            $('#productList').empty();
+
+            if (query) {
+                $.ajax({
+                    url: "https://localhost:7101/api/Products/Search",  // API tìm kiếm sản phẩm
+                    type: "GET",
+                    data: { query: query },  // Truyền từ khóa tìm kiếm
+                    success: function (data) {
+                        if (data.length > 0) {
+                            data.forEach(function (product) {
+                                $('#productList').append(`
+                                        <li class="col-md-4 mb-4">
+                                            <div class="card h-100 shadow-sm">
+                                                <img src="${product.danhSachAnh.length > 0 ? '/images/' + product.danhSachAnh[0] : '/images/default.jpg'}" class="card-img-top" alt="${product.tenSanPham}" />
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${product.tenSanPham}</h5>
+                                                    <p class="card-text">${product.moTa}</p>
+                                                    <p><b>Giá:</b> ${product.gia.toLocaleString()} VNĐ</p>
+                                                    <p><b>Ngày xuất bản:</b> ${product.namXuatBan}</p>
+                                                </div>
+                                                <div class="card-footer text-center">
+                                                    <a href="#" class="btn btn-primary">Xem chi tiết</a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    `);
+                            });
+                        } else {
+                            $('#productList').append('<li class="text-muted">Không có sản phẩm nào phù hợp với từ khóa tìm kiếm.</li>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+                        $('#productList').empty().append('<li class="text-danger">Lỗi khi tải sản phẩm.</li>');
+                    }
+                });
+            } else {
+                $('#productList').empty().append('<li class="text-muted">Vui lòng nhập từ khóa tìm kiếm.</li>');
+            }
+        });
     });
 </script>

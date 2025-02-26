@@ -9,9 +9,9 @@
     var orderStatuses = new List<string> { "Chưa xác nhận", "Đã xác nhận", "Đang chuẩn bị hàng", "Đang giao hàng", "Đã giao hàng", "Đã hủy" };
 }
 
-<h2>Quản lý đơn hàng</h2>
+@* <h2>Quản lý đơn hàng</h2>
 <a asp-action="Create" class="btn btn-primary mb-3">Thêm đơn hàng mới</a>
-
+ *@
 @if (!Model.Any())
 {
     <div class="alert alert-warning">Không có đơn hàng nào để hiển thị.</div>
@@ -30,7 +30,6 @@ else
                 <th>Trạng Thái Thanh Toán</th>
                 <th>Tình Trạng</th>
                 <th>Mã Nhân Viên</th>
-                <th>Hành Động</th>
             </tr>
         </thead>
         <tbody>
@@ -77,12 +76,12 @@ else
                     </td>
 
                     <td>@order.MaNV</td>
-                    <td>
+                    @* <td>
                         <form asp-controller="Order" asp-action="Delete" method="post" style="display:inline;">
                             <input type="hidden" name="id" value="@order.MaDH" />
                             <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                         </form>
-                    </td>
+                    </td> *@
                 </tr>
             }
         </tbody>

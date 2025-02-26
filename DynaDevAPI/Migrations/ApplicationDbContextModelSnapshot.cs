@@ -85,10 +85,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 1,
                             PaymentStatusId = 1,
-                            ThoiGianDatHang = new DateTime(2025, 2, 20, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7417),
-
-
-
+                            ThoiGianDatHang = new DateTime(2025, 2, 23, 4, 35, 13, 275, DateTimeKind.Local).AddTicks(9937),
                             TongTien = 240000m
                         },
                         new
@@ -99,8 +96,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 3,
                             PaymentStatusId = 2,
-
-                            ThoiGianDatHang = new DateTime(2025, 2, 21, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7948),
+                            ThoiGianDatHang = new DateTime(2025, 2, 24, 4, 35, 13, 276, DateTimeKind.Local).AddTicks(1425),
                             TongTien = 90000m
                         });
                 });
@@ -230,10 +226,7 @@ namespace DynaDevAPI.Migrations
                             DiaChi = "Hà Nội",
                             Email = "vana@gmail.com",
                             MatKhau = "123456",
-
-                            NgayDangKy = new DateTime(2025, 2, 23, 12, 53, 27, 965, DateTimeKind.Local).AddTicks(4370),
-
-
+                            NgayDangKy = new DateTime(2025, 2, 26, 4, 35, 13, 257, DateTimeKind.Local).AddTicks(1546),
                             SDT = "0123456789",
                             TenKH = "Nguyễn Văn A",
                             TinhTrang = "Hoạt động"
@@ -283,7 +276,8 @@ namespace DynaDevAPI.Migrations
             modelBuilder.Entity("DynaDevAPI.Models.NhaCungCap", b =>
                 {
                     b.Property<string>("MaNCC")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<string>("DiaChi")
                         .IsRequired()
@@ -299,7 +293,8 @@ namespace DynaDevAPI.Migrations
 
                     b.Property<string>("TenNCC")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("TinhTrang")
                         .IsRequired()
@@ -357,10 +352,7 @@ namespace DynaDevAPI.Migrations
                             Email = "vanb@gmail.com",
                             Luong = 0f,
                             MatKhau = "admin123",
-
-                            NgayVaoLam = new DateTime(2023, 2, 23, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(6550),
-
-
+                            NgayVaoLam = new DateTime(2023, 2, 26, 4, 35, 13, 275, DateTimeKind.Local).AddTicks(7555),
                             SDT = "0987654321",
                             TenNV = "Trần Văn B",
                             TinhTrang = "Đang làm việc"
@@ -459,7 +451,7 @@ namespace DynaDevAPI.Migrations
 
                     b.Property<string>("MaNCC")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<string>("MoTa")
                         .IsRequired()
@@ -638,7 +630,7 @@ namespace DynaDevAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("DynaDevAPI.Models.NhaCungCap", "NhaCungCap")
-                        .WithMany("SanPhams")
+                        .WithMany()
                         .HasForeignKey("MaNCC")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -658,11 +650,6 @@ namespace DynaDevAPI.Migrations
                     b.Navigation("DanhGias");
 
                     b.Navigation("DonHangs");
-                });
-
-            modelBuilder.Entity("DynaDevAPI.Models.NhaCungCap", b =>
-                {
-                    b.Navigation("SanPhams");
                 });
 
             modelBuilder.Entity("DynaDevAPI.Models.NhanVien", b =>
