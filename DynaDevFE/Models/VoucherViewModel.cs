@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿
+
+using System.Text.Json.Serialization;
 
 namespace DynaDevFE.Models
 {
@@ -17,3 +19,10 @@ namespace DynaDevFE.Models
         public string TrangThai { get; set; }
     }
 }
+
+
+
+
+
+
+

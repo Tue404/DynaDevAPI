@@ -24,7 +24,7 @@ namespace DynaDevFE.Models
         [JsonPropertyName("matKhau")]
         [Required(ErrorMessage = "Mật khẩu không được để trống.")]
         [StringLength(100, ErrorMessage = "Mật khẩu không được vượt quá 50 ký tự.")]
-        public string MatKhau { get; set; }
+        public string? MatKhau { get; set; }
 
         [JsonPropertyName("sdt")]
         [Required(ErrorMessage = "Số điện thoại không được để trống.")]

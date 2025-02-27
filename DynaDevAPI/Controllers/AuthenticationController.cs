@@ -73,7 +73,6 @@ namespace DynaDevAPI.Controllers
             }
         }
         // Hàm tạo JWT Token
-
         private string GenerateJwtToken(KhachHang user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
