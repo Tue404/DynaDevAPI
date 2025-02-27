@@ -4,6 +4,7 @@ using DynaDevAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynaDevAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250226141957_sdfshfj")]
+    partial class sdfshfj
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,7 +88,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 1,
                             PaymentStatusId = 1,
-                            ThoiGianDatHang = new DateTime(2025, 2, 24, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(3626),
+                            ThoiGianDatHang = new DateTime(2025, 2, 23, 21, 19, 53, 10, DateTimeKind.Local).AddTicks(5356),
                             TongTien = 240000m
                         },
                         new
@@ -96,7 +99,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 3,
                             PaymentStatusId = 2,
-                            ThoiGianDatHang = new DateTime(2025, 2, 25, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(4258),
+                            ThoiGianDatHang = new DateTime(2025, 2, 24, 21, 19, 53, 10, DateTimeKind.Local).AddTicks(5844),
                             TongTien = 90000m
                         });
                 });
@@ -161,25 +164,30 @@ namespace DynaDevAPI.Migrations
                     b.Property<int>("DiemDanhGia")
                         .HasColumnType("int");
 
-                    b.Property<string>("MaKH")
+                    b.Property<string>("KhachHangMaKH")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("MaKH")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MaSP")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("NgayDanhGia")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("TrangThai")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("SanPhamMaSP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("MaDanhGia");
 
-                    b.HasIndex("MaKH");
+                    b.HasIndex("KhachHangMaKH");
 
-                    b.HasIndex("MaSP");
+                    b.HasIndex("SanPhamMaSP");
 
                     b.ToTable("DanhGias");
                 });
@@ -221,7 +229,7 @@ namespace DynaDevAPI.Migrations
                             DiaChi = "Hà Nội",
                             Email = "vana@gmail.com",
                             MatKhau = "123456",
-                            NgayDangKy = new DateTime(2025, 2, 27, 12, 34, 30, 583, DateTimeKind.Local).AddTicks(1761),
+                            NgayDangKy = new DateTime(2025, 2, 26, 21, 19, 53, 9, DateTimeKind.Local).AddTicks(4489),
                             SDT = "0123456789",
                             TenKH = "Nguyễn Văn A",
                             TinhTrang = "Hoạt động"
@@ -347,7 +355,7 @@ namespace DynaDevAPI.Migrations
                             Email = "vanb@gmail.com",
                             Luong = 0f,
                             MatKhau = "admin123",
-                            NgayVaoLam = new DateTime(2023, 2, 27, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(2044),
+                            NgayVaoLam = new DateTime(2023, 2, 26, 21, 19, 53, 10, DateTimeKind.Local).AddTicks(4694),
                             SDT = "0987654321",
                             TenNV = "Trần Văn B",
                             TinhTrang = "Đang làm việc"
@@ -601,13 +609,13 @@ namespace DynaDevAPI.Migrations
                 {
                     b.HasOne("DynaDevAPI.Models.KhachHang", "KhachHang")
                         .WithMany("DanhGias")
-                        .HasForeignKey("MaKH")
+                        .HasForeignKey("KhachHangMaKH")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DynaDevAPI.Models.SanPham", "SanPham")
                         .WithMany("DanhGias")
-                        .HasForeignKey("MaSP")
+                        .HasForeignKey("SanPhamMaSP")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

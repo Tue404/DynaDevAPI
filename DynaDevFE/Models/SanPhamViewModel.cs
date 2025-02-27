@@ -56,5 +56,22 @@ namespace DynaDevFE.Models
         [JsonPropertyName("anhSPs")]
         public List<IFormFile> AnhSPs { get; set; }
 
+
+        // Thêm danh sách đánh giá vào ViewModel
+        public List<DanhGiaViewModel> DanhGiaSanPham { get; set; } = new List<DanhGiaViewModel>();
+
+    }
+
+
+    public class DanhGiaViewModel
+    {
+        public string MaDanhGia { get; set; }
+        public string MaSP { get; set; }
+        public string MaKH { get; set; }
+        public string? Email { get; set; }
+        public int DiemDanhGia { get; set; }
+        public string BinhLuan { get; set; }
+        public string? TrangThai { get; set; }
+        public DateTime NgayDanhGia { get; set; }
     }
 }

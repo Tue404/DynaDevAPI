@@ -64,20 +64,20 @@
                 if (vouchers.length > 0) {
                     vouchers.forEach(voucher => {
                         const row = `
-                                                                    <tr>
-                                                                        <td>${voucher.maVoucher}</td>
-                                                                        <td>${voucher.tenVoucher}</td>
-                                                                        <td>${voucher.giamGia <= 100 ? voucher.giamGia + ' %' : voucher.giamGia.toLocaleString() + ' VND'}</td>
-                                                                        <td>${new Date(voucher.ngayBatDau).toLocaleDateString()}</td>
-                                                                        <td>${new Date(voucher.ngayKetThuc).toLocaleDateString()}</td>
-                                                                        <td>${voucher.soLuong}</td>
-                                                                        <td>${voucher.trangThai}</td>
-                                                                        <td>
-                                                                            <a href="/Voucher/Details/${voucher.maVoucher}" class="btn btn-info btn-sm">Chi Tiết</a>
-                                                                            <a href="/Voucher/Edit/${voucher.maVoucher}" class="btn btn-warning btn-sm">Sửa</a>
-                                                                            <button class="btn btn-danger btn-sm btn-delete" data-id="${voucher.maVoucher}">Xóa</button>
-                                                                        </td>
-                                                                    </tr>`;
+                                                                            <tr>
+                                                                                <td>${voucher.maVoucher}</td>
+                                                                                <td>${voucher.tenVoucher}</td>
+                                                                                <td>${voucher.giamGia <= 100 ? voucher.giamGia + ' %' : voucher.giamGia.toLocaleString() + ' VND'}</td>
+                                                                                <td>${new Date(voucher.ngayBatDau).toLocaleDateString()}</td>
+                                                                                <td>${new Date(voucher.ngayKetThuc).toLocaleDateString()}</td>
+                                                                                <td>${voucher.soLuong}</td>
+                                                                                <td>${voucher.trangThai}</td>
+                                                                                <td>
+                                                                                    <a href="/Voucher/Details/${voucher.maVoucher}" class="btn btn-info btn-sm">Chi Tiết</a>
+                                                                                    <a href="/Voucher/Edit/${voucher.maVoucher}" class="btn btn-warning btn-sm">Sửa</a>
+                                                                                    <button class="btn btn-danger btn-sm btn-delete" data-id="${voucher.maVoucher}">Xóa</button>
+                                                                                </td>
+                                                                            </tr>`;
                         voucherTable.innerHTML += row;
                     });
 
@@ -87,9 +87,9 @@
                     let paginationHTML = '';
                     for (let i = 1; i <= totalPages; i++) {
                         paginationHTML += `
-                                                                    <li class="page-item ${i === currentPage ? 'active' : ''}">
-                                                                        <a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>
-                                                                    </li>`;
+                                                                            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                                                                <a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>
+                                                                            </li>`;
                     }
                     paginationControls.innerHTML = `<ul class="pagination">${paginationHTML}</ul>`;
                 } else {
@@ -199,26 +199,28 @@
         @if (TempData["Success"] != null)
         {
             <text>
-                Swal.fire({
-                    icon: 'success',
+                    Swal.fire({
+                        icon: 'success',
                     title: 'Thành công!',
                     text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])) ,
                     showConfirmButton: false,
                     timer: 2000
-                });
+                            });
             </text>
         }
 
         @if (TempData["Error"] != null)
         {
             <text>
-                Swal.fire({
-                    icon: 'error',
+                    Swal.fire({
+                        icon: 'error',
                     title: 'Lỗi!',
                     text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])) ,
                     showConfirmButton: true
-                });
+                            });
             </text>
         }
     </script>
 }
+
+
