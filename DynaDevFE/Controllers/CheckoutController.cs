@@ -22,12 +22,14 @@ namespace DynaDevFE.Controllers
 
         [HttpGet]
         public IActionResult ThongTinThanhToan()
-        {
+            {
             string maKH = Request.Cookies["MaKH"];
 
             if (string.IsNullOrEmpty(maKH))
             {
-                return RedirectToAction("DangNhap", "TaiKhoan");
+                TempData["ShowLoginModal"] = true;
+                TempData["LoginMessage"] = "Bạn cần đăng nhập để tiếp tục thanh toán!";
+                return RedirectToAction("Index", "Cart");
             }
 
             ViewBag.MaKH = maKH;
@@ -124,31 +126,31 @@ namespace DynaDevFE.Controllers
         {
             var client = _httpClientFactory.CreateClient();
             var queryString = Request.QueryString.ToString();
-            var callbackResponse = await client.GetAsync($"{_apiBaseUrl}/api/DonHang/callback{queryString}");
 
+            // Gọi API callback từ backend
+            var callbackResponse = await client.GetAsync($"{_apiBaseUrl}/api/DonHang/callback{queryString}");
             if (!callbackResponse.IsSuccessStatusCode)
+            {
+                var errorContent = await callbackResponse.Content.ReadAsStringAsync();
+                // Log lỗi để kiểm tra
+                Console.WriteLine($"Lỗi từ backend: {errorContent}");
+                return RedirectToAction("Fail");
+            }
+
+            var result = await callbackResponse.Content.ReadFromJsonAsync<PaymentCallbackResponse>();
+            if (result == null || !result.Success)
             {
                 return RedirectToAction("OrderConfirmationFail");
             }
-
-            var paymentResponse = await callbackResponse.Content.ReadFromJsonAsync<VnPaymentResponseModel>();
-            var processResponse = await client.PostAsJsonAsync($"{_apiBaseUrl}/api/DonHang/payment-callback", paymentResponse);
-
-            if (processResponse.IsSuccessStatusCode)
-            {
-                var result = await processResponse.Content.ReadFromJsonAsync<PaymentCallbackResponse>();
-                if (result.Success)
-                {
-                    HttpContext.Session.Remove(MySetting.CART_KEY); // Xóa session nếu có
-                    return Redirect(result.RedirectUrl);
-                }
-                return Redirect(result.RedirectUrl);
-            }
-
-            return RedirectToAction("Success");
+            return Redirect(result.RedirectUrl ?? "/Checkout/Success");
         }
 
         public IActionResult Success()
+        {
+            return View();
+        }
+
+        public IActionResult Fail()
         {
             return View();
         }

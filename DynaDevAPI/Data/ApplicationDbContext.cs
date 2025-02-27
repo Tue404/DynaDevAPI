@@ -24,6 +24,7 @@ namespace DynaDevAPI.Data
         public DbSet<DanhGia> DanhGias { get; set; }
         public DbSet<PaymentStatus> PaymentStatuses { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
+        public DbSet<TempOrder> TempOrders { get; set; }
 
 
 

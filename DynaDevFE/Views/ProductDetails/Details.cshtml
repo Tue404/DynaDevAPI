@@ -19,28 +19,24 @@
     </div>
 
     <div id="imageModal" class="image-modal">
-        <span class="close" onclick="closeImageModal()">&times;</span>
+        <span class="close" onclick="closeImageModal()">×</span>
         <img class="modal-content" id="modalImage">
         <div id="caption"></div>
     </div>
-
 
     <div class="product-right">
         <h1 class="product-title">@Model.TenSanPham</h1>
 
         <div class="product-info-horizontal">
             <div class="info-row">
-
                 <p class="product-author"><strong>Tác giả:</strong> @Model.TacGia</p>
-
-                <p class="product-publisher"><strong>Nhà xuất bản:</strong>@Model.TenNCC</p>
+                <p class="product-publisher"><strong>Nhà xuất bản:</strong> @Model.TenNCC</p>
             </div>
 
             <div class="info-row">
                 <p class="product-supplier"><strong>Năm xuất bản:</strong> @Model.NamXuatBan</p>
-                <p class="product-age"><strong>Số lượng còn lại:</strong>@Model.SoLuongTrongKho</p>
+                <p class="product-age"><strong>Số lượng còn lại:</strong> @Model.SoLuongTrongKho</p>
             </div>
-
         </div>
 
         <!-- Giá sản phẩm -->
@@ -77,10 +73,8 @@
             <h4>Mô tả sản phẩm</h4>
             <p>@Model.MoTa</p>
         </div>
-
     </div>
 </div>
-
 
 @{
     var approvedReviews = Model.DanhGiaSanPham.Where(d => d.TrangThai == "Đã Duyệt").ToList();
@@ -134,22 +128,23 @@
 </div>
 
 
-<script>
-    async function getUserInfo() {
-        try {
-            let response = await fetch("https://localhost:7101/api/Authentication", {
-                method: "GET",
-                headers: { "Accept": "application/json" },
-                credentials: "include"
-            });
 
-            let userData = await response.json();
-            return userData.success ? userData.maKH : null;
-        } catch (error) {
-            console.error("Lỗi lấy MaKH:", error);
-            return null;
+    <script>
+        async function getUserInfo() {
+            try {
+                let response = await fetch("https://localhost:7101/api/Authentication", {
+                    method: "GET",
+                    headers: { "Accept": "application/json" },
+                    credentials: "include"
+                });
+
+                let userData = await response.json();
+                return userData.success ? userData.maKH : null;
+            } catch (error) {
+                console.error("Lỗi lấy MaKH:", error);
+                return null;
+            }
         }
-    }
 
     document.getElementById("formDanhGia").addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -160,11 +155,37 @@
             return;
         }
 
+        let binhLuan = document.getElementById("BinhLuan").value;
+
+        // Danh sách từ ngữ không phù hợp
+        let tuCam = [
+            "xấu", "tệ", "vô dụng", "kém chất lượng", "lồn", "cặc", "địt", "chịch", "buồi", "đụ", "đéo", "điếm",
+            "bitch", "fuck", "dick", "pussy", "asshole", "motherfucker", "cu", "chó chết", "dâm", "ngu", "vl", "dm",
+            "clgt", "vcl", "phò", "đĩ", "khốn nạn", "con mẹ mày", "đéo mẹ", "nứng", "tổ sư", "mẹ kiếp", "bố mày",
+            "liếm lồn", "liếm cặc", "óc chó", "cave", "đm", "wtf", "fucking", "shit", "cum", "slut", "whore", "tits",
+            "boobs", "rape", "jerk", "suck", "balls", "blowjob", "handjob", "faggot", "gay", "lesbian", "dildo",
+            "vagina", "penis", "anus", "scum", "bastard", "đĩ mẹ", "đụ mẹ", "đụ cha", "đụ bà", "mẹ cha", "đù", "fuck you",
+            "đéo hiểu", "mẹ nó", "fuck off", "cút", "get lost", "piss off", "liếm buồi", "bú cặc", "bú lồn", "bố láo",
+            "chó má", "súc vật", "mất dạy", "khốn", "khốn kiếp", "mẹ kiếp", "thằng khốn", "con khốn", "dickhead",
+            "cunt", "shithead", "piss", "pissing", "screw you", "goddamn", "son of a bitch", "sonofabitch", "dirty",
+            "mothafucka", "jackass", "douchebag", "retard", "fuckface", "cock", "shitbag", "fuckwit", "fuckstick",
+            "arsehole", "tosser", "bloody hell", "cuntface", "ballsack", "fucker", "dickhead", "bitchface", "ho",
+            "cumdumpster", "dickwad", "twat", "shitfaced", "cockface", "gobshite", "bollocks", "minger", "arse",
+            "knobhead", "twatwaffle", "dumbfuck", "shitcunt", "cumslut", "wanker", "prick", "fucknugget", "fuckhead",
+            "dickweasel", "cockmongler", "dickfucker", "shitweasel", "fucksocks", "fucksponge", "fuckbiscuit",
+            "fuckbucket", "cumguzzler", "cockjockey", "shitbrick", "cumbucket", "fucktard", "dicknose", "shitstain",
+            "craphole", "fuckpile", "shitstick", "fuckbunny", "fuckrag", "fuckknuckle", "shitsmear", "cocksucker",
+            "cocksplat"
+        ];
+
+
+        let isBadComment = tuCam.some(tu => binhLuan.toLowerCase().includes(tu));
+
         let danhGia = {
             MaSP: document.getElementById("MaSP").value,
             MaKH: maKH,
             DiemDanhGia: parseInt(document.getElementById("DiemDanhGia").value),
-            BinhLuan: document.getElementById("BinhLuan").value
+            BinhLuan: binhLuan
         };
 
         await fetch("https://localhost:7101/api/ProductDetails/AddReview", {
@@ -173,17 +194,19 @@
             body: JSON.stringify(danhGia)
         });
 
-        alert("Đánh giá của bạn đã được ghi lại và chờ duyệt, sẽ sớm được hiển thị!");
+        if (isBadComment) {
+            alert("Đánh giá của bạn chứa từ ngữ không phù hợp và sẽ cần được duyệt trước khi hiển thị.");
+        } else {
+            alert("Đánh giá của bạn đã được ghi lại.");
+        }
+
         location.reload();
     });
-
 </script>
 
 
 
-
-
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Hàm mở modal khi click vào ảnh
     function openImageModal(imageSrc) {
@@ -192,7 +215,7 @@
 
         modal.style.display = "block";
         modalImage.src = imageSrc;
-        caption.innerHTML = imageSrc;
+        document.getElementById("caption").innerHTML = imageSrc;
     }
 
     // Hàm đóng modal
@@ -200,12 +223,39 @@
         var modal = document.getElementById("imageModal");
         modal.style.display = "none";
     }
-    // Định nghĩa addToCart trong phạm vi toàn cục (global scope)
+
+    // Định nghĩa addToCart trong phạm vi toàn cục
     function addToCart() {
         const maxQuantity = @Model.SoLuongTrongKho;
         const inputQuantity = parseInt(document.getElementById("quantity").value);
+
+        if (inputQuantity < 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: "Số lượng không thể là số âm! Vui lòng nhập số lớn hơn 0.",
+                position: "top-right",
+                showConfirmButton: false,
+                timer: 3000,
+                customClass: {
+                    popup: 'swal2-toast'
+                }
+            });
+            return;
+        }
+
         if (inputQuantity > maxQuantity) {
-            alert("Số lượng bạn chọn vượt quá số lượng trong kho! Vui lòng chọn ít hơn.");
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: "Số lượng bạn chọn vượt quá số lượng trong kho! Vui lòng chọn ít hơn.",
+                position: "top-right",
+                showConfirmButton: false,
+                timer: 3000,
+                customClass: {
+                    popup: 'swal2-toast'
+                }
+            });
             return;
         }
         const product = {
@@ -222,7 +272,17 @@
         if (existingItem) {
             let newTotal = existingItem.SoLuong + inputQuantity;
             if (newTotal > maxQuantity) {
-                alert("Tổng số lượng trong giỏ hàng vượt quá số lượng trong kho!");
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi",
+                    text: "Tổng số lượng trong giỏ hàng vượt quá số lượng trong kho!",
+                    position: "top-right",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    customClass: {
+                        popup: 'swal2-toast'
+                    }
+                });
                 return;
             }
             existingItem.SoLuong = newTotal;
@@ -231,41 +291,91 @@
         }
 
         localStorage.setItem("cart", JSON.stringify(cart));
-        syncCartToServer(cart);
-        alert("Sản phẩm đã được thêm vào giỏ hàng!");
+        Swal.fire({
+            icon: "success",
+            title: "Thành công",
+            text: "Sản phẩm đã được thêm vào giỏ hàng!",
+            position: "top-right",
+            showConfirmButton: false,
+            timer: 3000,
+            customClass: {
+                popup: 'swal2-toast'
+            }
+        });
+
+        broadcastCartUpdate(cart);
     }
 
-    // Hàm đồng bộ giỏ hàng lên API
-    function syncCartToServer(cart) {
-        fetch("https://localhost:7101/api/cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(cart)
-        })
-            .then(response => response.json())
-            .then(data => console.log("Đã đồng bộ giỏ hàng:", data))
-            .catch(err => console.error("Lỗi đồng bộ giỏ hàng:", err));
+    function broadcastCartUpdate(cart) {
+        console.log("Cart updated in localStorage:", cart);
     }
 
-    // Khi tải trang, tải giỏ hàng từ server về localStorage
-    function loadCartFromServer() {
-        fetch("http://localhost:7101/api/cart")
-            .then(response => response.json())
-            .then(cart => {
-                if (cart && cart.length > 0) {
-                    console.log("Dữ liệu giỏ hàng từ server:", cart);
-                    localStorage.setItem("cart", JSON.stringify(cart)); // Chỉ đồng bộ nếu có dữ liệu
-                }
-            })
-            .catch(err => console.error("Lỗi tải giỏ hàng:", err));
+    setInterval(() => {
+        let currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+        updateCartDisplay(currentCart); 
+        console.log("Đã kiểm tra cập nhật giỏ hàng từ localStorage:", currentCart);
+    }, 5000); 
+
+
+    function updateCartDisplay(cart) {
+        let tableBody = document.getElementById("cart-items");
+        let totalPrice = 0;
+
+        // Xóa nội dung cũ
+        tableBody.innerHTML = "";
+
+        // Thêm các sản phẩm mới
+        cart.forEach(item => {
+            let row = `<tr data-id="${item.MaSP}">
+                    <td><img src="${item.Anh}" width="50"></td>
+                    <td>${item.TenSanPham}</td>
+                    <td>${item.SoLuong}</td>
+                    <td>${item.Gia.toLocaleString()} đ</td>
+                    <td>${(item.SoLuong * item.Gia).toLocaleString()} đ</td>
+                    <td><button class="remove-btn" data-id="${item.MaSP}"><i class="bi bi-trash3"></i></button></td>
+                </tr>`;
+            tableBody.innerHTML += row;
+            totalPrice += item.SoLuong * item.Gia;
+
+            // Thêm sự kiện xóa cho nút mới
+            document.querySelector(`.remove-btn[data-id="${item.MaSP}"]`).addEventListener("click", function () {
+                removeItem(this.dataset.id);
+            });
+        });
+
+        // Cập nhật tổng tiền và số lượng
+        document.getElementById("total-price").textContent = totalPrice.toLocaleString() + " đ";
+        document.getElementById("cart-count").textContent = cart.length;
+
+        console.log("Updated cart display:", cart);
     }
 
-    window.onload = function () {
-        let cart = JSON.parse(localStorage.getItem("cart"));
-        if (!cart || cart.length === 0) {
-            loadCartFromServer();
-        }
-    };
+    // Hàm xóa sản phẩm (đã có trong script của bạn, giữ nguyên)
+    function removeItem(maSP) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let newCart = cart.filter(item => item.MaSP !== maSP);
+
+        // Cập nhật lại localStorage
+        localStorage.setItem("cart", JSON.stringify(newCart));
+
+        // Xóa sản phẩm khỏi bảng hiển thị
+        document.querySelector(`tr[data-id='${maSP}']`).remove();
+
+        // Cập nhật lại tổng tiền và số lượng sản phẩm
+        updateTotal();
+    }
+
+    // Hàm tính tổng tiền (đã có trong script của bạn, giữ nguyên)
+    function updateTotal() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let totalPrice = cart.reduce((sum, item) => sum + (item.Gia * item.SoLuong), 0);
+
+        // Cập nhật tổng tiền và số lượng
+        document.getElementById("total-price").textContent = totalPrice.toLocaleString() + " đ";
+        document.getElementById("cart-count").textContent = cart.length;
+
+        console.log("Updated total price:", totalPrice);
+    }
 </script>
 
 

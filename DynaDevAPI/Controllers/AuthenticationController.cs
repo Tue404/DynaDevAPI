@@ -59,7 +59,7 @@ namespace DynaDevAPI.Controllers
                     MatKhau = BCrypt.Net.BCrypt.HashPassword(khach.MatKhau),  // Mã hóa mật khẩu
                     SDT = khach.SDT,
                     DiaChi = khach.DiaChi,
-                    TinhTrang = "Active",
+                    TinhTrang = "Hoạt động",
                     NgayDangKy = DateTime.Now
                 };
                 _context.KhachHangs.Add(newKhach);

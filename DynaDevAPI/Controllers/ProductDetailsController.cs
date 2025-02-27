@@ -62,7 +62,6 @@ namespace DynaDevAPI.Controllers
             return Ok(sanPhamDto);
         }
 
-        // Thêm đánh giá
         [HttpPost("AddReview")]
         public async Task<IActionResult> AddReview([FromBody] DanhGiaDto danhGiaDto)
         {
@@ -71,8 +70,7 @@ namespace DynaDevAPI.Controllers
                 return BadRequest(new { success = false, message = "Điểm đánh giá phải từ 1 đến 5." });
             }
 
-            // Kiểm tra xem MaKH có tồn tại hay không
-            string maKH = danhGiaDto.MaKH; // Lấy MaKH từ frontend
+            string maKH = danhGiaDto.MaKH;
             if (string.IsNullOrEmpty(maKH))
             {
                 return Unauthorized(new { success = false, message = "MaKH không hợp lệ." });
@@ -84,25 +82,53 @@ namespace DynaDevAPI.Controllers
                 return BadRequest(new { success = false, message = "Khách hàng không tồn tại." });
             }
 
-            // Kiểm tra sản phẩm tồn tại
             var sanPham = await _db.SanPhams.FindAsync(danhGiaDto.MaSP);
             if (sanPham == null)
             {
                 return BadRequest(new { success = false, message = "Sản phẩm không tồn tại." });
             }
 
-            // Tạo MaDanhGia nếu chưa có
             danhGiaDto.MaDanhGia = $"DG{new Random().Next(100, 999)}";
+
+            // Danh sách từ ngữ không phù hợp
+            List<string> tuCam = new List<string> { "xấu", "tệ", "vô dụng", "kém chất lượng",
+        "lồn", "cặc", "địt", "chịch", "buồi", "đụ", "đéo", "điếm",
+        "bitch", "fuck", "dick", "pussy", "asshole", "motherfucker",
+        "cu", "chó chết", "dâm", "ngu", "vl", "dm", "clgt", "vcl",
+        "phò", "đĩ", "khốn nạn", "con mẹ mày", "đéo mẹ", "nứng", "tổ sư",
+        "mẹ kiếp", "bố mày", "liếm lồn", "liếm cặc", "óc chó", "cave", "đm",
+        "wtf", "fucking", "shit", "cum", "slut", "whore", "tits", "boobs",
+        "rape", "jerk", "suck", "balls", "blowjob", "handjob", "faggot",
+        "gay", "lesbian", "dildo", "vagina", "penis", "anus", "scum", "bastard",
+        "đĩ mẹ", "đụ mẹ", "đụ cha", "đụ bà", "mẹ cha", "đù", "fuck you",
+        "đéo hiểu", "mẹ nó", "fuck off", "cút", "get lost", "piss off",
+        "liếm buồi", "bú cặc", "bú lồn", "bố láo", "chó má", "súc vật",
+        "mất dạy", "khốn", "khốn kiếp", "mẹ kiếp", "thằng khốn", "con khốn",
+        "dickhead", "cunt", "shithead", "piss", "pissing", "screw you",
+        "goddamn", "son of a bitch", "sonofabitch", "dirty", "mothafucka",
+        "jackass", "douchebag", "retard", "fuckface", "cock", "shitbag",
+        "fuckwit", "fuckstick", "arsehole", "tosser", "bloody hell",
+        "cuntface", "ballsack", "fucker", "dickhead", "bitchface",
+        "ho", "cumdumpster", "dickwad", "twat", "shitfaced", "cockface",
+        "gobshite", "bollocks", "minger", "arse", "knobhead", "twatwaffle",
+        "dumbfuck", "shitcunt", "cumslut", "wanker", "prick", "fucknugget",
+        "fuckhead", "dickweasel", "cockmongler", "dickfucker", "shitweasel",
+        "fucksocks", "fucksponge", "fuckbiscuit", "fuckbucket", "cumguzzler",
+        "cockjockey", "shitbrick", "cumbucket", "fucktard", "dicknose",
+        "shitstain", "craphole", "fuckpile", "shitstick", "fuckbunny",
+        "fuckrag", "fuckknuckle", "shitsmear", "cocksucker", "cocksplat" };
+            bool isBadComment = tuCam.Any(tu => danhGiaDto.BinhLuan.ToLower().Contains(tu));
+
 
             var danhGia = new DanhGia
             {
                 MaDanhGia = danhGiaDto.MaDanhGia,
                 MaSP = danhGiaDto.MaSP,
-                MaKH = maKH, // Lưu MaKH từ Khách Hàng
+                MaKH = maKH,
                 DiemDanhGia = danhGiaDto.DiemDanhGia,
                 BinhLuan = danhGiaDto.BinhLuan ?? "",
                 NgayDanhGia = DateTime.UtcNow,
-                TrangThai = "Chưa Duyệt"
+                TrangThai = isBadComment ? "Chưa Duyệt" : "Đã Duyệt"
             };
 
             try

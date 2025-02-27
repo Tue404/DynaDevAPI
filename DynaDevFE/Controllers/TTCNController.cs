@@ -91,16 +91,31 @@ namespace DynaDevFE.Controllers
                 return NotFound("Không tìm thấy mã khách hàng.");
             }
 
-            // Lấy thông tin khách hàng từ API
-            var response = await _httpClient.GetAsync($"https://localhost:7101/api/TTCN/{maKH}");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var khachHang = await response.Content.ReadFromJsonAsync<KhachHangViewModel>();
-                return View(khachHang); // Truyền thông tin khách hàng vào ViewModel
-            }
+                // Lấy thông tin khách hàng từ API
+                var response = await _httpClient.GetAsync($"https://localhost:7101/api/TTCN/{maKH}");
 
-            return NotFound("Không tìm thấy thông tin khách hàng.");
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    return NotFound($"Không tìm thấy thông tin khách hàng. Lỗi: {errorMessage}");
+                }
+
+                var khachHang = await response.Content.ReadFromJsonAsync<KhachHangViewModel>();
+                if (khachHang == null)
+                {
+                    return NotFound("Dữ liệu khách hàng trống.");
+                }
+
+                return View(khachHang);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi kết nối đến API: {ex.Message}");
+            }
         }
+
         // POST: Cập nhật thông tin khách hàng
         [HttpPost]
         public async Task<IActionResult> Edit(KhachHangViewModel model)
@@ -110,11 +125,9 @@ namespace DynaDevFE.Controllers
                 // Ghi lại các lỗi trong ModelState
                 foreach (var entry in ModelState)
                 {
-                    var key = entry.Key;
-                    var errors = entry.Value.Errors;
-                    foreach (var error in errors)
+                    foreach (var error in entry.Value.Errors)
                     {
-                        Console.WriteLine($"Error in {key}: {error.ErrorMessage}");
+                        Console.WriteLine($"Error in {entry.Key}: {error.ErrorMessage}");
                     }
                 }
 
@@ -122,10 +135,12 @@ namespace DynaDevFE.Controllers
                 return View(model); // Trả lại model để giữ dữ liệu
             }
 
-            // Tiến hành cập nhật thông tin nếu ModelState hợp lệ
             try
             {
-                var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+                var json = JsonSerializer.Serialize(model, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                Console.WriteLine("Request JSON: " + json);
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PutAsync($"https://localhost:7101/api/TTCN/{model.MaKH}", content);
 
                 if (response.IsSuccessStatusCode)
@@ -135,10 +150,12 @@ namespace DynaDevFE.Controllers
                 }
 
                 var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("API Error: " + errorContent);
                 ModelState.AddModelError("", $"Lỗi từ API: {errorContent}");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Lỗi hệ thống: {ex.Message}");
                 ModelState.AddModelError("", $"Đã xảy ra lỗi: {ex.Message}");
             }
 

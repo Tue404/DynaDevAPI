@@ -36,7 +36,6 @@ namespace DynaDevFE.Models
         public string DiaChi { get; set; }
 
         [JsonPropertyName("tinhTrang")]
-        [Required(ErrorMessage = "Tình trạng không được để trống.")]
         public string TinhTrang { get; set; }
 
         public DateTime? NgayDangKy { get; set; }

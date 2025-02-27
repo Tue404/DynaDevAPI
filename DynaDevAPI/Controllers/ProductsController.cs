@@ -105,10 +105,6 @@ namespace DynaDevAPI.Data
         }
 
 
-
-
-
-
         [HttpGet("Search")]
         public async Task<ActionResult<IEnumerable<SanPham>>> SearchSanPham([FromQuery] string query)
         {
@@ -260,7 +256,6 @@ namespace DynaDevAPI.Data
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Unhandled error: {ex.Message}");
             }
         }
-
 
 
         // POST: api/SanPham

@@ -57,6 +57,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+
 builder.Services.AddHttpClient();
 
 builder.Services.AddControllersWithViews();

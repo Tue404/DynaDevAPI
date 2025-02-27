@@ -14,5 +14,7 @@ namespace DynaDevFE.Models
         public decimal? TongTienSauGiam { get; set; } // Thêm thuộc tính này (nullable để xử lý trường hợp không có voucher)
         [JsonPropertyName("giamGia")]
         public decimal? GiamGia { get; set; } // Thêm thuộc tính này (nullable để xử lý trường hợp không có voucher)
+        [JsonPropertyName("redirectUrl")]
+        public string RedirectUrl { get; set; }
     }
 }

@@ -12,14 +12,17 @@
     <div>
         <label>Tên khách hàng:</label>
         <input type="text" id="TenKH" required>
+        <div class="error-message" id="error-TenKH"></div>
     </div>
     <div>
         <label>Số điện thoại:</label>
         <input type="text" id="SoDienThoai" required>
+        <div class="error-message" id="error-SoDienThoai"></div>
     </div>
     <div>
         <label>Địa chỉ nhận hàng:</label>
         <textarea id="DiaChiNhanHang" required></textarea>
+        <div class="error-message" id="error-DiaChiNhanHang"></div>
     </div>
     <div>
         <label>Mã voucher (tùy chọn):</label>
@@ -119,12 +122,35 @@
         document.getElementById("checkout-form").addEventListener("submit", function (event) {
             event.preventDefault();
 
+            document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+
+            let hasError = false;
             let maKH = document.getElementById("MaKH").value;
             if (!maKH) {
-                Swal.fire("Lỗi", "Bạn cần đăng nhập trước khi thanh toán!", "error");
-                window.location.href = "/TaiKhoan/DangNhap";
+                document.getElementById("error-TenKH").textContent = "Bạn cần đăng nhập trước khi thanh toán!";
                 return;
             }
+
+            let tenKH = document.getElementById("TenKH").value.trim();
+            if (tenKH.length < 3) {
+                document.getElementById("error-TenKH").textContent = "Tên khách hàng phải có ít nhất 3 ký tự!";
+                hasError = true;
+            }
+
+            let soDienThoai = document.getElementById("SoDienThoai").value.trim();
+            let phoneRegex = /^[0-9]{9,10}$/;
+            if (!phoneRegex.test(soDienThoai)) {
+                document.getElementById("error-SoDienThoai").textContent = "Số điện thoại không hợp lệ! Vui lòng nhập 9-10 chữ số.";
+                hasError = true;
+            }
+
+            let diaChiNhanHang = document.getElementById("DiaChiNhanHang").value.trim();
+            if (diaChiNhanHang.length < 5) {
+                document.getElementById("error-DiaChiNhanHang").textContent = "Địa chỉ nhận hàng phải có ít nhất 5 ký tự!";
+                hasError = true;
+            }
+
+            if (hasError) return;
 
             let orderData = {
                 MaKH: maKH,
@@ -134,7 +160,7 @@
                 PaymentMethod: document.getElementById("PaymentMethod").value,
                 CartItems: JSON.parse(localStorage.getItem("cart")),
                 MaVoucher: document.getElementById("MaVoucher").value
-            };
+            };        
 
             fetch("/Checkout/DatHang", {
                 method: "POST",
@@ -281,6 +307,14 @@
             color: #e74c3c;
             font-size: 20px;
         }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
 
 </style>
 

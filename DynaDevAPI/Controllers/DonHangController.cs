@@ -64,6 +64,8 @@ namespace DynaDevAPI.Controllers
             {
                 decimal tongTien = request.GioHang.Sum(x => (decimal)(x.Gia * x.SoLuong));
                 decimal giamGia = 0;
+
+                // Xử lý voucher
                 if (!string.IsNullOrEmpty(request.MaVoucher))
                 {
                     var voucher = await _db.Vouchers.FirstOrDefaultAsync(v => v.MaVoucher == request.MaVoucher);
@@ -87,7 +89,6 @@ namespace DynaDevAPI.Controllers
                         return BadRequest(new { Success = false, Message = "Mã voucher đã hết số lượng!" });
                     }
 
-                    // Parse điều kiện từ DieuKien
                     string[] dieuKienParts = voucher.DieuKien.Split(':');
                     if (dieuKienParts.Length == 2 && dieuKienParts[0] == "DonHangToiThieu")
                     {
@@ -102,7 +103,6 @@ namespace DynaDevAPI.Controllers
                         }
                     }
 
-                    // Áp dụng giảm giá dựa trên LoaiGiamGia
                     if (voucher.LoaiGiamGia == "Giảm giá theo phần trăm")
                     {
                         giamGia = tongTien * (voucher.GiamGia / 100);
@@ -110,23 +110,60 @@ namespace DynaDevAPI.Controllers
                     else if (voucher.LoaiGiamGia == "SoTien")
                     {
                         giamGia = voucher.GiamGia;
-                        if (giamGia > tongTien)
-                        {
-                            giamGia = tongTien; // Không giảm vượt quá tổng tiền
-                        }
+                        if (giamGia > tongTien) giamGia = tongTien;
                     }
                     else
                     {
                         return BadRequest(new { Success = false, Message = "Loại giảm giá không hợp lệ!" });
                     }
 
-                    voucher.SoLuong--; // Giảm số lượng voucher còn lại
+                    voucher.SoLuong--; // Giảm số lượng voucher
                     _db.Vouchers.Update(voucher);
                 }
+
+                var maDH = Guid.NewGuid().ToString();
+
+                if (request.PhuongThucThanhToan == PaymentType.VNPAY)
+                {
+                    var paymentRequest = new VnPaymentRequestModel
+                    {
+                        OrderId = maDH,
+                        FullName = request.TenKH,
+                        Description = $"Thanh toán đơn hàng {maDH}",
+                        Amount = (double)(tongTien - giamGia),
+                        CreatedDate = DateTime.Now
+                    };
+
+                    // Lưu tạm thông tin đơn hàng
+                    var tempOrder = new TempOrder
+                    {
+                        MaDH = maDH,
+                        RequestData = JsonSerializer.Serialize(request),
+                        CreatedDate = DateTime.Now
+                    };
+                    _db.TempOrders.Add(tempOrder);
+                    await _db.SaveChangesAsync();
+
+                    // Tạo URL thanh toán
+                    string paymentUrl = _vnPayservice.CreatePaymentUrl(HttpContext, paymentRequest);
+
+                    return Ok(new
+                    {
+                        Success = true,
+                        Message = "Chuẩn bị thanh toán VNPay",
+                        MaDH = maDH,
+                        TongTienSauGiam = tongTien - giamGia,
+                        GiamGia = giamGia,
+                        PaymentUrl = paymentUrl
+                    });
+                }
+
+                // Trường hợp không dùng VNPay, lưu ngay
                 var donHang = new DonHang
                 {
-                    MaDH = Guid.NewGuid().ToString(),
+                    MaDH = maDH,
                     MaKH = request.MaKH,
+                    MaVoucher = string.IsNullOrEmpty(request.MaVoucher) ? null : request.MaVoucher,
                     TenNguoiNhan = request.TenKH,
                     SoDienThoai = request.SoDienThoai,
                     DiaChiNhanHang = request.DiaChiNhanHang,
@@ -134,12 +171,10 @@ namespace DynaDevAPI.Controllers
                     ThoiGianDatHang = DateTime.Now,
                     TongTien = tongTien - giamGia,
                     OrderStatusId = 1,
-                    PaymentStatusId = request.PhuongThucThanhToan == PaymentType.VNPAY ? 2 : 1
+                    PaymentStatusId = 1
                 };
 
                 _db.DonHangs.Add(donHang);
-                await _db.SaveChangesAsync();
-
                 foreach (var sp in request.GioHang)
                 {
                     var chiTiet = new ChiTietDonHang
@@ -152,7 +187,6 @@ namespace DynaDevAPI.Controllers
                     };
                     _db.ChiTietDonHangs.Add(chiTiet);
                 }
-
                 await _db.SaveChangesAsync();
 
                 return Ok(new
@@ -160,8 +194,8 @@ namespace DynaDevAPI.Controllers
                     Success = true,
                     Message = "Đặt hàng thành công!",
                     MaDH = donHang.MaDH,
-                    TongTienSauGiam = donHang.TongTien, // Trả về tổng tiền sau khi giảm
-                    GiamGia = giamGia // Trả về số tiền đã giảm
+                    TongTienSauGiam = donHang.TongTien,
+                    GiamGia = giamGia
                 });
             }
             catch (Exception ex)
@@ -257,10 +291,108 @@ namespace DynaDevAPI.Controllers
         }
 
         [HttpGet("callback")]
-        public IActionResult PaymentCallback()
+        public async Task<IActionResult> PaymentCallback()
         {
-            var response = _vnPayservice.PaymentExecute(Request.Query);
-            return Ok(response);
+            try
+            {
+                // Gọi IVnPayService để xử lý phản hồi từ VNPay
+                var response = _vnPayservice.PaymentExecute(Request.Query);
+
+                if (!response.Success)
+                {
+                    return BadRequest(new { Success = false, Message = "Chữ ký không hợp lệ hoặc dữ liệu không đúng!" });
+                }
+
+                if (response.VnPayResponseCode != "00")
+                {
+                    var tempOrder = await _db.TempOrders.FirstOrDefaultAsync(t => t.MaDH == response.OrderId);
+                    if (tempOrder != null)
+                    {
+                        _db.TempOrders.Remove(tempOrder);
+                        await _db.SaveChangesAsync();
+                    }
+                    return BadRequest(new { Success = false, Message = $"Thanh toán thất bại! Mã lỗi: {response.VnPayResponseCode}" });
+                }
+
+                // Thanh toán thành công, lấy thông tin tạm
+                var tempOrderSuccess = await _db.TempOrders.FirstOrDefaultAsync(t => t.MaDH == response.OrderId);
+                if (tempOrderSuccess == null)
+                {
+                    return BadRequest(new { Success = false, Message = "Không tìm thấy thông tin đơn hàng tạm!" });
+                }
+
+                // Deserialize thông tin đơn hàng
+                var request = JsonSerializer.Deserialize<DatHangRequest>(tempOrderSuccess.RequestData);
+                if (request == null)
+                {
+                    return StatusCode(500, new { Success = false, Message = "Không thể deserialize dữ liệu đơn hàng tạm!" });
+                }
+
+                // Tính toán lại tổng tiền và giảm giá
+                decimal tongTien = request.GioHang.Sum(x => (decimal)(x.Gia * x.SoLuong));
+                decimal giamGia = 0;
+                if (!string.IsNullOrEmpty(request.MaVoucher))
+                {
+                    var voucher = await _db.Vouchers.FirstOrDefaultAsync(v => v.MaVoucher == request.MaVoucher);
+                    if (voucher != null && voucher.SoLuong > 0)
+                    {
+                        if (voucher.LoaiGiamGia == "Giảm giá theo phần trăm")
+                        {
+                            giamGia = tongTien * (voucher.GiamGia / 100);
+                        }
+                        else if (voucher.LoaiGiamGia == "SoTien")
+                        {
+                            giamGia = voucher.GiamGia;
+                            if (giamGia > tongTien) giamGia = tongTien;
+                        }
+                        voucher.SoLuong--;
+                        _db.Vouchers.Update(voucher);
+                    }
+                }
+
+                // Lưu đơn hàng chính thức
+                var donHang = new DonHang
+                {
+                    MaDH = tempOrderSuccess.MaDH,
+                    MaKH = request.MaKH,
+                    MaVoucher = string.IsNullOrEmpty(request.MaVoucher) ? null : request.MaVoucher,
+                    TenNguoiNhan = request.TenKH,
+                    SoDienThoai = request.SoDienThoai,
+                    DiaChiNhanHang = request.DiaChiNhanHang,
+                    PhuongThucThanhToan = request.PhuongThucThanhToan,
+                    ThoiGianDatHang = DateTime.Now,
+                    TongTien = tongTien - giamGia,
+                    OrderStatusId = 1,
+                    PaymentStatusId = 2
+                };
+
+                _db.DonHangs.Add(donHang);
+                foreach (var sp in request.GioHang)
+                {
+                    var chiTiet = new ChiTietDonHang
+                    {
+                        MaChiTiet = Guid.NewGuid().ToString(),
+                        MaDH = donHang.MaDH,
+                        MaSP = sp.MaSP,
+                        SoLuong = sp.SoLuong,
+                        Gia = sp.Gia
+                    };
+                    _db.ChiTietDonHangs.Add(chiTiet);
+                }
+
+                // Xóa bản ghi tạm
+                _db.TempOrders.Remove(tempOrderSuccess);
+                await _db.SaveChangesAsync();
+
+                return Ok(new { Success = true, RedirectUrl = "/Checkout/Success" });
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi để kiểm tra
+                // Ví dụ: ILogger hoặc Console.WriteLine nếu chưa có logging
+                Console.WriteLine($"Lỗi trong PaymentCallback: {ex.Message}");
+                return StatusCode(500, new { Success = false, Message = "Lỗi xử lý callback: " + ex.Message });
+            }
         }
 
         [HttpPost("payment-callback")]
@@ -268,7 +400,7 @@ namespace DynaDevAPI.Controllers
         {
             if (!responseModel.Success || responseModel.VnPayResponseCode != "00")
             {
-                return Ok(new { Success = false, Message = "Thanh toán thất bại", RedirectUrl = "/Checkout/OrderConfirmationFail" });
+                return Ok(new { Success = false, Message = "Thanh toán thất bại", RedirectUrl = "/Checkout/Fail" });
             }
 
             try

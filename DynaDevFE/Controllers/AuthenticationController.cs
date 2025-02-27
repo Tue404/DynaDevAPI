@@ -45,7 +45,7 @@ namespace DynaDevFE.Controllers
                     TenKH = "",
                     SDT = "",
                     DiaChi = "",
-                    TinhTrang = "",
+                    TinhTrang = "Hoạt động",
                     NgayDangKy = DateTime.Now
                 };
 
