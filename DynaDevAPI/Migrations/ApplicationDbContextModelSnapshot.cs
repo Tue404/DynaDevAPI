@@ -85,7 +85,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 1,
                             PaymentStatusId = 1,
-                            ThoiGianDatHang = new DateTime(2025, 2, 23, 11, 22, 26, 73, DateTimeKind.Local).AddTicks(8076),
+                            ThoiGianDatHang = new DateTime(2025, 2, 24, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(3626),
                             TongTien = 240000m
                         },
                         new
@@ -96,7 +96,7 @@ namespace DynaDevAPI.Migrations
                             MaNV = "NV01",
                             OrderStatusId = 3,
                             PaymentStatusId = 2,
-                            ThoiGianDatHang = new DateTime(2025, 2, 24, 11, 22, 26, 73, DateTimeKind.Local).AddTicks(8636),
+                            ThoiGianDatHang = new DateTime(2025, 2, 25, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(4258),
                             TongTien = 90000m
                         });
                 });
@@ -226,7 +226,7 @@ namespace DynaDevAPI.Migrations
                             DiaChi = "Hà Nội",
                             Email = "vana@gmail.com",
                             MatKhau = "123456",
-                            NgayDangKy = new DateTime(2025, 2, 26, 11, 22, 26, 72, DateTimeKind.Local).AddTicks(7181),
+                            NgayDangKy = new DateTime(2025, 2, 27, 12, 34, 30, 583, DateTimeKind.Local).AddTicks(1761),
                             SDT = "0123456789",
                             TenKH = "Nguyễn Văn A",
                             TinhTrang = "Hoạt động"
@@ -352,7 +352,7 @@ namespace DynaDevAPI.Migrations
                             Email = "vanb@gmail.com",
                             Luong = 0f,
                             MatKhau = "admin123",
-                            NgayVaoLam = new DateTime(2023, 2, 26, 11, 22, 26, 73, DateTimeKind.Local).AddTicks(7288),
+                            NgayVaoLam = new DateTime(2023, 2, 27, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(2044),
                             SDT = "0987654321",
                             TenNV = "Trần Văn B",
                             TinhTrang = "Đang làm việc"

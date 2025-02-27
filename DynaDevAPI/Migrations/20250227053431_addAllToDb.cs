@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DynaDevAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class DynaDev : Migration
+    public partial class addAllToDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -289,7 +289,7 @@ namespace DynaDevAPI.Migrations
             migrationBuilder.InsertData(
                 table: "KhachHangs",
                 columns: new[] { "MaKH", "DiaChi", "Email", "MatKhau", "NgayDangKy", "SDT", "TenKH", "TinhTrang" },
-                values: new object[] { "KH01", "Hà Nội", "vana@gmail.com", "123456", new DateTime(2025, 2, 26, 4, 35, 13, 257, DateTimeKind.Local).AddTicks(1546), "0123456789", "Nguyễn Văn A", "Hoạt động" });
+                values: new object[] { "KH01", "Hà Nội", "vana@gmail.com", "123456", new DateTime(2025, 2, 27, 12, 34, 30, 583, DateTimeKind.Local).AddTicks(1761), "0123456789", "Nguyễn Văn A", "Hoạt động" });
 
             migrationBuilder.InsertData(
                 table: "LoaiSPs",
@@ -304,7 +304,7 @@ namespace DynaDevAPI.Migrations
             migrationBuilder.InsertData(
                 table: "NhanViens",
                 columns: new[] { "MaNV", "DiaChi", "Email", "Luong", "MatKhau", "NgayVaoLam", "SDT", "TenNV", "TinhTrang" },
-                values: new object[] { "NV01", "TP.HCM", "vanb@gmail.com", 0f, "admin123", new DateTime(2023, 2, 26, 4, 35, 13, 275, DateTimeKind.Local).AddTicks(7555), "0987654321", "Trần Văn B", "Đang làm việc" });
+                values: new object[] { "NV01", "TP.HCM", "vanb@gmail.com", 0f, "admin123", new DateTime(2023, 2, 27, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(2044), "0987654321", "Trần Văn B", "Đang làm việc" });
 
             migrationBuilder.InsertData(
                 table: "OrderStatuses",
@@ -333,8 +333,8 @@ namespace DynaDevAPI.Migrations
                 columns: new[] { "MaDH", "DiaChiNhanHang", "MaKH", "MaNV", "MaVoucher", "OrderStatusId", "PaymentStatusId", "PhuongThucThanhToan", "SoDienThoai", "TenNguoiNhan", "ThoiGianDatHang", "TongTien" },
                 values: new object[,]
                 {
-                    { "DH001", "123 Đường Văn Học, Hà Nội", "KH01", "NV01", null, 1, 1, null, null, null, new DateTime(2025, 2, 23, 4, 35, 13, 275, DateTimeKind.Local).AddTicks(9937), 240000m },
-                    { "DH002", "456 Đường Khoa Học, TP.HCM", "KH01", "NV01", null, 3, 2, null, null, null, new DateTime(2025, 2, 24, 4, 35, 13, 276, DateTimeKind.Local).AddTicks(1425), 90000m }
+                    { "DH001", "123 Đường Văn Học, Hà Nội", "KH01", "NV01", null, 1, 1, null, null, null, new DateTime(2025, 2, 24, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(3626), 240000m },
+                    { "DH002", "456 Đường Khoa Học, TP.HCM", "KH01", "NV01", null, 3, 2, null, null, null, new DateTime(2025, 2, 25, 12, 34, 30, 584, DateTimeKind.Local).AddTicks(4258), 90000m }
                 });
 
             migrationBuilder.CreateIndex(
