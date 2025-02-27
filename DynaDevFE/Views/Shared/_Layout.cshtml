@@ -269,13 +269,18 @@
                                     </a>
                                 </li>
                                 @* thông tin cá nhân *@
-                                <li class="pe-3">
-                                    <a asp-controller="TTCN" asp-action="edit" class="text-decoration-none">
+                                <li class="pe-3 dropdown">
+                                    <a href="#" class="dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                                         <svg class="user" style="width: 24px; height: 24px; fill: #6c757d;">
                                             <use xlink:href="#user"></use>
                                         </svg>
                                     </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                        <li><a class="dropdown-item" asp-controller="TTCN" asp-action="Edit">Thông tin cá nhân</a></li>
+                                        <li><a class="dropdown-item" asp-controller="OrderHistory" asp-action="Index">Lịch sử đơn hàng</a></li>
+                                    </ul>
                                 </li>
+
                                 <li class="cart-dropdown dropdown">
                                     <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                                         <svg class="cart">

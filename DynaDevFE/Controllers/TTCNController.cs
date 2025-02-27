@@ -62,28 +62,28 @@ namespace DynaDevFE.Controllers
             public int TotalPages { get; set; }
         }
 
-        public async Task<JsonResult> Search(string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                return Json(new List<KhachHangViewModel>());
-            }
+        //public async Task<JsonResult> Search(string query)
+        //{
+        //    if (string.IsNullOrWhiteSpace(query))
+        //    {
+        //        return Json(new List<KhachHangViewModel>());
+        //    }
 
-            try
-            {
-                var response = await _httpClient.GetAsync($"api/Customer/Search?query={Uri.EscapeDataString(query)}");
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonData = await response.Content.ReadAsStringAsync();
-                    var customers = JsonSerializer.Deserialize<List<KhachHangViewModel>>(jsonData, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+        //    try
+        //    {
+        //        var response = await _httpClient.GetAsync($"api/Customer/Search?query={Uri.EscapeDataString(query)}");
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            var jsonData = await response.Content.ReadAsStringAsync();
+        //            var customers = JsonSerializer.Deserialize<List<KhachHangViewModel>>(jsonData, new JsonSerializerOptions
+        //            {
+        //                PropertyNameCaseInsensitive = true
+        //            });
 
-                    return Json(customers);
-                }       
-            return View();
-        }
+        //            return Json(customers);
+        //        }       
+        //    return View();
+        //}
         // GET: Hiển thị form chỉnh sửa khách hàng
         public async Task<IActionResult> Edit(string id)
         {

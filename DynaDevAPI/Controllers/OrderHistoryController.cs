@@ -20,32 +20,29 @@ namespace DynaDevAPI.Controllers
         }
 
         // GET: api/OrderHistory/{customerId}
-        [HttpGet("OrderHistory/{MaKH}")]
+        [HttpGet("{MaKH}")]
         public async Task<ActionResult<IEnumerable<object>>> GetOrderHistory(string MaKH)
         {
             var orders = await _db.DonHangs
-                .Where(d => d.MaKH == MaKH)  // Lọc theo mã khách hàng
-                .Include(d => d.PaymentStatus)     // Bao gồm thông tin trạng thái thanh toán
-                .Include(d => d.OrderStatus)       // Bao gồm thông tin trạng thái đơn hàng
-                .Select(d => new
-                {
-                    d.MaDH,
-                    PaymentStatus = d.PaymentStatus.Name,
-                    OrderStatus = d.OrderStatus.Name,
-                    d.DiaChiNhanHang,   // Địa chỉ giao hàng
-                    d.ThoiGianDatHang,
-                    d.TongTien,
-                    /*d.DateChanged,*/      // Ngày thay đổi (có thể là thời gian thay đổi trạng thái hoặc thời gian cập nhật)
-                   /* d.ChangedBy,  */      // Người thay đổi
-                    Products = d.ChiTietDonHangs.Select(c => new
-                    {
-                        c.SanPham.TenSanPham,
-                        c.SoLuong,
-                        c.Gia,
-                        Total = c.SoLuong * c.Gia
-                    })
-                })
-                .ToListAsync();
+     .Where(d => d.MaKH == MaKH)
+     .Select(d => new
+     {
+         d.MaDH,
+         PaymentStatus = d.PaymentStatus != null ? d.PaymentStatus.Name : "Chưa cập nhật",
+         OrderStatus = d.OrderStatus != null ? d.OrderStatus.Name : "Chưa cập nhật",
+         d.DiaChiNhanHang,
+         d.ThoiGianDatHang,
+         d.TongTien,
+         Products = d.ChiTietDonHangs.Select(c => new
+         {
+             c.SanPham.TenSanPham,
+             c.SoLuong,
+             c.Gia,
+             Total = c.SoLuong * c.Gia
+         }).ToList()
+     })
+     .ToListAsync();
+
 
             if (orders == null || !orders.Any())
             {

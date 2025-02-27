@@ -8,7 +8,7 @@
         public string OrderStatus { get; set; }
         public string PaymentStatus { get; set; }
 
-        public string ShippingAddress { get; set; }
+        public string DiaChiNhanHang { get; set; }
 /*        public DateTime DateChanged { get; set; }
         public string ChangedBy { get; set; }*/
         public List<ProductHistory> Products { get; set; }

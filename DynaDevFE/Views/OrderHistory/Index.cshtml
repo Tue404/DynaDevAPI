@@ -1,36 +1,147 @@
 ﻿@model IEnumerable<OrderHistoryViewModel>
 
-<h2>Lịch sử đơn hàng của bạn</h2>
+<div class="order-history-container">
+    <h2>Lịch sử đơn hàng của bạn</h2>
 
-@if (Model != null && Model.Any())
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Ngày đặt hàng</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái đơn hàng</th>
-                <th>Trạng thái thanh toán</th>
-                <th>Địa chỉ giao hàng</th>
-                <th>Chi tiết</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
+    @if (Model != null && Model.Any())
+    {
+        <table class="table order-history-table">
+            <thead>
                 <tr>
-                    <td>@order.ThoiGianDatHang</td>
-                    <td>@order.TongTien.ToString("N0") VNĐ</td>
-                    <td>@order.OrderStatus</td>
-                    <td>@order.PaymentStatus</td>
-                    <td>@order.ShippingAddress</td>
-                    <td><a href="@Url.Action("Details", "OrderHistory", new { id = order.MaDH })" class="btn btn-primary">Xem chi tiết</a></td>
+                    <th>Mã đơn hàng</th>
+                    <th>Ngày đặt hàng</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái đơn hàng</th>
+                    <th>Trạng thái thanh toán</th>
+                    <th>Địa chỉ giao hàng</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>Không có đơn hàng nào.</p>
-}
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td class="text-center">@order.MaDH</td>
+                        <td class="text-center">@order.ThoiGianDatHang.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-center">@order.TongTien.ToString("N0") VNĐ</td>
+                        <td class="text-center"><span class="badge order-status">@order.OrderStatus</span></td>
+                        <td class="text-center"><span class="badge payment-status">@order.PaymentStatus</span></td>
+                        <td class="text-center">@order.DiaChiNhanHang</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="no-orders">Không có đơn hàng nào.</p>
+    }
+</div>
+
+<style>
+    /* Style cho tiêu đề */
+    h2 {
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        margin-top: 30px;
+        color: #333;
+    }
+
+    /* Bao bọc bảng */
+    .order-history-container {
+        width: 90%; /* Điều chỉnh độ rộng cho hợp lý */
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px; /* Bo tròn các góc */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Tạo bóng cho bảng */
+    }
+
+    /* Bảng lịch sử đơn hàng */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+        .table th {
+            background-color: #007bff; /* Màu nền xanh lam */
+            color: white;
+            padding: 15px; /* Thêm padding cho thẻ th */
+            text-align: center; /* Canh giữa chữ trong thẻ th */
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table td {
+            padding: 15px; /* Tăng padding cho các ô */
+            border-bottom: 1px solid #ddd;
+            text-align: center; /* Canh giữa chữ trong ô */
+        }
+
+        /* Hiệu ứng hover cho các dòng trong bảng */
+        .table tbody tr:hover {
+            background-color: #f5f5f5; /* Đổi màu nền khi hover */
+        }
+
+    /* Nút xem chi tiết */
+    .btn {
+        padding: 10px 20px;
+        background-color: #ffc107;
+        color: black;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        transition: background-color 0.3s, transform 0.2s ease-in-out; /* Thêm hiệu ứng cho nút */
+    }
+
+        .btn:hover {
+            background-color: #ff9800;
+            transform: scale(1.05); /* Tạo hiệu ứng phóng to */
+        }
+
+    /* Badge trạng thái đơn hàng */
+    .order-status, .payment-status {
+        padding: 6px 12px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .order-status {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .payment-status {
+        background-color: #28a745;
+        color: white;
+    }
+
+    /* Nút xác nhận cho trạng thái đơn hàng */
+    .table .btn-primary {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+        .table .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    /* Khi không có đơn hàng */
+    .no-orders {
+        text-align: center;
+        font-size: 18px;
+        color: #ff4757;
+        margin-top: 20px;
+    }
+</style>

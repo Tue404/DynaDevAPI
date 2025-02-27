@@ -16,17 +16,23 @@ public class OrderHistoryController : Controller
     // GET: /OrderHistory/Index
     public async Task<IActionResult> Index()
     {
-        // Lấy mã khách hàng từ Session hoặc từ cơ chế đăng nhập của bạn
-        var customerId = HttpContext.Session.GetString("MaKH");
+        string maKH = Request.Cookies["MaKH"];
 
-        if (string.IsNullOrEmpty(customerId))
+        if (string.IsNullOrEmpty(maKH))
         {
-            // Nếu không có mã khách hàng, chuyển hướng về trang đăng nhập
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("DangNhap", "TaiKhoan");
         }
 
+        ViewBag.MaKH = maKH;
+
         var client = _clientFactory.CreateClient();
-        var response = await client.GetAsync($"https://localhost:7081/api/OrderHistory/OrderHistory/{customerId}");
+        if (client == null)
+        {
+            Console.WriteLine("HttpClient bị null!");
+            return View("Error");
+        }
+
+        var response = await client.GetAsync($"https://localhost:7101/api/OrderHistory/{maKH}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -49,7 +55,7 @@ public class OrderHistoryController : Controller
     public async Task<IActionResult> Details(string id)
     {
         var client = _clientFactory.CreateClient();
-        var response = await client.GetAsync($"https://localhost:7081/api/OrderHistory/OrderHistory/{id}");
+        var response = await client.GetAsync($"https://localhost:7081/api/OrderHistory/{id}");
 
         if (response.IsSuccessStatusCode)
         {
