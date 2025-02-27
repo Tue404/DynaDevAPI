@@ -24,7 +24,7 @@
                     <p class="card-text">@product.MoTa</p>
                     <p class="font-weight-bold">Giá: <span class="text-danger">@product.Gia.ToString("N0") VNĐ</span></p>
                     <p><b>Ngày xuất bản:</b> @product.NamXuatBan</p>
-                    <a href="#" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+                    <a class="btn btn-primary w-100 mt-2" href="@Url.Action("Details","ProductDetails", new { id = product.MaSP})">Xem chi tiết</a>
                 </div>
             </div>
         </div>
