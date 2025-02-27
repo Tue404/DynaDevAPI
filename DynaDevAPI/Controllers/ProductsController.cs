@@ -316,24 +316,40 @@ namespace DynaDevAPI.Data
                 return BadRequest("Dữ liệu không hợp lệ.");
             }
 
-            // Tìm sản phẩm theo mã sản phẩm
-            var existingSanPham = await _db.SanPhams.FirstOrDefaultAsync(sp => sp.MaSP == id);
+            var existingSanPham = await _db.SanPhams.Include(sp => sp.AnhSPs).FirstOrDefaultAsync(sp => sp.MaSP == id);
             if (existingSanPham == null)
             {
                 return NotFound($"Không tìm thấy sản phẩm với mã {id}");
             }
 
-            // Cập nhật thông tin sản phẩm (không xử lý ảnh ở đây)
+            // Cập nhật thông tin sản phẩm
             existingSanPham.TenSanPham = updatedSanPham.TenSanPham;
             existingSanPham.TacGia = updatedSanPham.TacGia;
             existingSanPham.NamXuatBan = updatedSanPham.NamXuatBan;
             existingSanPham.MaLoai = updatedSanPham.MaLoai;
             existingSanPham.MaNCC = updatedSanPham.MaNCC;
-            existingSanPham.NhaXuatBan = updatedSanPham.NhaXuatBan; // Nếu cần
+            existingSanPham.NhaXuatBan = updatedSanPham.NhaXuatBan;
             existingSanPham.Gia = updatedSanPham.Gia;
             existingSanPham.MoTa = updatedSanPham.MoTa;
             existingSanPham.SoLuongTrongKho = updatedSanPham.SoLuongTrongKho;
             existingSanPham.TinhTrang = updatedSanPham.TinhTrang;
+
+            // 🛠 **Xử lý ảnh**
+            if (updatedSanPham.AnhSPs != null && updatedSanPham.AnhSPs.Any())
+            {
+                // Xóa ảnh cũ
+                _db.AnhSPs.RemoveRange(existingSanPham.AnhSPs);
+                // Thêm ảnh mới
+                foreach (var anh in updatedSanPham.AnhSPs)
+                {
+                    _db.AnhSPs.Add(new AnhSP
+                    {
+                        MaAnh = Guid.NewGuid().ToString(),
+                        MaSP = id,
+                        TenAnh = anh.TenAnh
+                    });
+                }
+            }
 
             try
             {
@@ -342,10 +358,10 @@ namespace DynaDevAPI.Data
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error updating product: {ex.Message}");
                 return StatusCode(500, $"Lỗi khi cập nhật sản phẩm: {ex.Message}");
             }
         }
+
 
         [HttpPost("DeleteImages")]
         public async Task<IActionResult> DeleteImages([FromBody] List<string> images)

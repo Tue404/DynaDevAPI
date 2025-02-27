@@ -4,8 +4,19 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-
 <h2>Sửa Sản Phẩm</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
 
 <form asp-action="Edit" method="post" enctype="multipart/form-data">
     <!-- Mã Sản Phẩm (ẩn, không chỉnh sửa được) -->
@@ -23,11 +34,17 @@
     </div>
 
     <div class="form-group">
-        <label for="MaNCC">Nhà Cung Cấp</label>
-        <select asp-for="MaNCC" class="form-control" asp-items="ViewBag.NhaCungCaps">
+        <label asp-for="MaNCC" class="form-label">Nhà Cung Cấp</label>
+        <select asp-for="MaNCC" id="MaNCC" class="form-control" asp-items="ViewBag.NhaCungCaps">
             <option value="">-- Chọn Nhà Cung Cấp --</option>
         </select>
         <span asp-validation-for="MaNCC" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3" hidden>
+        <label asp-for="TenNCC" class="form-label">Tên Nhà Cung Cấp</label>
+        <input asp-for="TenNCC" id="TenNCC" class="form-control" readonly />
+        <span asp-validation-for="TenNCC" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -59,7 +76,6 @@
         <span asp-validation-for="SoLuongTrongKho" class="text-danger"></span>
     </div>
 
-   
     <div class="mb-3">
         <label asp-for="TinhTrang" class="form-label">Tình Trạng</label>
         <select asp-for="TinhTrang" class="form-select">
@@ -68,26 +84,30 @@
         </select>
         <span asp-validation-for="TinhTrang" class="text-danger"></span>
     </div>
+
     <!-- Danh sách ảnh hiện tại -->
     <div class="mb-3">
         <label class="form-label">Ảnh hiện tại</label>
         <div id="currentImagePreview" style="display: flex; flex-wrap: wrap; gap: 10px;">
-            @if (Model.DanhSachAnh != null && Model.DanhSachAnh.Any())
-            {
-                @foreach (var anh in Model.DanhSachAnh)
+            @{
+                var danhSachAnh = Model.DanhSachAnh ?? new List<string>();
+                if (danhSachAnh.Any())
                 {
-                    <div style="position: relative; width: 100px; height: 100px; overflow: hidden; border: 1px solid #ccc; border-radius: 5px;">
-                        <img src="@anh" alt="Ảnh sản phẩm" style="width: 100%; height: 100%; object-fit: cover;" />
-                        <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: 5px; right: 5px;"
-                                onclick="removeCurrentImage(this, '@anh')">
-                            X
-                        </button>
-                    </div>
+                    @foreach (var anh in danhSachAnh)
+                    {
+                        <div style="position: relative; width: 100px; height: 100px; overflow: hidden; border: 1px solid #ccc; border-radius: 5px;">
+                            <img src="@anh" alt="Ảnh sản phẩm" style="width: 100%; height: 100%; object-fit: cover;" />
+                            <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: 5px; right: 5px;"
+                                    onclick="removeCurrentImage(this, '@anh')">
+                                X
+                            </button>
+                        </div>
+                    }
                 }
-            }
-            else
-            {
-                <span>Không có ảnh nào.</span>
+                else
+                {
+                    <span>Không có ảnh nào.</span>
+                }
             }
         </div>
     </div>
@@ -98,7 +118,7 @@
         <input asp-for="AnhSPs" type="file" class="form-control" id="newImageInput" name="AnhSPs" multiple />
         <div id="newImagePreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
     </div>
-     <input type="hidden" id="removedImages" name="RemovedImages" />
+    <input type="hidden" id="removedImages" name="RemovedImages" />
 
     <button type="submit" class="btn btn-primary">Cập Nhật</button>
     <a asp-action="Index" class="btn btn-secondary">Hủy</a>
@@ -164,5 +184,23 @@
     document.querySelector("form").addEventListener("submit", function () {
         removedImagesInput.value = JSON.stringify(removedImages); // Cập nhật danh sách ảnh bị xóa
     });
+</script>
 
+<script>
+    const suppliers = @Html.Raw(ViewBag.SuppliersJson);
+    const maNCCSelect = document.getElementById('MaNCC');
+    const tenNCCInput = document.getElementById('TenNCC');
+
+    function updateTenNCC() {
+        const selectedMaNCC = maNCCSelect.value;
+        const supplier = suppliers.find(s => s.MaNCC === selectedMaNCC); // Sửa thành MaNCC
+        tenNCCInput.value = supplier ? supplier.TenNCC : ''; // Sửa thành TenNCC
+        console.log('Selected MaNCC:', selectedMaNCC, 'TenNCC:', tenNCCInput.value); // Debug
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTenNCC(); // Cập nhật lần đầu
+    });
+
+    maNCCSelect.addEventListener('change', updateTenNCC);
 </script>

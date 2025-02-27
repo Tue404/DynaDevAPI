@@ -37,7 +37,7 @@ namespace DynaDevAPI.Models
 
         public LoaiSP? LoaiSP { get; set; }
         public NhaCungCap? NhaCungCap { get; set; }
-        public ICollection<AnhSP> AnhSPs { get; set; }
+        public ICollection<AnhSP>? AnhSPs { get; set; }
         public ICollection<ChiTietDonHang>? ChiTietDonHangs { get; set; }
         public ICollection<DanhGia>? DanhGias { get; set; }
     }
