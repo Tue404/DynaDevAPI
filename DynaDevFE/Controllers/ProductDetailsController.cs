@@ -2,6 +2,7 @@
 using DynaDevFE.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
+using System.Net.Http.Json;
 
 namespace DynaDevFE.Controllers
 {
@@ -12,8 +13,9 @@ namespace DynaDevFE.Controllers
         public ProductDetailsController(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("https://localhost:7101/");
+            _httpClient.BaseAddress = new Uri("https://localhost:7101/"); // Đảm bảo đường dẫn API đúng
         }
+
         public async Task<IActionResult> Details(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -23,20 +25,22 @@ namespace DynaDevFE.Controllers
 
             try
             {
-                // Gọi API backend để lấy dữ liệu sản phẩm
                 var response = await _httpClient.GetAsync($"/api/ProductDetails/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Đọc dữ liệu từ API
                     var sanPhamDto = await response.Content.ReadFromJsonAsync<SanPhamDto>();
+                    if (sanPhamDto == null)
+                    {
+                        ViewBag.ErrorMessage = "Không tìm thấy sản phẩm.";
+                        return View("Error");
+                    }
 
-                    // Chuyển DTO sang ViewModel
                     var sanPhamViewModel = new SanPhamViewModel
                     {
                         MaSP = sanPhamDto.MaSP,
                         MaLoai = sanPhamDto.MaLoai,
-                        MaNCC = sanPhamDto.MaNCC,   
+                        MaNCC = sanPhamDto.MaNCC,
                         TenSanPham = sanPhamDto.TenSanPham,
                         TacGia = sanPhamDto.TacGia,
                         TenNCC = sanPhamDto.TenNCC,
@@ -45,26 +49,30 @@ namespace DynaDevFE.Controllers
                         MoTa = sanPhamDto.MoTa,
                         TinhTrang = sanPhamDto.TinhTrang,
                         SoLuongTrongKho = sanPhamDto.SoLuongTrongKho,
-                        DanhSachAnh = sanPhamDto.DanhSachAnh
+                        DanhSachAnh = sanPhamDto.DanhSachAnh ?? new List<string>(),
+                        DanhGiaSanPham = sanPhamDto.DanhGiaSanPham?.Select(d => new DanhGiaViewModel
+                        {
+                            MaDanhGia = d.MaDanhGia,
+                            MaKH = d.MaKH,   // Hiển thị MaKH
+                            Email = d.Email,  // Hiển thị Email
+                            DiemDanhGia = d.DiemDanhGia,
+                            BinhLuan = d.BinhLuan,
+                            TrangThai = d.TrangThai,
+                            NgayDanhGia = d.NgayDanhGia
+                        }).ToList() ?? new List<DanhGiaViewModel>()
                     };
 
                     return View(sanPhamViewModel);
                 }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    ViewBag.ErrorMessage = "Không tìm thấy sản phẩm.";
-                    return View("Error");
-                }
                 else
                 {
-                    ViewBag.ErrorMessage = "Đã xảy ra lỗi khi lấy dữ liệu sản phẩm.";
+                    ViewBag.ErrorMessage = "Không thể lấy dữ liệu sản phẩm.";
                     return View("Error");
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Lỗi khi gọi API: {ex.Message}");
-                ViewBag.ErrorMessage = "Đã xảy ra lỗi kết nối đến server.";
+                ViewBag.ErrorMessage = "Lỗi kết nối server.";
                 return View("Error");
             }
         }
