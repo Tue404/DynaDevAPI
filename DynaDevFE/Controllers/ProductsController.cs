@@ -13,10 +13,12 @@ namespace DynaDevFE.Controllers
     {
 
         private readonly HttpClient _httpClient;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(HttpClient httpClient)
+        public ProductsController(HttpClient httpClient, ILogger<ProductsController> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
             _httpClient.BaseAddress = new Uri("https://localhost:7101/");
         }
 
@@ -247,6 +249,109 @@ namespace DynaDevFE.Controllers
 
 
 
+        //[HttpGet]
+        //public async Task<IActionResult> Edit(string id)
+        //{
+        //    var response = await _httpClient.GetAsync($"api/Products/{id}");
+        //    if (!response.IsSuccessStatusCode)
+        //    {
+        //        return NotFound("Không tìm thấy sản phẩm.");
+        //    }
+
+        //    var productJson = await response.Content.ReadAsStringAsync();
+        //    var product = JsonSerializer.Deserialize<SanPhamViewModel>(productJson, new JsonSerializerOptions
+        //    {
+        //        PropertyNameCaseInsensitive = true
+        //    });
+
+        //    // Lấy danh sách nhà cung cấp
+        //    var supplierResponse = await _httpClient.GetAsync("api/Suppliers");
+        //    if (supplierResponse.IsSuccessStatusCode)
+        //    {
+        //        var suppliers = await supplierResponse.Content.ReadFromJsonAsync<List<NhaCungCap>>();
+        //        ViewBag.NhaCungCaps = new SelectList(suppliers, "MaNCC", "TenNCC", product.MaNCC);
+        //        var suppliersJson = JsonSerializer.Serialize(suppliers);
+        //        ViewBag.SuppliersJson = suppliersJson; // Truyền JSON
+        //        Console.WriteLine("Suppliers JSON: " + suppliersJson); // Kiểm tra log
+        //    }
+        //    else
+        //    {
+        //        ViewBag.NhaCungCaps = new SelectList(new List<NhaCungCap>(), "MaNCC", "TenNCC");
+        //        TempData["Error"] = "Không thể lấy danh sách nhà cung cấp.";
+        //    }
+
+        //    return View(product);
+        //}
+
+        //// POST: Products/Edit/{id}
+        //[HttpPost]
+        //public async Task<IActionResult> Edit(SanPhamViewModel productViewModel, string[] RemovedImages, IFormFileCollection AnhSPs)
+        //{
+        //    // 1. Xóa ảnh hiện tại nếu có
+        //    if (RemovedImages != null && RemovedImages.Any())
+        //    {
+        //        var deleteResponse = await _httpClient.PostAsJsonAsync("api/Products/DeleteImages", RemovedImages);
+        //        if (!deleteResponse.IsSuccessStatusCode)
+        //        {
+        //            ModelState.AddModelError("", "Không thể xóa ảnh.");
+        //            return View(productViewModel);
+        //        }
+        //    }
+
+        //    // 2. Thêm ảnh mới nếu có
+        //    if (AnhSPs != null && AnhSPs.Any())
+        //    {
+        //        using (var formData = new MultipartFormDataContent())
+        //        {
+        //            foreach (var file in AnhSPs)
+        //            {
+        //                var streamContent = new StreamContent(file.OpenReadStream());
+        //                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+        //                formData.Add(streamContent, "files", file.FileName);
+        //            }
+
+        //            var uploadResponse = await _httpClient.PostAsync($"api/Products/UploadImages?maSP={productViewModel.MaSP}", formData);
+        //            if (!uploadResponse.IsSuccessStatusCode)
+        //            {
+        //                ModelState.AddModelError("", "Không thể upload ảnh mới.");
+        //                return View(productViewModel);
+        //            }
+        //        }
+        //    }
+
+        //    // 3. Cập nhật sản phẩm
+        //    var jsonData = JsonSerializer.Serialize(productViewModel, new JsonSerializerOptions { WriteIndented = true });
+        //    _logger.LogInformation("Gửi dữ liệu cập nhật cho sản phẩm {MaSP}: {JsonData}", productViewModel.MaSP, jsonData);
+        //    var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+        //    var response = await _httpClient.PutAsync($"api/Products/{productViewModel.MaSP}", content);
+        //    var errorContent = await response.Content.ReadAsStringAsync();
+        //    _logger.LogInformation("Phản hồi từ API cho sản phẩm {MaSP}: {StatusCode} - {ErrorContent}", productViewModel.MaSP, response.StatusCode, errorContent);
+
+        //    if (!response.IsSuccessStatusCode)
+        //    {
+        //        try
+        //        {
+        //            var error = JsonSerializer.Deserialize<Dictionary<string, string>>(errorContent);
+        //            if (error != null && error.ContainsKey("message"))
+        //            {
+        //                ModelState.AddModelError("", error["message"]);
+        //            }
+        //            else
+        //            {
+        //                ModelState.AddModelError("", $"Cập nhật thất bại. Mã lỗi: {response.StatusCode}, Chi tiết: {errorContent}");
+        //            }
+        //        }
+        //        catch (JsonException)
+        //        {
+        //            ModelState.AddModelError("", $"Cập nhật thất bại. Mã lỗi: {response.StatusCode}, Chi tiết: {errorContent}");
+        //        }
+        //        return View(productViewModel);
+        //    }
+
+        //    return RedirectToAction("Index");
+        //}
+
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
@@ -257,10 +362,22 @@ namespace DynaDevFE.Controllers
             }
 
             var productJson = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Phản hồi JSON từ API cho {id}: {productJson}"); // Log toàn bộ JSON để debug
             var product = JsonSerializer.Deserialize<SanPhamViewModel>(productJson, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
+
+            // Kiểm tra và log danh sách ảnh
+            if (product.DanhSachAnh == null)
+            {
+                Console.WriteLine($"DanhSachAnh cho sản phẩm {id} là null.");
+                product.DanhSachAnh = new List<string>(); // Khởi tạo rỗng nếu null
+            }
+            else
+            {
+                Console.WriteLine($"Danh sách ảnh của sản phẩm {id}: {string.Join(", ", product.DanhSachAnh)}");
+            }
 
             // Lấy danh sách nhà cung cấp
             var supplierResponse = await _httpClient.GetAsync("api/Suppliers");
@@ -268,6 +385,9 @@ namespace DynaDevFE.Controllers
             {
                 var suppliers = await supplierResponse.Content.ReadFromJsonAsync<List<NhaCungCap>>();
                 ViewBag.NhaCungCaps = new SelectList(suppliers, "MaNCC", "TenNCC", product.MaNCC);
+                var suppliersJson = JsonSerializer.Serialize(suppliers);
+                ViewBag.SuppliersJson = suppliersJson; // Truyền JSON
+                Console.WriteLine("Suppliers JSON: " + suppliersJson); // Kiểm tra log
             }
             else
             {
@@ -278,19 +398,10 @@ namespace DynaDevFE.Controllers
             return View(product);
         }
 
-
-
         // POST: Products/Edit/{id}
         [HttpPost]
         public async Task<IActionResult> Edit(SanPhamViewModel productViewModel, string[] RemovedImages, IFormFileCollection AnhSPs)
         {
-
-            if (!ModelState.IsValid)
-            {
-                return View(productViewModel);
-            }
-
-
             // 1. Xóa ảnh hiện tại nếu có
             if (RemovedImages != null && RemovedImages.Any())
             {
@@ -323,19 +434,55 @@ namespace DynaDevFE.Controllers
                 }
             }
 
-            // 3. Cập nhật sản phẩm
-            var jsonData = JsonSerializer.Serialize(productViewModel);
-            Console.WriteLine(jsonData);
+            // 3. Chuẩn bị dữ liệu để cập nhật sản phẩm
+            // Tạo một bản sao của productViewModel và loại bỏ AnhSPs nếu không có file
+            var productToUpdate = new SanPhamViewModel
+            {
+                MaSP = productViewModel.MaSP,
+                TenSanPham = productViewModel.TenSanPham,
+                TacGia = productViewModel.TacGia,
+                MaNCC = productViewModel.MaNCC,
+                TenNCC = productViewModel.TenNCC,
+                NamXuatBan = productViewModel.NamXuatBan,
+                MaLoai = productViewModel.MaLoai,
+                Gia = productViewModel.Gia,
+                MoTa = productViewModel.MoTa,
+                SoLuongTrongKho = productViewModel.SoLuongTrongKho,
+                TinhTrang = productViewModel.TinhTrang,
+                DanhSachAnh = productViewModel.DanhSachAnh ?? new List<string>(), // Không để null
+                AnhSPs = productViewModel.AnhSPs?.Any() == true ? productViewModel.AnhSPs : null // Chỉ gửi nếu có ảnh mới
+            };
+
+
+            var jsonData = JsonSerializer.Serialize(productToUpdate, new JsonSerializerOptions { WriteIndented = true });
+            _logger.LogInformation("Gửi dữ liệu cập nhật cho sản phẩm {MaSP}: {JsonData}", productViewModel.MaSP, jsonData);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PutAsync($"api/Products/{productViewModel.MaSP}", content);
             var errorContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(errorContent);
+            _logger.LogInformation("Phản hồi từ API cho sản phẩm {MaSP}: {StatusCode} - {ErrorContent}", productViewModel.MaSP, response.StatusCode, errorContent);
+
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Cập nhật sản phẩm thất bại.");
+                try
+                {
+                    var error = JsonSerializer.Deserialize<Dictionary<string, string>>(errorContent);
+                    if (error != null && error.ContainsKey("message"))
+                    {
+                        ModelState.AddModelError("", error["message"]);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", $"Cập nhật thất bại. Mã lỗi: {response.StatusCode}, Chi tiết: {errorContent}");
+                    }
+                }
+                catch (JsonException)
+                {
+                    ModelState.AddModelError("", $"Cập nhật thất bại. Mã lỗi: {response.StatusCode}, Chi tiết: {errorContent}");
+                }
                 return View(productViewModel);
             }
+
             return RedirectToAction("Index");
         }
     }

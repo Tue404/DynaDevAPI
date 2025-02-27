@@ -54,7 +54,7 @@ namespace DynaDevFE.Models
 
         public List<string> DanhSachAnh { get; set; } = new List<string>();
         [JsonPropertyName("anhSPs")]
-        public List<IFormFile> AnhSPs { get; set; }
+        public List<IFormFile>? AnhSPs { get; set; }
 
 
         // Thêm danh sách đánh giá vào ViewModel
