@@ -10,7 +10,6 @@
 }
 
 <h2>Quản lý đơn hàng</h2>
-<a asp-action="Create" class="btn btn-primary mb-3">Thêm đơn hàng mới</a>
 
 @if (!Model.Any())
 {
@@ -30,7 +29,6 @@ else
                 <th>Trạng Thái Thanh Toán</th>
                 <th>Tình Trạng</th>
                 <th>Mã Nhân Viên</th>
-                <th>Hành Động</th>
             </tr>
         </thead>
         <tbody>
@@ -42,7 +40,7 @@ else
                     <td>@order.ThongTinThanhToan</td>
                     <td>@order.DiaChiNhanHang</td>
                     <td>@order.ThoiGianDatHang.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@order.TongTien.ToString("C")</td>
+                    <td>@order.TongTien.ToString("N0") đ</td>
 
                     <!-- Dropdown trạng thái thanh toán -->
                     <td>
@@ -73,14 +71,6 @@ else
                                 Cập nhật
                             </button>
 
-                        </form>
-                    </td>
-
-                    <td>@order.MaNV</td>
-                    <td>
-                        <form asp-controller="Order" asp-action="Delete" method="post" style="display:inline;">
-                            <input type="hidden" name="id" value="@order.MaDH" />
-                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                         </form>
                     </td>
                 </tr>

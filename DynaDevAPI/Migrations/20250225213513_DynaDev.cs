@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DynaDevAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class sdfsdf : Migration
+    public partial class DynaDev : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,12 +18,12 @@ namespace DynaDevAPI.Migrations
                 columns: table => new
                 {
                     MaKH = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TenKH = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MatKhau = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TenKH = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MatKhau = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SDT = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NgayDangKy = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -49,8 +49,8 @@ namespace DynaDevAPI.Migrations
                 name: "NhaCungCaps",
                 columns: table => new
                 {
-                    MaNCC = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TenNCC = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaNCC = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
+                    TenNCC = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     SDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -132,7 +132,7 @@ namespace DynaDevAPI.Migrations
                 {
                     MaSP = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MaLoai = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TenSanPham = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TenSanPham = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TacGia = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NhaXuatBan = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NamXuatBan = table.Column<int>(type: "int", nullable: false),
@@ -140,8 +140,8 @@ namespace DynaDevAPI.Migrations
                     MoTa = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     SoLuongTrongKho = table.Column<int>(type: "int", nullable: false),
                     NgayThem = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TinhTrang = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    MaNCC = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    TinhTrang = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaNCC = table.Column<string>(type: "nvarchar(5)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -167,7 +167,10 @@ namespace DynaDevAPI.Migrations
                     MaDH = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MaKH = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MaVoucher = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    TenNguoiNhan = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SoDienThoai = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DiaChiNhanHang = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhuongThucThanhToan = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ThoiGianDatHang = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TongTien = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentStatusId = table.Column<int>(type: "int", nullable: false),
@@ -261,25 +264,23 @@ namespace DynaDevAPI.Migrations
                 columns: table => new
                 {
                     MaChiTiet = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    MaDH = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MaSP = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaDH = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MaSP = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SoLuong = table.Column<int>(type: "int", nullable: false),
-                    Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DonHangMaDH = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SanPhamMaSP = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    Gia = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ChiTietDonHangs", x => x.MaChiTiet);
                     table.ForeignKey(
-                        name: "FK_ChiTietDonHangs_DonHangs_DonHangMaDH",
-                        column: x => x.DonHangMaDH,
+                        name: "FK_ChiTietDonHangs_DonHangs_MaDH",
+                        column: x => x.MaDH,
                         principalTable: "DonHangs",
                         principalColumn: "MaDH",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChiTietDonHangs_SanPhams_SanPhamMaSP",
-                        column: x => x.SanPhamMaSP,
+                        name: "FK_ChiTietDonHangs_SanPhams_MaSP",
+                        column: x => x.MaSP,
                         principalTable: "SanPhams",
                         principalColumn: "MaSP",
                         onDelete: ReferentialAction.Cascade);
@@ -288,7 +289,7 @@ namespace DynaDevAPI.Migrations
             migrationBuilder.InsertData(
                 table: "KhachHangs",
                 columns: new[] { "MaKH", "DiaChi", "Email", "MatKhau", "NgayDangKy", "SDT", "TenKH", "TinhTrang" },
-                values: new object[] { "KH01", "Hà Nội", "vana@gmail.com", "123456", new DateTime(2025, 2, 23, 12, 53, 27, 965, DateTimeKind.Local).AddTicks(4370), "0123456789", "Nguyễn Văn A", "Hoạt động" });
+                values: new object[] { "KH01", "Hà Nội", "vana@gmail.com", "123456", new DateTime(2025, 2, 26, 4, 35, 13, 257, DateTimeKind.Local).AddTicks(1546), "0123456789", "Nguyễn Văn A", "Hoạt động" });
 
             migrationBuilder.InsertData(
                 table: "LoaiSPs",
@@ -303,7 +304,7 @@ namespace DynaDevAPI.Migrations
             migrationBuilder.InsertData(
                 table: "NhanViens",
                 columns: new[] { "MaNV", "DiaChi", "Email", "Luong", "MatKhau", "NgayVaoLam", "SDT", "TenNV", "TinhTrang" },
-                values: new object[] { "NV01", "TP.HCM", "vanb@gmail.com", 0f, "admin123", new DateTime(2023, 2, 23, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(6550), "0987654321", "Trần Văn B", "Đang làm việc" });
+                values: new object[] { "NV01", "TP.HCM", "vanb@gmail.com", 0f, "admin123", new DateTime(2023, 2, 26, 4, 35, 13, 275, DateTimeKind.Local).AddTicks(7555), "0987654321", "Trần Văn B", "Đang làm việc" });
 
             migrationBuilder.InsertData(
                 table: "OrderStatuses",
@@ -329,11 +330,11 @@ namespace DynaDevAPI.Migrations
 
             migrationBuilder.InsertData(
                 table: "DonHangs",
-                columns: new[] { "MaDH", "DiaChiNhanHang", "MaKH", "MaNV", "MaVoucher", "OrderStatusId", "PaymentStatusId", "ThoiGianDatHang", "TongTien" },
+                columns: new[] { "MaDH", "DiaChiNhanHang", "MaKH", "MaNV", "MaVoucher", "OrderStatusId", "PaymentStatusId", "PhuongThucThanhToan", "SoDienThoai", "TenNguoiNhan", "ThoiGianDatHang", "TongTien" },
                 values: new object[,]
                 {
-                    { "DH001", "123 Đường Văn Học, Hà Nội", "KH01", "NV01", null, 1, 1, new DateTime(2025, 2, 20, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7417), 240000m },
-                    { "DH002", "456 Đường Khoa Học, TP.HCM", "KH01", "NV01", null, 3, 2, new DateTime(2025, 2, 21, 12, 53, 27, 967, DateTimeKind.Local).AddTicks(7948), 90000m }
+                    { "DH001", "123 Đường Văn Học, Hà Nội", "KH01", "NV01", null, 1, 1, null, null, null, new DateTime(2025, 2, 23, 4, 35, 13, 275, DateTimeKind.Local).AddTicks(9937), 240000m },
+                    { "DH002", "456 Đường Khoa Học, TP.HCM", "KH01", "NV01", null, 3, 2, null, null, null, new DateTime(2025, 2, 24, 4, 35, 13, 276, DateTimeKind.Local).AddTicks(1425), 90000m }
                 });
 
             migrationBuilder.CreateIndex(
@@ -342,14 +343,14 @@ namespace DynaDevAPI.Migrations
                 column: "MaSP");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChiTietDonHangs_DonHangMaDH",
+                name: "IX_ChiTietDonHangs_MaDH",
                 table: "ChiTietDonHangs",
-                column: "DonHangMaDH");
+                column: "MaDH");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChiTietDonHangs_SanPhamMaSP",
+                name: "IX_ChiTietDonHangs_MaSP",
                 table: "ChiTietDonHangs",
-                column: "SanPhamMaSP");
+                column: "MaSP");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DanhGias_KhachHangMaKH",

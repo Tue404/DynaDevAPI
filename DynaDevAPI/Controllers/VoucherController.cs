@@ -75,11 +75,21 @@ namespace DynaDevAPI.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return BadRequest(new { message = "Mã voucher không hợp lệ." });
+                }
                 var voucher = await _db.Vouchers.FindAsync(id);
 
                 if (voucher == null)
                 {
                     return NotFound(new { message = "Không tìm thấy voucher." });
+                }
+
+                // Kiểm tra trạng thái và hạn sử dụng
+                if (voucher.TrangThai != "Hoạt động" || DateTime.Now > voucher.NgayKetThuc)
+                {
+                    return BadRequest(new { message = "Voucher không hợp lệ hoặc đã hết hạn." });
                 }
 
                 return Ok(voucher);

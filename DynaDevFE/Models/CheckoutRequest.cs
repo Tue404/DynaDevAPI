@@ -10,5 +10,6 @@ namespace DynaDevFE.Models
         public string DiaChiNhanHang { get; set; }
         public string PaymentMethod { get; set; }
         public List<CartViewModel> CartItems { get; set; }
+        public string? MaVoucher { get; set; }
     }
 }

@@ -204,7 +204,7 @@
         <nav id="header-nav" class="navbar navbar-expand-lg py-3">
             <div class="container">
                 <a class="navbar-brand" href="index.html">
-                    <h1>DynaDev</h1>
+                    <h>DynaDev</h>
                 </a>
                 <button class="navbar-toggler d-flex d-lg-none order-3 p-2" type="button" data-bs-toggle="offcanvas"
                         data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -276,15 +276,6 @@
                                         </svg>
                                     </a>
                                 </li>
-
-                                <li class="wishlist-dropdown dropdown pe-3">
-                                    <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                                        <svg class="wishlist">
-                                            <use xlink:href="#heart"></use>
-                                        </svg>
-                                    </a>
-                                    <!-- Dropdown content -->
-                                </li>
                                 <li class="cart-dropdown dropdown">
                                     <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                                         <svg class="cart">
@@ -292,7 +283,19 @@
                                         </svg>
                                         <span class="fs-6 fw-light cart-count">0</span>
                                     </a>
-                                    <!-- Dropdown content -->
+                                    <div class="dropdown-menu animate slide dropdown-menu-start dropdown-menu-lg-end p-3">
+                                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="text-primary">Your Cart</span>
+                                            <span class="badge bg-primary rounded-pill cart-count">0</span>
+                                        </h4>
+                                        <ul class="list-group mb-3 cart-items">
+                                            <li class="list-group-item text-center text-muted">Giỏ hàng trống</li>
+                                        </ul>
+                                        <div class="d-flex flex-wrap justify-content-center">
+                                            <a asp-controller="Cart" asp-action="Index" class="w-100 btn btn-dark mb-1">Xem giỏ hàng</a>
+                                            <a href="checkout.html" class="w-100 btn btn-primary">Thanh toán</a>
+                                        </div>
+                                    </div>
                                 </li>
                             </ul>
                             <!-- Nút đăng nhập và đăng xuất -->
@@ -377,40 +380,6 @@
 
     </header>
 
-
-    <script>
-        // Hàm kiểm tra trạng thái đăng nhập
-        async function checkLoginStatus() {
-            const response = await fetch("/Authentication/CheckLoginStatus");
-            const data = await response.json();
-
-            const loginButton = document.getElementById("login-button");
-            const logoutButton = document.getElementById("logout-button");
-
-            if (data.isLoggedIn) {
-                loginButton.style.display = "none";
-                logoutButton.style.display = "block";
-            } else {
-                loginButton.style.display = "block";
-                logoutButton.style.display = "none";
-            }
-        }
-
-        // Hàm đăng xuất
-        function logout() {
-            fetch("/Authentication/Logout", { method: "POST" })
-                .then(() => {
-                    window.location.reload(); // Tải lại trang để cập nhật trạng thái
-                });
-        }
-
-        // Kiểm tra trạng thái đăng nhập khi trang được tải
-        document.addEventListener("DOMContentLoaded", checkLoginStatus);
-    </script>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js"></script>
     <div>
         @RenderBody()
     </div>
@@ -592,6 +561,10 @@
             --df-messenger-button-titlebar-color: #71a3c1; /* Màu xanh lá cho tiêu đề */
         }
     </style>
+
+@*     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script> *@
     <script src="~/js/jquery-1.11.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -599,6 +572,35 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
 
     <script type="text/javascript" src="~/js/script.js"></script>
+    <script>
+        // Hàm kiểm tra trạng thái đăng nhập
+        async function checkLoginStatus() {
+            const response = await fetch("/Authentication/CheckLoginStatus");
+            const data = await response.json();
+
+            const loginButton = document.getElementById("login-button");
+            const logoutButton = document.getElementById("logout-button");
+
+            if (data.isLoggedIn) {
+                loginButton.style.display = "none";
+                logoutButton.style.display = "block";
+            } else {
+                loginButton.style.display = "block";
+                logoutButton.style.display = "none";
+            }
+        }
+
+        // Hàm đăng xuất
+        function logout() {
+            fetch("/Authentication/Logout", { method: "POST" })
+                .then(() => {
+                    window.location.reload(); // Tải lại trang để cập nhật trạng thái
+                });
+        }
+
+        // Kiểm tra trạng thái đăng nhập khi trang được tải
+        document.addEventListener("DOMContentLoaded", checkLoginStatus);
+    </script>
     <script>
         $(document).ready(function () {
             function getCart() {
@@ -710,10 +712,9 @@
                     if (data.length > 0) {
                         $.each(data, function (index, item) {
                             dropdown.append(`
-                                <li><a class="dropdown-item" href="/DanhMuc/Index?maLoai=${item.maLoai}">${item.tenLoai}</a></li>
-                            `);
-
-                               });
+                                    <li><a class="dropdown-item" href="/DanhMuc/Index?maLoai=${item.maLoai}">${item.tenLoai}</a></li>
+                                `);
+                        });
                     } else {
                         dropdown.append('<li class="dropdown-item text-muted">Không có danh mục</li>');
                     }
@@ -725,6 +726,7 @@
             });
         });
     </script>
+
 
 </body>
 </html>

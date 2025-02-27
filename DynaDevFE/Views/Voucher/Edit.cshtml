@@ -47,22 +47,23 @@
 
     <div class="mb-3">
         <label asp-for="NgayBatDau" class="form-label">Ngày Bắt Đầu</label>
-        <input asp-for="NgayBatDau" type="date" class="form-control" required />
+        <input asp-for="NgayBatDau" type="date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="NgayBatDau" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="NgayKetThuc" class="form-label">Ngày Kết Thúc</label>
-        <input asp-for="NgayKetThuc" type="date" class="form-control" required />
+        <input asp-for="NgayKetThuc" type="date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
     </div>
 
     <div class="mb-3">
         <label asp-for="DieuKien" class="form-label">Điều Kiện</label>
         <select asp-for="DieuKien" class="form-select" required>
-            <option value="Sản phẩm trên 50.000V">Trên 50.000VND</option>
-            <option value="Sản phẩm trên 100.000VND">Trên 100.000VND</option>
-            <option value="Sản phẩm trên 150.000VND">Trên 150.000VND</option>
-            <option value="Sản phẩm trên 200.000VND">Trên 200.000VND</option>
-            <option value="Sản phẩm trên 250.000VND">Trên 250.000VND</option>
+            <option value="50000">Trên 50.000VND</option>
+            <option value="100000">Trên 100.000VND</option>
+            <option value="150000">Trên 150.000VND</option>
+            <option value="200000">Trên 200.000VND</option>
+            <option value="250000">Trên 250.000VND</option>
         </select>
     </div>
 
