@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DynaDevFE.Controllers
 {
+    [Authorize(Policy = "AdminOnly")]
     public class StatisticalController : Controller
     {
         private readonly HttpClient _httpClient;

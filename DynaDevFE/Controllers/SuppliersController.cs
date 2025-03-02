@@ -1,5 +1,6 @@
 ﻿using DynaDevAPI.Models;
 using DynaDevFE.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text;
@@ -8,36 +9,36 @@ using System.Threading.Tasks;
 
 namespace DynaDevFE.Controllers
 {
-    
+    [Authorize(Policy = "AdminOnly")]
     public class SuppliersController : Controller
-{
-    private readonly HttpClient _httpClient;
-
-    public SuppliersController(HttpClient httpClient)
     {
-        _httpClient = httpClient;
-    }
+        private readonly HttpClient _httpClient;
 
-    // GET: Suppliers/Index
-    public async Task<IActionResult> Index()
-    {
-        var response = await _httpClient.GetAsync("https://localhost:7101/api/Suppliers");
-
-        if (response.IsSuccessStatusCode)
+        public SuppliersController(HttpClient httpClient)
         {
-            var nhaCungCaps = await response.Content.ReadFromJsonAsync<List<NhaCungCapViewModel>>();
-            return View(nhaCungCaps);
+            _httpClient = httpClient;
         }
 
-        ModelState.AddModelError(string.Empty, "Không thể tải danh sách nhà cung cấp.");
-        return View();
-    }
+        // GET: Suppliers/Index
+        public async Task<IActionResult> Index()
+        {
+            var response = await _httpClient.GetAsync("https://localhost:7101/api/Suppliers");
 
-    // GET: Suppliers/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
+            if (response.IsSuccessStatusCode)
+            {
+                var nhaCungCaps = await response.Content.ReadFromJsonAsync<List<NhaCungCapViewModel>>();
+                return View(nhaCungCaps);
+            }
+
+            ModelState.AddModelError(string.Empty, "Không thể tải danh sách nhà cung cấp.");
+            return View();
+        }
+
+        // GET: Suppliers/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create(NhaCungCapViewModel model)
@@ -64,21 +65,21 @@ namespace DynaDevFE.Controllers
         // GET: Suppliers/Edit/{id}
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
-    {
-        if (id == null)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var response = await _httpClient.GetAsync($"https://localhost:7101/api/Suppliers/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var nhaCungCap = await response.Content.ReadFromJsonAsync<NhaCungCapViewModel>();
+                return View(nhaCungCap);
+            }
+
             return NotFound();
         }
-
-        var response = await _httpClient.GetAsync($"https://localhost:7101/api/Suppliers/{id}");
-        if (response.IsSuccessStatusCode)
-        {
-            var nhaCungCap = await response.Content.ReadFromJsonAsync<NhaCungCapViewModel>();
-            return View(nhaCungCap);
-        }
-
-        return NotFound();
-    }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -111,39 +112,39 @@ namespace DynaDevFE.Controllers
 
         // GET: Suppliers/Delete/{id}
         public async Task<IActionResult> Delete(string id)
-    {
-        if (id == null)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var response = await _httpClient.GetAsync($"https://localhost:7101/api/Suppliers/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var nhaCungCap = await response.Content.ReadFromJsonAsync<NhaCungCapViewModel>();
+                return View(nhaCungCap);
+            }
+
             return NotFound();
         }
 
-        var response = await _httpClient.GetAsync($"https://localhost:7101/api/Suppliers/{id}");
-        if (response.IsSuccessStatusCode)
+        // POST: Suppliers/Delete/{id}
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var nhaCungCap = await response.Content.ReadFromJsonAsync<NhaCungCapViewModel>();
-            return View(nhaCungCap);
-        }
+            var response = await _httpClient.DeleteAsync($"https://localhost:7101/api/Suppliers/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Không thể xóa nhà cung cấp.");
+            }
 
-        return NotFound();
+            return View();
+        }
     }
-
-    // POST: Suppliers/Delete/{id}
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string id)
-    {
-        var response = await _httpClient.DeleteAsync($"https://localhost:7101/api/Suppliers/{id}");
-        if (response.IsSuccessStatusCode)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-        else
-        {
-            ModelState.AddModelError(string.Empty, "Không thể xóa nhà cung cấp.");
-        }
-
-        return View();
-    }
-}
 
 }

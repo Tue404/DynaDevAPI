@@ -49,6 +49,7 @@ namespace DynaDevFE.Controllers
                         MoTa = sanPhamDto.MoTa,
                         TinhTrang = sanPhamDto.TinhTrang,
                         SoLuongTrongKho = sanPhamDto.SoLuongTrongKho,
+                        DaBan = sanPhamDto.DaBan,
                         DanhSachAnh = sanPhamDto.DanhSachAnh ?? new List<string>(),
                         DanhGiaSanPham = sanPhamDto.DanhGiaSanPham?.Select(d => new DanhGiaViewModel
                         {

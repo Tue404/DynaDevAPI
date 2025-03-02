@@ -14,6 +14,7 @@ namespace DynaDevAPI.Models
         public decimal Gia { get; set; }
         public string MoTa { get; set; }
         public int SoLuongTrongKho { get; set; }
+        public int DaBan { get; set; }
         public string TinhTrang { get; set; }
         public string MaNCC { get; set; }
         public List<string> DanhSachAnh { get; set; } = new List<string>();

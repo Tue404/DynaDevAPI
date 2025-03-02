@@ -1,5 +1,6 @@
 ﻿using DynaDevAPI.Models;
 using DynaDevFE.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Text.Json;
 
 namespace DynaDevFE.Controllers
 {
+    [Authorize(Policy = "AdminOnly")]
     public class CommetController : Controller
     {
         private readonly HttpClient _httpClient;

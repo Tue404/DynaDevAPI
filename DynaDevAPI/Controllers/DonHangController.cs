@@ -177,6 +177,21 @@ namespace DynaDevAPI.Controllers
                 _db.DonHangs.Add(donHang);
                 foreach (var sp in request.GioHang)
                 {
+                    var product = await _db.SanPhams.FirstOrDefaultAsync(p => p.MaSP == sp.MaSP);
+                    if (product != null)
+                    {
+                        if (product.SoLuongTrongKho < sp.SoLuong)
+                        {
+                            return BadRequest(new { Success = false, Message = $"Số lượng sản phẩm '{product.TenSanPham}' trong kho không đủ!" });
+                        }
+                        product.SoLuongTrongKho -= sp.SoLuong;
+                        product.DaBan += sp.SoLuong;
+                        _db.SanPhams.Update(product);
+                    }
+                    else
+                    {
+                        return BadRequest(new { Success = false, Message = $"Không tìm thấy sản phẩm với mã '{sp.MaSP}'!" });
+                    }
                     var chiTiet = new ChiTietDonHang
                     {
                         MaChiTiet = Guid.NewGuid().ToString(),
@@ -369,6 +384,21 @@ namespace DynaDevAPI.Controllers
                 _db.DonHangs.Add(donHang);
                 foreach (var sp in request.GioHang)
                 {
+                    var product = await _db.SanPhams.FirstOrDefaultAsync(p => p.MaSP == sp.MaSP);
+                    if (product != null)
+                    {
+                        if (product.SoLuongTrongKho < sp.SoLuong)
+                        {
+                            return BadRequest(new { Success = false, Message = $"Số lượng sản phẩm '{product.TenSanPham}' trong kho không đủ!" });
+                        }
+                        product.SoLuongTrongKho -= sp.SoLuong;
+                        product.DaBan += sp.SoLuong;
+                        _db.SanPhams.Update(product);
+                    }
+                    else
+                    {
+                        return BadRequest(new { Success = false, Message = $"Không tìm thấy sản phẩm với mã '{sp.MaSP}'!" });
+                    }
                     var chiTiet = new ChiTietDonHang
                     {
                         MaChiTiet = Guid.NewGuid().ToString(),

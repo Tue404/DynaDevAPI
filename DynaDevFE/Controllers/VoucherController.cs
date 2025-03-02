@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using DynaDevAPI.Models;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DynaDevFE.Controllers
 {
+    [Authorize(Policy = "AdminOnly")]
     public class VoucherController : Controller
     {
         private readonly HttpClient _httpClient;

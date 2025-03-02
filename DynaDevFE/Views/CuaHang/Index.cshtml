@@ -135,54 +135,73 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Lắng nghe sự kiện nhập liệu trong ô tìm kiếm
         $("#searchQuery").on("input", function () {
-            let query = $(this).val().trim(); // Lấy giá trị từ khóa
+            let query = $(this).val().trim();
+            console.log("Search query:", query);
 
-            // Nếu từ khóa không trống, gửi request để lấy danh sách sản phẩm mới
             if (query) {
-                $.get("@Url.Action("Index", "CuaHang")", { searchQuery: query }, function (data) {
-                    // Làm rỗng danh sách cũ
+                $.get("https://localhost:7101/api/Products/Search", { query: query }, function (data) {
+                    console.log("Response data:", data);
                     $('#productList').empty();
 
-                    // Cập nhật danh sách sản phẩm mới
-                    data.forEach(function (product) {
-                        $('#productList').append(`
-                                <div class="col-md-4 mb-4">
-                                    <div class="card shadow-lg">
-                                        <img src="${product.danhSachAnh?.length > 0 ? '/images/' + product.danhSachAnh[0] : '/images/default.jpg'}" class="card-img-top" alt="${product.tenSanPham}" />
-                                        <div class="card-body">
-                                            <h5 class="card-title text-center text-primary">${product.tenSanPham}</h5>
-                                            <p class="card-text">${product.moTa}</p>
-                                            <p class="font-weight-bold">Giá: <span class="text-danger">${product.gia.toLocaleString()} VNĐ</span></p>
-                                            <p><b>Ngày xuất bản:</b> ${product.namXuatBan}</p>
-                                            <a href="#" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(function (product) {
+                            let imageUrl = product.danhSachAnh && product.danhSachAnh.length > 0
+                                ? product.danhSachAnh[0]
+                                : '/Products/default.jpg';
+
+                            $('#productList').append(`
+                                        <div class="col-md-3 mb-4"> <!-- Đổi từ col-md-4 sang col-md-3 -->
+                                            <div class="card shadow-lg">
+                                                <img src="${imageUrl}" class="card-img-top" alt="${product.tenSanPham}" />
+                                                <div class="card-body">
+                                                    <h5 class="card-title text-center text-primary">${product.tenSanPham}</h5>
+                                                    <p class="font-weight-bold">Giá: <span class="text-danger">${product.gia.toLocaleString()} VNĐ</span></p>
+                                                    <p><b>Ngày xuất bản:</b> ${product.namXuatBan || 'N/A'}</p>
+                                                    <a href="#" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            `);
-                    });
+                                    `);
+                        });
+                    } else {
+                        $('#productList').append('<p class="text-muted text-center">Không tìm thấy sản phẩm nào.</p>');
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Ajax error:", textStatus, errorThrown);
+                    $('#productList').empty().append('<p class="text-muted text-center">Lỗi khi tải dữ liệu.</p>');
                 });
             } else {
-                // Nếu không có từ khóa, hiển thị lại danh sách gốc
-                $.get("@Url.Action("Index", "CuaHang")", function (data) {
+                $.get("https://localhost:7101/api/Products", function (data) {
+                    console.log("Default data:", data);
                     $('#productList').empty();
-                    data.forEach(function (product) {
-                        $('#productList').append(`
-                                <div class="col-md-4 mb-4">
-                                    <div class="card shadow-lg">
-                                        <img src="${product.danhSachAnh?.length > 0 ? '/images/' + product.danhSachAnh[0] : '/images/default.jpg'}" class="card-img-top" alt="${product.tenSanPham}" />
-                                        <div class="card-body">
-                                            <h5 class="card-title text-center text-primary">${product.tenSanPham}</h5>
-                                            <p class="card-text">${product.moTa}</p>
-                                            <p class="font-weight-bold">Giá: <span class="text-danger">${product.gia.toLocaleString()} VNĐ</span></p>
-                                            <p><b>Ngày xuất bản:</b> ${product.namXuatBan}</p>
-                                            <a href="#" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(function (product) {
+                            let imageUrl = product.danhSachAnh && product.danhSachAnh.length > 0
+                                ? product.danhSachAnh[0]
+                                : '/Products/default.jpg';
+
+                            $('#productList').append(`
+                                        <div class="col-md-3 mb-4"> <!-- Đổi từ col-md-4 sang col-md-3 -->
+                                            <div class="card shadow-lg">
+                                                <img src="${imageUrl}" class="card-img-top" alt="${product.tenSanPham}" />
+                                                <div class="card-body">
+                                                    <h5 class="card-title text-center text-primary">${product.tenSanPham}</h5>
+                                                    <p class="font-weight-bold">Giá: <span class="text-danger">${product.gia.toLocaleString()} VNĐ</span></p>
+                                                    <p><b>Ngày xuất bản:</b> ${product.namXuatBan || 'N/A'}</p>
+                                                    <a href="/ProductDetails/Details/${product.maSP}" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            `);
-                    });
+                                    `);
+                        });
+                    } else {
+                        $('#productList').append('<p class="text-muted text-center">Không có sản phẩm nào trong danh mục này.</p>');
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Ajax error:", textStatus, errorThrown);
+                    $('#productList').empty().append('<p class="text-muted text-center">Lỗi khi tải dữ liệu.</p>');
                 });
             }
         });

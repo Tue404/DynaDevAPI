@@ -38,6 +38,7 @@ namespace DynaDevAPI.Controllers
                 MaSP = sanPham.MaSP,
                 MaLoai = sanPham.MaLoai,
                 SoLuongTrongKho = sanPham.SoLuongTrongKho,
+                DaBan = sanPham.DaBan,
                 TenSanPham = sanPham.TenSanPham,
                 TacGia = sanPham.TacGia,
                 TenNCC = sanPham.NhaXuatBan,

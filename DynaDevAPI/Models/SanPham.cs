@@ -28,6 +28,7 @@ namespace DynaDevAPI.Models
         //[Required(ErrorMessage = "Số lượng trong kho không được để trống.")]
         //[Range(0, int.MaxValue, ErrorMessage = "Số lượng trong kho phải là số nguyên dương.")]
         public int SoLuongTrongKho { get; set; }
+        public int DaBan { get; set; }
 
         public DateTime NgayThem { get; set; }
         //[Required(ErrorMessage = "Tình trạng không được để trống.")]

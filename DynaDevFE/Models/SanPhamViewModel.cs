@@ -43,6 +43,8 @@ namespace DynaDevFE.Models
         [Required(ErrorMessage = "Số lượng trong kho không được để trống.")]
         [Range(0, int.MaxValue, ErrorMessage = "Số lượng trong kho phải là số nguyên dương.")]
         public int SoLuongTrongKho { get; set; }
+        [JsonPropertyName("daBan")]
+        public int DaBan { get; set; }
 
         [JsonPropertyName("ngayThem")]
         public DateTime NgayThem { get; set; }

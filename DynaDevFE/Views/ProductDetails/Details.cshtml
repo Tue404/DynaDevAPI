@@ -42,13 +42,13 @@
         <!-- Giá sản phẩm -->
         <p class="product-price">
             <span class="current-price">@String.Format("{0:N0} VND", @Model.Gia)</span>
-            <span class="original-price">159,000 VND</span>
-            <span class="discount">-50%</span>
+          @*   <span class="original-price">159,000 VND</span>
+            <span class="discount">-50%</span> *@
         </p>
 
         <!-- Tình trạng -->
         <p class="product-stock"><strong>Tình trạng:</strong> @Model.TinhTrang</p>
-        <p class="product-sold"><strong>Đã bán:</strong> 204</p>
+        <p class="product-sold"><strong>Đã bán:</strong> @Model.DaBan</p>
 
         <!-- Nút hành động -->
         <div class="product-actions">
@@ -350,18 +350,14 @@
         console.log("Updated cart display:", cart);
     }
 
-    // Hàm xóa sản phẩm (đã có trong script của bạn, giữ nguyên)
     function removeItem(maSP) {
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
         let newCart = cart.filter(item => item.MaSP !== maSP);
 
-        // Cập nhật lại localStorage
         localStorage.setItem("cart", JSON.stringify(newCart));
 
-        // Xóa sản phẩm khỏi bảng hiển thị
         document.querySelector(`tr[data-id='${maSP}']`).remove();
 
-        // Cập nhật lại tổng tiền và số lượng sản phẩm
         updateTotal();
     }
 

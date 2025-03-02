@@ -162,9 +162,6 @@ namespace DynaDevAPI.Data
         }
 
 
-
-
-
         [HttpPost("UploadImages")]
         public async Task<IActionResult> UploadImages(List<IFormFile> files, string maSP)
         {

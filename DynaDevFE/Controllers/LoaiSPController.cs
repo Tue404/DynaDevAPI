@@ -1,5 +1,6 @@
 ﻿using DynaDevAPI.Models;
 using DynaDevFE.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace DynaDevFE.Controllers
 {
+    [Authorize(Policy = "AdminOnly")]
     public class LoaiSPController : Controller
     {
 

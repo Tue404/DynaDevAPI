@@ -84,11 +84,13 @@ namespace DynaDevAPI.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            var role = user.Email == "admin@gmail.com" ? "Admin" : "User";
+
             var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Name, user.MaKH),
         new Claim(ClaimTypes.Email, user.Email),
-        new Claim("Role", "User")
+       new Claim(ClaimTypes.Role, role)
     };
 
             var token = new JwtSecurityToken(
@@ -123,6 +125,7 @@ namespace DynaDevAPI.Controllers
             }
 
             var token = GenerateJwtToken(user);
+            var role = user.Email == "admin@gmail.com" ? "Admin" : "User";
 
             // ✅ Trả về Token + MaKH + Role
             return Ok(new
@@ -131,6 +134,7 @@ namespace DynaDevAPI.Controllers
                 message = "Đăng nhập thành công",
                 token = token,
                 MaKH = user.MaKH, // ✅ Trả về MaKH
+                Role = role,
             });
         }   
 
@@ -150,9 +154,17 @@ namespace DynaDevAPI.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("JwtToken");
-            Response.Cookies.Delete("UserRole");
-            Response.Cookies.Delete("MaKH");
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(-1) // Đặt thời gian hết hạn về quá khứ
+            };
+
+            Response.Cookies.Delete("JwtToken", cookieOptions);
+            Response.Cookies.Delete("UserRole", cookieOptions);
+            Response.Cookies.Delete("MaKH", cookieOptions);
 
             return Ok(new { success = true, message = "Đăng xuất thành công!" });
         }

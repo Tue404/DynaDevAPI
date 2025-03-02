@@ -5,10 +5,12 @@ using DynaDevFE.Models;
 using DynaDevAPI.Models;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace DynaDevFE.Controllers
 {
+    [Authorize(Policy = "AdminOnly")]
     public class ProductsController : Controller
     {
 
@@ -89,6 +91,8 @@ namespace DynaDevFE.Controllers
                 return Json(new List<SanPhamViewModel>()); // Xử lý lỗi bằng cách trả về danh sách rỗng
             }
         }
+
+
 
 
         public async Task<IActionResult> Details(string id)
@@ -482,7 +486,7 @@ namespace DynaDevFE.Controllers
                 }
                 return View(productViewModel);
             }
-
+            TempData["Success"] = "Sửa sản phẩm thành công!";
             return RedirectToAction("Index");
         }
     }

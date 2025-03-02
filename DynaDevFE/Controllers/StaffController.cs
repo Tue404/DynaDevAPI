@@ -1,5 +1,6 @@
 ﻿using DynaDevAPI.Models;
 using DynaDevFE.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Text.Json;
 
 namespace DynaDevFE.Controllers
 {
+    [Authorize(Policy = "AdminOnly")]
     public class StaffController : Controller
     {
 

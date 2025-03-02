@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using DynaDevAPI.Data;
 using DynaDevAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DynaDevAPI.Controllers
 {
+    [Authorize(Policy = "AdminOnly")]
     [Route("api/[controller]")]
     [ApiController]
     public class KhachHangsController : ControllerBase

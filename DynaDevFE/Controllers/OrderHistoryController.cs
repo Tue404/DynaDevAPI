@@ -20,7 +20,7 @@ public class OrderHistoryController : Controller
 
         if (string.IsNullOrEmpty(maKH))
         {
-            return RedirectToAction("DangNhap", "TaiKhoan");
+            return RedirectToAction("Index", "Home");
         }
 
         ViewBag.MaKH = maKH;

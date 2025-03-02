@@ -1,16 +1,16 @@
 ﻿@model List<DynaDevFE.Models.SanPhamViewModel>
 
-    <h2 class="text-center mb-4">Danh sách sản phẩm</h2>
+<h2 class="text-center mb-4">Danh sách sản phẩm</h2>
 
-    <!-- Ô tìm kiếm sản phẩm -->
-    <input type="text" id="searchQuery" class="form-control mb-4" placeholder="Tìm kiếm sản phẩm..." />
+<!-- Ô tìm kiếm sản phẩm -->
+<input type="text" id="searchQuery" class="form-control mb-4" placeholder="Tìm kiếm sản phẩm..." />
 
-    <!-- Danh sách sản phẩm -->
-    <div class="row" id="productList">
-        @foreach (var product in Model)
-        {
-            <div class="col-md-3 mb-3">
-                <div class="card shadow-lg">
+<!-- Danh sách sản phẩm -->
+<div class="row" id="productList">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-lg">
                 @if (product.DanhSachAnh != null && product.DanhSachAnh.Any())
                 {
                     <img src="@product.DanhSachAnh.First()" alt="Ảnh sản phẩm" />
@@ -19,22 +19,17 @@
                 {
                     <span>Chưa có ảnh</span>
                 }
-                    <div class="card-body">
-                        <h5 class="card-title text-center text-primary">@product.TenSanPham</h5>
-                        <p class="font-weight-bold">Giá: <span class="text-danger">@product.Gia.ToString("N0") VNĐ</span></p>
-                        <p><b>Ngày xuất bản:</b> @product.NamXuatBan</p>
+                <div class="card-body">
+                    <h5 class="card-title text-center text-primary">@product.TenSanPham</h5>
+                    <p class="font-weight-bold">Giá: <span class="text-danger">@product.Gia.ToString("N0") VNĐ</span></p>
+                    <p><b>Ngày xuất bản:</b> @product.NamXuatBan</p>
                     <a class="btn btn-primary w-100 mt-2" href="@Url.Action("Details","ProductDetails", new { id = product.MaSP})">Xem chi tiết</a>
-                    </div>
                 </div>
             </div>
-        }
-    </div>
-
-    <!-- Nếu không có sản phẩm nào -->
-    @if (!Model.Any())
-    {
-        <p class="text-muted text-center">Không có sản phẩm nào trong danh mục này.</p>
+        </div>
     }
+</div>
+
 
 
 <style>
@@ -130,53 +125,84 @@
 </style>
 
 
+<!-- Nếu không có sản phẩm nào -->
+@if (!Model.Any())
+{
+    <p class="text-muted text-center">Không có sản phẩm nào trong danh mục này.</p>
+}
 
+<!-- Thêm script xử lý tìm kiếm -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Lắng nghe sự kiện input (khi người dùng gõ vào ô tìm kiếm)
         $("#searchQuery").on("input", function () {
-            let query = $(this).val().trim();  // Lấy giá trị từ khóa tìm kiếm
-
-            // Đảm bảo xóa sản phẩm cũ trong #productList
-            $('#productList').empty();
+            let query = $(this).val().trim();
+            console.log("Search query:", query);
 
             if (query) {
-                $.ajax({
-                    url: "https://localhost:7101/api/Products/Search",  // API tìm kiếm sản phẩm
-                    type: "GET",
-                    data: { query: query },  // Truyền từ khóa tìm kiếm
-                    success: function (data) {
-                        if (data.length > 0) {
-                            data.forEach(function (product) {
-                                $('#productList').append(`
-                                        <li class="col-md-4 mb-4">
-                                            <div class="card h-100 shadow-sm">
-                                                <img src="${product.danhSachAnh.length > 0 ? '/images/' + product.danhSachAnh[0] : '/images/default.jpg'}" class="card-img-top" alt="${product.tenSanPham}" />
-                                                <div class="card-body">
-                                                    <h5 class="card-title">${product.tenSanPham}</h5>
-                                                    <p class="card-text">${product.moTa}</p>
-                                                    <p><b>Giá:</b> ${product.gia.toLocaleString()} VNĐ</p>
-                                                    <p><b>Ngày xuất bản:</b> ${product.namXuatBan}</p>
-                                                </div>
-                                                <div class="card-footer text-center">
-                                                    <a href="#" class="btn btn-primary">Xem chi tiết</a>
+                $.get("https://localhost:7101/api/Products/Search", { query: query }, function (data) {
+                    console.log("Response data:", data);
+                    $('#productList').empty();
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(function (product) {
+                            let imageUrl = product.danhSachAnh && product.danhSachAnh.length > 0
+                                ? product.danhSachAnh[0]
+                                : '/Products/default.jpg';
+
+                            $('#productList').append(`
+                                            <div class="col-md-3 mb-4"> <!-- Đổi từ col-md-4 sang col-md-3 -->
+                                                <div class="card shadow-lg">
+                                                    <img src="${imageUrl}" class="card-img-top" alt="${product.tenSanPham}" />
+                                                    <div class="card-body">
+                                                        <h5 class="card-title text-center text-primary">${product.tenSanPham}</h5>
+                                                        <p class="font-weight-bold">Giá: <span class="text-danger">${product.gia.toLocaleString()} VNĐ</span></p>
+                                                        <p><b>Ngày xuất bản:</b> ${product.namXuatBan || 'N/A'}</p>
+                                                        <a href="#" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </li>
-                                    `);
-                            });
-                        } else {
-                            $('#productList').append('<li class="text-muted">Không có sản phẩm nào phù hợp với từ khóa tìm kiếm.</li>');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Lỗi khi tìm kiếm sản phẩm:", error);
-                        $('#productList').empty().append('<li class="text-danger">Lỗi khi tải sản phẩm.</li>');
+                                        `);
+                        });
+                    } else {
+                        $('#productList').append('<p class="text-muted text-center">Không tìm thấy sản phẩm nào.</p>');
                     }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Ajax error:", textStatus, errorThrown);
+                    $('#productList').empty().append('<p class="text-muted text-center">Lỗi khi tải dữ liệu.</p>');
                 });
             } else {
-                $('#productList').empty().append('<li class="text-muted">Vui lòng nhập từ khóa tìm kiếm.</li>');
+                $.get("https://localhost:7101/api/Products", function (data) {
+                    console.log("Default data:", data);
+                    $('#productList').empty();
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(function (product) {
+                            let imageUrl = product.danhSachAnh && product.danhSachAnh.length > 0
+                                ? product.danhSachAnh[0]
+                                : '/Products/default.jpg';
+
+                            $('#productList').append(`
+                                            <div class="col-md-3 mb-4"> <!-- Đổi từ col-md-4 sang col-md-3 -->
+                                                <div class="card shadow-lg">
+                                                    <img src="${imageUrl}" class="card-img-top" alt="${product.tenSanPham}" />
+                                                    <div class="card-body">
+                                                        <h5 class="card-title text-center text-primary">${product.tenSanPham}</h5>
+                                                        <p class="font-weight-bold">Giá: <span class="text-danger">${product.gia.toLocaleString()} VNĐ</span></p>
+                                                        <p><b>Ngày xuất bản:</b> ${product.namXuatBan || 'N/A'}</p>
+                                                        <a href="/ProductDetails/Details/${product.maSP}" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `);
+                        });
+                    } else {
+                        $('#productList').append('<p class="text-muted text-center">Không có sản phẩm nào trong danh mục này.</p>');
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Ajax error:", textStatus, errorThrown);
+                    $('#productList').empty().append('<p class="text-muted text-center">Lỗi khi tải dữ liệu.</p>');
+                });
             }
         });
     });
